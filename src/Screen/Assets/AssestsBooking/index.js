@@ -1,6 +1,6 @@
 import React, { useEffect,useState } from "react";
 import {View,Text, StyleSheet, ScrollView, TouchableOpacity, Alert, FlatList} from 'react-native';
-import { TextInput } from "react-native-paper";
+import { TextInput, Title } from "react-native-paper";
 import moment from 'moment';
 import { Dropdown } from "react-native-element-dropdown";
 import axios from "axios";
@@ -36,15 +36,15 @@ const styles=StyleSheet.create({
     },
     formAction:{
         padding:10,
-        borderColor:'red',
+        borderColor:'#04487b',
         borderWidth:1,
         alignItems:'center',
         width:100
       },
       formAction1:{
         padding:10,
-        backgroundColor:'black',
-        borderColor:'black',
+        backgroundColor:'#04487b',
+        borderColor:'#04487b',
         borderWidth:1,
         width:100,
         alignItems:'center',
@@ -63,7 +63,7 @@ const AssetsBooking=({navigation,route})=>{
     const [toDate,setToDate]=React.useState();
     const [activeSheet,setActiveSheet]=React.useState('Form')
     const [fromDate,setFromDate]=React.useState();
-    const [descrption,setDescrption]=React.useState();
+    const [descrption,setDescrption]=React.useState('');
     const [category,setCategory]=React.useState();
     const [categoryList,setCategoryList]=React.useState([])
     const [userId,setUserId]=React.useState();
@@ -89,7 +89,7 @@ const AssetsBooking=({navigation,route})=>{
                 'Content-Type': 'multipart/form-data',
             },
         }).then(res => {
-          console.log(" assets location  list.",res?.data?.location_list)
+          //console.log(" assets location  list.",res?.data?.location_list)
           var prevCatList = res?.data?.location_list.map(car => ({ value: car?.location_id, label: car?.location_name }));
           setCategoryList(prevCatList)
           if(res.data.status == 1){
@@ -126,9 +126,9 @@ const AssetsBooking=({navigation,route})=>{
             .format('DD/MM/YYYY') + moment(fromDate)
             .format(' hh:mm'),
             use:category,
-            description:"asfadf"
+            description:descrption
           }
-          console.log("aessets Booking . form",formData)
+          //console.log("aessets Booking . form",formData)
           axios({
               url: `${API_BASE_URL}asset_booking`,
               method: 'POST',
@@ -138,9 +138,9 @@ const AssetsBooking=({navigation,route})=>{
                   'Content-Type': 'multipart/form-data',
               },
           }).then(res => {
-            console.log("vikas asset_booking page..",res)
+            //console.log("vikas asset_booking page..",res)
             setLoader(false)
-            console.log("vikas asset_booking page..",res)
+            //console.log("vikas asset_booking page..",res)
             if(res.data.status == 1){
                 alert("Assets Booking Successfully")
                 navigation.goBack()
@@ -185,45 +185,47 @@ const AssetsBooking=({navigation,route})=>{
         );
       };
       const ItemView = ({ item }) => {
-        console.log("Booking list view object",item)
+        //console.log("Booking list view object",item)
         return (
-          <View style={{ padding: 10, backgroundColor: '#FFF', borderRadius: 10 }} >
-            <View>
-              <Text>
-              nome_asset: {item?.asset_name}</Text>
-              <Text>Booking From  :{item?.date_from}</Text>
-              <Text>Booking To: {item?.date_to}</Text>
-              <Text>Location: {item?.location_use}</Text>
-              <Text>Description {item?.description}</Text>
+          <View style={{ padding: 10, backgroundColor: '#FFF', borderRadius: 10, marginLeft: 10, marginRight: 10 }}>
+            <View style={{ flex: 1, flexDirection: 'row', alignContent: 'space-between'}}>
+                <View style={{ flex: 1, flexDirection: 'row'}}>
+                    <View style={{flex: 1, flexDirection: 'column'}}>
+                        <Text style={{ fontSize: 12 }}><Title style={{ fontSize: 12, color: 'black', lineHeight: 20 }}>Nome articolo: </Title>{item?.asset_name}</Text>
+                        <Text style={{ fontSize: 12 }}><Title style={{ fontSize: 12, color: 'black', lineHeight: 20 }}>Nome posizione: </Title>{item?.location_use}</Text>
+                        <Text style={{ fontSize: 12 }}><Title style={{ fontSize: 12, color: 'black', lineHeight: 20}}>Data da: </Title>{item?.date_from}</Text>
+                        <Text style={{ fontSize: 12 }}><Title style={{ fontSize: 12, color: 'black', lineHeight: 20}}>Descrizione: </Title>{item?.description}</Text>
+                    </View>
+                </View>
             </View>
-          </View>
+        </View>
+          
         );
       };
     return(
-        <View>
-            <ScrollView>
+        <View style={{ flex: 1, flexGrow: 1}}>
+            
             <View style={{flexDirection:'row',alignSelf:'center',marginTop:10,borderRadius:20}}>
-        <TouchableOpacity onPress={()=>setActiveSheet('List')}>
-          <View style={activeSheet==="List"?[styles.formAction1,{borderTopLeftRadius:20,borderBottomLeftRadius:20}]:[styles.formAction,{borderTopLeftRadius:20,borderBottomLeftRadius:20}]}>
-            <Text style={activeSheet==="List"?styles.formActionText1:styles.formActionText}>List</Text></View>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={()=>setActiveSheet('Form')}>
-          <View style={activeSheet==="Form"?[styles.formAction1,{borderTopRightRadius:20,borderBottomRightRadius:20}]:[styles.formAction,{borderTopRightRadius:20,borderBottomRightRadius:20}]}
-          ><Text style={activeSheet==="Form"?styles.formActionText1:styles.formActionText} >Form</Text></View>
-        </TouchableOpacity>
-      </View>
-        {activeSheet==="List"?
-
-<>
-<Text style={{alignSelf:'center',fontSize:20,fontWeight:'700',color:'black',marginTop:10}}>Prentazine List</Text>
+              <TouchableOpacity onPress={()=>setActiveSheet('List')}>
+                <View style={activeSheet==="List"?[styles.formAction1,{borderTopLeftRadius:20,borderBottomLeftRadius:20}]:[styles.formAction,{borderTopLeftRadius:20,borderBottomLeftRadius:20}]}>
+                  <Text style={activeSheet==="List"?styles.formActionText1:styles.formActionText}>List</Text></View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={()=>setActiveSheet('Form')}>
+                <View style={activeSheet==="Form"?[styles.formAction1,{borderTopRightRadius:20,borderBottomRightRadius:20}]:[styles.formAction,{borderTopRightRadius:20,borderBottomRightRadius:20}]}
+                ><Text style={activeSheet==="Form"?styles.formActionText1:styles.formActionText} >Form</Text></View>
+              </TouchableOpacity>
+            </View>
+        {activeSheet==="List"? <>
+        <Text style={{alignSelf:'center',fontSize:18,marginTop:10, fontFamily: 'Montserrat-Regular'}}>Prenotazione articolo</Text>
 {booking?.length === 0 ? <NoDataFound title="No Data Found"/> :
         <FlatList
-          data={booking}
-          keyExtractor={(item, index) => index.toString()}
-          ItemSeparatorComponent={ItemSeparatorView}
-          renderItem={ItemView}
-          style={{ marginTop: 20 }}
-        />}
+        data={booking}
+        keyExtractor={(item, index) => index.toString()}
+        ItemSeparatorComponent={ItemSeparatorView}
+        renderItem={ItemView}
+        style={{ marginTop: 20 }}
+      />
+       }
 
 </>:
 <>
@@ -271,7 +273,7 @@ const AssetsBooking=({navigation,route})=>{
                             placeholder="Descrizione"
                             theme={{ colors: { primary: '#99e8e4', underlineColor: 'yellow', accent: '#99e8e4' } }}
                             keyboardType='default'
-    
+                            onChangeText={newText => setDescrption(newText)}
                         />
             </View>
             <View style={styles.dropDownConatiner}>
@@ -290,7 +292,7 @@ const AssetsBooking=({navigation,route})=>{
                         searchPlaceholder="Search..."
                         value={categoryList}
                         onChange={item => {
-                            console.log("Booking posistion is..",item)
+                            //console.log("Booking posistion is..",item)
                             setCategory(item?.value)
                             // setCategory(item)
                         }}
@@ -309,7 +311,7 @@ const AssetsBooking=({navigation,route})=>{
                         date={reportingdate}
                         onConfirm={(date) => {
                             setDateOpen(false)
-                            console.log("Return date choose may...", date)
+                            //console.log("Return date choose may...", date)
                             setToDate(date);
                             
                             setReportingDate(date)
@@ -326,7 +328,7 @@ const AssetsBooking=({navigation,route})=>{
                         date={secondReportingDate}
                         onConfirm={(date) => {
                             setSecondDateOpen(false)
-                            console.log("Return date choose may...", date)
+                            //console.log("Return date choose may...", date)
                             setFromDate(date);
                             
                             setSecondReportingDate(date)
@@ -336,7 +338,7 @@ const AssetsBooking=({navigation,route})=>{
                         }}
                     />
                     </>}
-            </ScrollView>
+            
         </View>
     )
 }

@@ -32,7 +32,9 @@ const Listing = ({ navigation }) => {
   const [filterItemData, setfilterItemData] = useState([]);
   const [search, setSearch] = useState('');
   const [drawerStatus, setDrawerStatus] = React.useState(false);
-  const [loader, setLoader] = React.useState(false)
+  const [loader, setLoader] = React.useState(false);
+  const [refresh, setRefresh] = React.useState(true);
+
   useEffect(() => {
     (
       async () => {
@@ -40,50 +42,56 @@ const Listing = ({ navigation }) => {
         setUserToken(userToken);
         if (userToken != null) {
           // setLoader(true)
-          axios({
-            url: `${API_BASE_URL}/viewDocument/${userToken}`,
-            method: 'GET',
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'multipart/form-data',
-            },
-          }).then(res => {
-            if (res.data.status == 1) {
-              let item_list = JSON.stringify(res.data.document_list);
-              let itemjson = JSON.parse(item_list);
-              setmasterItemData(itemjson);
-              setfilterItemData(itemjson);
-              setLoader(false)
-            } else {
-              Alert.alert(
-                "Warning",
-                "Somthing went wrong, Try Again",
-                [
-                  { text: "OK" }
-                ]
-              );
-            }
-          }).catch(e => {
-            Alert.alert(
-              "Warning",
-              "Somthing went wrong, Try Again",
-              [
-                { text: "OK" }
-              ]
-            );
-          });
+          getDocumentListingData(userToken);
         }
       }
     )();
 
-  }, [loader]);
+  }, [refresh]);
+
+  const getDocumentListingData = (userToken) => {
+    console.log("asdas");
+    axios({
+      url: `${API_BASE_URL}/viewDocument/${userToken}`,
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'multipart/form-data',
+      },
+    }).then(res => {
+      if (res.data.status == 1) {
+        let item_list = JSON.stringify(res.data.document_list);
+        let itemjson = JSON.parse(item_list);
+        setmasterItemData(itemjson);
+        setfilterItemData(itemjson);
+        setLoader(false);
+        setRefresh(false);
+      } else {
+        Alert.alert(
+          "Warning",
+          "Somthing went wrong, Try Again",
+          [
+            { text: "OK" }
+          ]
+        );
+      }
+    }).catch(e => {
+      Alert.alert(
+        "Warning",
+        "Somthing went wrong, Try Again",
+        [
+          { text: "OK" }
+        ]
+      );
+    });
+  };
 
   const goToDocumentEdit = (item) => {
-    console.log("item is>>>..", item)
+    //console.log("item is>>>..", item)
     navigation.navigate('DocumentEditing', { itemId: item })
   }
-  const goToDocumentView = () => {
-    navigation.naviagte('DocumentViewScreen')
+  const goToDocumentView = (item) => {
+    navigation.navigate('DocumentView', { itemId: item })
   }
   const deleteDocument = (item) => {
     setLoader(true)
@@ -101,7 +109,7 @@ const Listing = ({ navigation }) => {
         'Content-Type': 'multipart/form-data',
       },
     }).then(res => {
-      console.log("", res?.data)
+      //console.log("", res?.data)
       if (res?.data?.status) {
 
       }
@@ -130,15 +138,15 @@ const Listing = ({ navigation }) => {
             </View>
             <View style={{ alignSelf: 'flex-start' }}>
               <View style={{ flexDirection: 'column' }}>
-                <Paragraph style={[styles.fontFamily, { fontSize: 12 }]}>Document Type: {item.document_type == 1 ? 'Transport Document' : 'Formulary'}</Paragraph>
-                <Paragraph style={[styles.fontFamily, { fontSize: 12 }]}>Document number: {item.shop_assistant}</Paragraph>
-                <Paragraph style={[styles.fontFamily, { fontSize: 12 }]}>DDT/Formulary number: {item.ddt_number}</Paragraph>
-                <Paragraph style={[styles.fontFamily, { fontSize: 12 }]}>Order number: {item.order_no}</Paragraph>
+                <Paragraph style={[styles.fontFamily, { fontSize: 12 }]}>Tipo documento: {item.document_type === 1 ? 'Transport Document' : 'Formulary'}</Paragraph>
+                <Paragraph style={[styles.fontFamily, { fontSize: 12 }]}>Numero del documento: {item.shop_assistant}</Paragraph>
+                <Paragraph style={[styles.fontFamily, { fontSize: 12 }]}>Numero DDT / Formulario: {item.ddt_number}</Paragraph>
+                <Paragraph style={[styles.fontFamily, { fontSize: 12 }]}>Numero commessa: {item.order_no}</Paragraph>
               </View>
             </View>
           </View>
           <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', marginTop: 8, borderTopColor: '#EEE', borderTopWidth: 1, paddingTop: 8 }}>
-            <TouchableOpacity onPress={() => goToDocumentView()} style={{ flexDirection: 'row' }}>
+            <TouchableOpacity onPress={() => goToDocumentView(item)} style={{ flexDirection: 'row' }}>
               <Ionicons name="eye-outline" color='#04487b' size={16}></Ionicons><Text style={{ marginLeft: 4, color: '#04487b', fontSize: 13 }}>Visualizzazione</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => goToDocumentEdit(item)} style={{ flexDirection: 'row', marginLeft: 13, marginRight: 13 }}>
@@ -216,6 +224,8 @@ const Listing = ({ navigation }) => {
               ItemSeparatorComponent={ItemSeparatorView}
               renderItem={ItemView}
               style={{ marginTop: 20 }}
+              onRefresh={getDocumentListingData}
+              refreshing={true}
             /> : <NoDataFound title={"No Data Found"} />}
           <View style={{ flex: 1 }}>
             <View style={{ position: 'absolute', bottom: 20, alignSelf: 'flex-end' }}>

@@ -31,7 +31,7 @@ const {data}=route?.params;
       (
         async() => { 
           const userToken = await AsyncStorage.getItem('userToken');
-          console.log("usertoken...",userToken);
+          //console.log("usertoken...",userToken);
           getItemDetials(userToken)
         }
       ) ();
@@ -42,7 +42,7 @@ const {data}=route?.params;
           user_id :62,
           item_id : data?.item_id,
       }
-      console.log("aessets addition form...",formData)
+      //console.log("aessets addition form...",formData)
       axios({
           url: `${API_BASE_URL}itemView`,
           method: 'POST',
@@ -53,7 +53,7 @@ const {data}=route?.params;
           },
       }).then(res => {
         setLoader(false)
-        console.log("vikas view page..",res?.data)
+        //console.log("vikas view page..",res?.data)
         if(res.data.status == 1){
           let itemdetail = JSON.stringify(res?.data?.item_details);
           let itemdetailjson = JSON.parse(itemdetail);
@@ -120,12 +120,14 @@ const {data}=route?.params;
                 <Text style={[ styles.regularFont, { fontSize: 14 }]}>{itemDetails?.description}</Text>
               </View>
               <View style={{  flexDirection: 'row', justifyContent: 'space-between', alignItems:'center' }}>
-                <Title style={[ styles.regularFont, { fontSize: 14 }]}>Categorie: </Title>
-                <Text style={[ styles.regularFont, { fontSize: 14 }]}>{itemDetails?.parent_item_name  }</Text>
+                <Title style={[ styles.regularFont, { fontSize: 14, marginRight: 10 }]}>Categorie: </Title>
+                <Text style={[ styles.regularFont, { fontSize: 14 }]}>{itemDetails.parent_item_name ? itemDetails.parent_item_name  : '' }</Text>
+                <Text style={[ styles.regularFont, { fontSize: 14 }]}>{itemDetails.sub_item_name ? itemDetails.sub_item_name  : '' }</Text>
+                <Text style={[ styles.regularFont, { fontSize: 14 }]}>{itemDetails.sub_subitem_name ? itemDetails.sub_subitem_name  : '' }</Text>
               </View>
               <View style={{  flexDirection: 'row', justifyContent: 'space-between', alignItems:'center' }}>
                 <Title style={[ styles.regularFont, { fontSize: 14 }]}>Stato articolo: </Title>
-                <Text style={[ styles.regularFont, { fontSize: 14 }]}>{itemDetails?.status_name}</Text>
+                <Text style={[ styles.regularFont, { fontSize: 14, backgroundColor: itemDetails.status_colour, paddingLeft: 10, paddingRight: 10 }]}>{itemDetails?.status_name}</Text>
               </View>
               <View style={{  flexDirection: 'row', justifyContent: 'space-between', alignItems:'center', flexWrap: 'wrap' }}>
                 <Title style={[ styles.regularFont, { fontSize: 14 }]}>Nome posizione: </Title>
@@ -137,7 +139,7 @@ const {data}=route?.params;
               <TouchableOpacity style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#DDD', paddingBottom: 15, paddingTop: 15, alignContent:'space-between', backgroundColor: '#FFF', marginLeft: -15, marginRight: -15, marginTop: 15, paddingLeft: 15, paddingRight: 15 }} onPress={() =>assetsHistory(assetsHistorys) }>
                   <View style={{ flex: 1, flexDirection: 'row', alignSelf: 'flex-start'}}>
                     <Ionicons name="library-outline" size={25} color='#333'style={{alignSelf: 'flex-start'}}/>
-                    <Paragraph style={[styles.fontFamily, { marginLeft: 10 } ]}>Storia dell'oggetto</Paragraph>
+                    <Paragraph style={[styles.fontFamily, { marginLeft: 10 } ]}>Cronologia dei movimenti</Paragraph>
                   </View>
                   <Ionicons name="ios-chevron-forward-sharp" size={25} color='#777'/>
               </TouchableOpacity>

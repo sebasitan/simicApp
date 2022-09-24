@@ -20,6 +20,8 @@ import DeviceInfo from 'react-native-device-info';
 import { API_BASE_URL } from '../../../Services/url';
 import { ActivityIndicator } from 'react-native-paper';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 // import { AuthContext } from '../context/AuthContext';
 
 const SignIn = ({ navigation }) => {
@@ -50,11 +52,11 @@ const SignIn = ({ navigation }) => {
                 'Content-Type': 'multipart/form-data',
             },
         }).then  (res => {
-            console.log("Sign in res..", res)
+            //console.log("Sign in res..", res)
             if (res.data.status == 1) {
                 let userInfo = JSON.stringify(res.data.user_details);
                 let result = JSON.parse(userInfo);
-                console.log("result data is ,", result)
+                //console.log("result data is ,", result)
                 setLoader(false);
                 Utiity.setInLocalStorge("userData",result)
                 Utiity.setInLocalStorge('userToken', res?.data?.user_details?.user_id  || "1")

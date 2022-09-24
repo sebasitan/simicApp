@@ -24,7 +24,7 @@ const CustomDrawer = (props) => {
     getUserInfo()
   },[])
   const getUserInfo=async()=>{
-    const  userToken =await Utility.getFromLocalStorge('userData');
+    const  userToken = await Utility.getFromLocalStorge('userData');
     //console.log("drawer data?",userToken)
     setLoginData(userToken);
   }

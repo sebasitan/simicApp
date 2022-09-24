@@ -14,13 +14,7 @@ import { Dropdown } from 'react-native-element-dropdown';
 import HomeHeader from '../../../Component/HomeHeader';
 import * as Utility from '../../../Utility/inbdex';
 const style = StyleSheet.create({
-  inputConatiner: {
-    borderWidth: .5,
-    padding: 10,
-    marginTop: 10,
-    margin: 10,
-    borderRadius: 10
-  },
+  inputConatiner: { borderWidth: 1, alignSelf: 'center', width: '90%', margin: 10, borderRadius: 5, padding: 5 },
   saveContainer: {
     backgroundColor: '#04487b',
     alignSelf: 'center',
@@ -33,14 +27,14 @@ const style = StyleSheet.create({
 })
 const Addition = ({ navigation }) => {
   const [category, setCategory] = React.useState();
-  const [name, setName] = React.useState();
-  const [descrption, setDrescription] = React.useState()
+  const [name, setName] = React.useState('');
+  const [descrption, setDrescription] = React.useState('');
   const [userType, setUserType] = React.useState();
   const [userId, setUserId] = React.useState();
   const [companyList, setCompanyList] = React.useState([]);
-  const [companyValue, setCompanyValue] = React.useState();
+  const [companyValue, setCompanyValue] = React.useState('');
   const [superCategoryList, setSuperCategoryList] = React.useState([])
-  const [superCategoryValue, setSuperCategoryVaule] = React.useState();
+  const [superCategoryValue, setSuperCategoryVaule] = React.useState('');
   const [categoryList, setCategoryList] = React.useState([]);
   const [categoryValue, setCategoryValue] = React.useState();
   const [loader,setLoader]=React.useState(false)
@@ -51,12 +45,14 @@ const Addition = ({ navigation }) => {
 
   const getUserInfomation = async () => {
     const userRecords = await Utility.getFromLocalStorge('userData');
-    console.log("user REcords...", userRecords)
+    //console.log("user REcords...", userRecords)
     setUserType(userRecords?.user_type);
     if (userRecords?.user_type === "99") {
       companyApi()
     } else {
-      getSimpleCategoryLis();
+      //console.log(userRecords.company_id);
+      getSuperCategoryList(userRecords.company_id);
+      setCompanyValue(userRecords.company_id);
     }
     setUserId(userRecords?.user_id)
   }
@@ -69,8 +65,8 @@ const Addition = ({ navigation }) => {
         'Content-Type': 'multipart/form-data',
       },
     }).then(res => {
-      console.log("company1..", res?.data)
-      console.log("company.", res?.data?.company_list)
+      //console.log("company1..", res?.data)
+      //console.log("company.", res?.data?.company_list)
       var prevCategoryList = res?.data?.company_list.map(car => ({ value: car?.id, label: car?.company_name }));
       setCompanyList(prevCategoryList)
     }).catch(e => {
@@ -92,7 +88,7 @@ const Addition = ({ navigation }) => {
         'Content-Type': 'multipart/form-data',
       },
     }).then(res => {
-      console.log(" assets Catergory on Edit page.", res?.data?.site_list)
+      //console.log(" assets Catergory on Edit page.", res?.data?.site_list)
       var prevCategoryList = res?.data?.site_list.map(car => ({ value: car?.id, label: car?.site_name }));
       setCategoryList(prevCategoryList)
     }).catch(e => {
@@ -114,7 +110,7 @@ const Addition = ({ navigation }) => {
         'Content-Type': 'multipart/form-data',
       },
     }).then(res => {
-      console.log(" super category page.", res?.data?.site_list)
+      //console.log(" super category page.", res?.data?.site_list)
       var prevCategoryList = res?.data?.site_list.map(car => ({ value: car?.id, label: car?.site_name }));
       setSuperCategoryList(prevCategoryList)
     }).catch(e => {
@@ -128,41 +124,51 @@ const Addition = ({ navigation }) => {
     });
   }
   const addLocation = () => {
-    setLoader(true)
-    let formData = {
-      user_id: userId,
-      location_name: name,
-      description: descrption,
-      site_id: categoryValue || superCategoryValue,
-      company_id: companyValue
-    }
-    console.log("aessets addition form...", formData)
-    axios({
-      url: `${API_BASE_URL}addLocation`,
-      method: 'POST',
-      data: formData,
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'multipart/form-data',
-      },
-    }).then(res => {
-      console.log("", res?.data)
-      if (res?.data?.status) {
-        navigation.navigate('tutte le')
-      }
-      alert("Document Added Succesffuly");
-      setLoader(false)
-    }).catch(e => {
-      setLoader(false)
+    setLoader(true);
+
+    if(companyValue != '' && name != ''){
+      let formData = {
+        user_id: userId,
+        location_name: name,
+        description: descrption,
+        company_id: companyValue,
+        site_id: superCategoryValue,
+      };
+      axios({
+        url: `${API_BASE_URL}addLocation`,
+        method: 'POST',
+        data: formData,
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'multipart/form-data',
+        },
+        }).then(res => {
+        //console.log("", res?.data)
+        if (res?.data?.status) {
+          alert("Location Added Succesffuly");
+          setLoader(false);
+          navigation.navigate('Tutte le posizioni');
+        }
+        }).catch(e => {
+        setLoader(false)
+        Alert.alert(
+          "Warning",
+          "Somthing went wrong, Try Again",
+          [
+          { text: "OK" }
+          ]
+        );
+      });
+    }else{
       Alert.alert(
         "Warning",
-        "Somthing went wrong, Try Again",
+        "Location name and company name must be filled",
         [
           { text: "OK" }
         ]
       );
-    });
-    // alert("Location added successfully")
+    }
+    
   }
   return (
     <View style={{ flex: 1 }}>
@@ -190,7 +196,7 @@ const Addition = ({ navigation }) => {
               search
               labelField="label"
               valueField="value"
-              placeholder="Company List"
+              placeholder="Nome azienda"
               searchPlaceholder="Search..."
               // value={previousCarList}
               onChange={item => {
@@ -213,7 +219,7 @@ const Addition = ({ navigation }) => {
               search
               labelField="label"
               valueField="value"
-              placeholder="categoryList"
+              placeholder="Nome sito"
               searchPlaceholder="Search..."
               // value={previousCarList}
               onChange={item => {
@@ -230,16 +236,16 @@ const Addition = ({ navigation }) => {
             selectedTextStyle={{ color: 'black' }}
             inputSearchStyle={styles.inputSearchStyle}
             iconStyle={styles.iconStyle}
-            data={categoryList}
+            data={superCategoryList}
             maxHeight={200}
             search
             labelField="label"
             valueField="value"
-            placeholder="categoryList"
+            placeholder="Nome sito"
             searchPlaceholder="Search..."
             // value={previousCarList}
             onChange={item => {
-              setCategory(item)
+              setSuperCategoryVaule(item?.value)
             }}
           />
         </View>}

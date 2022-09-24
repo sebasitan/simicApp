@@ -22,9 +22,9 @@ import axios from "axios";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../../../Services/url';
-import HomeHeader from '../../../Component/HomeHeader';
+//import HomeHeader from '../../../Component/HomeHeader';
 import * as Utility from '../../../Utility/inbdex';
-const Listing = ({ navigation }) => {
+const AssetsListig = ({ navigation }) => {
   const [userToken, setUserToken] = React.useState(null);
   const [isLoading, setisLoading] = React.useState(false);
   const [masterItemData, setmasterItemData] = React.useState([]);
@@ -33,35 +33,12 @@ const Listing = ({ navigation }) => {
   const [search, setSearch] = useState('');
   const [drawerStatus, setDrawerStatus] = React.useState(false);
 
-  // useEffect(() => {
-  //   fetchAssetsList(1)
-  // }, []);
-    useFocusEffect(
+  useFocusEffect(
       React.useCallback(() => {
         fetchAssetsList(1,2)
       }, []),
-    );
+  );
 
-    // useEffect(() => {
-    //   const backAction = () => {
-    //     Alert.alert("Hold on!", "Are you sure you want to go back?", [
-    //       {
-    //         text: "Cancel",
-    //         onPress: () => null,
-    //         style: "cancel"
-    //       },
-    //       { text: "YES", onPress: () => BackHandler.exitApp() }
-    //     ]);
-    //     return true;
-    //   };
-  
-    //   const backHandler = BackHandler.addEventListener(
-    //     "hardwareBackPress",
-    //     backAction
-    //   );
-  
-    //   return () => backHandler.remove();
-    // }, []);
   const fetchAssetsList = async (pagenumber,type) => {
     // setisLoading(true)
     if(type===2){
@@ -238,7 +215,6 @@ const Listing = ({ navigation }) => {
               data={filterItemData}
               keyExtractor={(item, index) => index.toString()}
               ItemSeparatorComponent={ItemSeparatorView}
-
               renderItem={ItemView}
               onEndReached={callMoreApi}
               onEndReachedThreshold={0.5}
@@ -298,4 +274,4 @@ const styles = StyleSheet.create({
   }
 
 });
-export default Listing;
+export default AssetsListig;

@@ -14,13 +14,7 @@ import { Dropdown } from 'react-native-element-dropdown';
 import HomeHeader from '../../../Component/HomeHeader';
 import * as Utility from '../../../Utility/inbdex';
 const style = StyleSheet.create({
-  inputConatiner: {
-    borderWidth: .5,
-    padding: 10,
-    marginTop: 10,
-    margin: 10,
-    borderRadius: 10
-  },
+  inputConatiner: { borderWidth: 1, alignSelf: 'center', width: '90%', margin: 10, borderRadius: 5, padding: 5 },
   saveContainer: {
     backgroundColor: '#04487b',
     alignSelf: 'center',
@@ -33,14 +27,16 @@ const style = StyleSheet.create({
 })
 const Editiing = ({ navigation, route }) => {
   const { item } = route?.params;
-  console.log("location edit >>>", item)
+  //console.log("location edit >>>", item)
   const [category, setCategory] = React.useState();
   const [name, setName] = React.useState();
   const [descrption, setDrescription] = React.useState()
   const [userType, setUserType] = React.useState();
   const [userId, setUserId] = React.useState();
   const [companyList, setCompanyList] = React.useState([]);
-  const [companyValue, setCompanyValue] = React.useState();
+  const [companyValue, setCompanyValue] = React.useState('');
+  const [companyfieldval, setCompanyfieldval] = React.useState('');
+  const [sitefieldval, setSitefieldval] = React.useState('');
   const [superCategoryList, setSuperCategoryList] = React.useState([])
   const [superCategoryValue, setSuperCategoryVaule] = React.useState();
   const [categoryList, setCategoryList] = React.useState([]);
@@ -57,7 +53,7 @@ const Editiing = ({ navigation, route }) => {
       user_id: userId,
       location_id: item?.location_id,
     }
-    console.log("aessets addition form...", formData)
+    //console.log("aessets addition form...", formData)
     axios({
       url: `${API_BASE_URL}locationView`,
       method: 'POST',
@@ -68,13 +64,17 @@ const Editiing = ({ navigation, route }) => {
       },
     }).then(res => {
       setLoader(false)
-      console.log("vikas view page..", res?.data)
+      //console.log("vikas view page..", res?.data)
       if (res.data.status == 1) {
         let itemdetail = JSON.stringify(res?.data?.location_details);
         let itemdetailjson = JSON.parse(itemdetail);
+        //console.log(itemdetailjson);
         setName(itemdetailjson?.location_name);
         setDrescription(itemdetailjson?.description)
-        setCompanyValue(itemdetailjson?.site_id);
+
+        setSitefieldval(itemdetailjson?.site_id);
+        setCompanyfieldval(itemdetailjson?.company_id);
+
         setSuperCategoryVaule(itemdetailjson?.site_id);
         setCategoryValue(itemdetailjson?.site_id)
       } else {
@@ -100,12 +100,13 @@ const Editiing = ({ navigation, route }) => {
   }
   const getUserInfomation = async () => {
     const userRecords = await Utility.getFromLocalStorge('userData');
-    console.log("user REcords...", userRecords)
+    //console.log("user REcords...", userRecords)
     setUserType(userRecords?.user_type);
     if (userRecords?.user_type === "99") {
-      companyApi()
+      companyApi();
     } else {
-      getSimpleCategoryLis();
+      getSuperCategoryList(userRecords.company_id);
+      setCompanyValue(userRecords.company_id);
     }
     setUserId(userRecords?.user_id)
     getLocationDetials(userRecords?.user_id)
@@ -119,8 +120,8 @@ const Editiing = ({ navigation, route }) => {
         'Content-Type': 'multipart/form-data',
       },
     }).then(res => {
-      console.log("company1..", res?.data)
-      console.log("company.", res?.data?.company_list)
+      //console.log("company1..", res?.data)
+      //console.log("company.", res?.data?.company_list)
       var prevCategoryList = res?.data?.company_list.map(car => ({ value: car?.id, label: car?.company_name }));
       setCompanyList(prevCategoryList)
     }).catch(e => {
@@ -142,7 +143,7 @@ const Editiing = ({ navigation, route }) => {
         'Content-Type': 'multipart/form-data',
       },
     }).then(res => {
-      console.log(" assets Catergory on Edit page.", res?.data?.site_list)
+      //console.log(" assets Catergory on Edit page.", res?.data?.site_list)
       var prevCategoryList = res?.data?.site_list.map(car => ({ value: car?.id, label: car?.site_name }));
       setCategoryList(prevCategoryList)
     }).catch(e => {
@@ -156,7 +157,7 @@ const Editiing = ({ navigation, route }) => {
     });
   }
   const getSuperCategoryList = (id) => {
-    alert(id);
+    //alert(id);
     axios({
       url: `${API_BASE_URL}getsuperSiteList/${id}`,
       method: 'GET',
@@ -165,7 +166,7 @@ const Editiing = ({ navigation, route }) => {
         'Content-Type': 'multipart/form-data',
       },
     }).then(res => {
-      console.log(" super category page.", res?.data?.site_list)
+      //console.log(" super category page.", res?.data?.site_list)
       var prevCategoryList = res?.data?.site_list.map(car => ({ value: car?.id, label: car?.site_name }));
       setSuperCategoryList(prevCategoryList)
     }).catch(e => {
@@ -187,7 +188,7 @@ const Editiing = ({ navigation, route }) => {
       site_id: categoryValue || superCategoryValue,
       company_id: companyValue
     }
-    console.log("aessets addition form...", formData)
+    //console.log("aessets addition form...", formData)
     axios({
       url: `${API_BASE_URL}locationUpdate/${item?.location_id}`,
       method: 'POST',
@@ -197,7 +198,7 @@ const Editiing = ({ navigation, route }) => {
         'Content-Type': 'multipart/form-data',
       },
     }).then(res => {
-      console.log("", res?.data)
+      //console.log("", res?.data)
       if (res?.data?.status) {
         navigation.navigate('tutte le')
       }
@@ -234,37 +235,14 @@ const Editiing = ({ navigation, route }) => {
               selectedTextStyle={{ color: 'black' }}
               inputSearchStyle={styles.inputSearchStyle}
               iconStyle={styles.iconStyle}
-              data={companyList}
-              maxHeight={200}
-              search
-              labelField="label"
-              valueField="value"
-              placeholder="Company List"
-              searchPlaceholder="Search..."
-              // value={previousCarList}
-              onChange={item => {
-                // setCategory(item)
-                setCompanyValue(item?.value);
-                getSuperCategoryList(item?.value)
-
-              }}
-            />
-          </View>
-          <View style={style.inputConatiner}>
-            <Dropdown
-              style={{ marginLeft: 10 }}
-              placeholderStyle={{ color: 'black' }}
-              selectedTextStyle={{ color: 'black' }}
-              inputSearchStyle={styles.inputSearchStyle}
-              iconStyle={styles.iconStyle}
               data={superCategoryList}
               maxHeight={200}
               search
               labelField="label"
               valueField="value"
-              placeholder="categoryList"
+              placeholder="Nome sito"
               searchPlaceholder="Search..."
-              // value={previousCarList}
+              value={sitefieldval}
               onChange={item => {
                 // setCategory(item)s
                 setSuperCategoryVaule(item?.value)
@@ -279,16 +257,16 @@ const Editiing = ({ navigation, route }) => {
             selectedTextStyle={{ color: 'black' }}
             inputSearchStyle={styles.inputSearchStyle}
             iconStyle={styles.iconStyle}
-            data={categoryList}
+            data={superCategoryList}
             maxHeight={200}
             search
             labelField="label"
             valueField="value"
-            placeholder="categoryList"
+            placeholder="Nome sito"
             searchPlaceholder="Search..."
-            // value={previousCarList}
+            value={sitefieldval}
             onChange={item => {
-              setCategory(item)
+              setSuperCategoryVaule(item?.value)
             }}
           />
         </View>}

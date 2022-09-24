@@ -99,6 +99,11 @@ const LocationListingScreen = ({ navigation }) => {
         </View>
         <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', marginTop: 8, borderTopColor: '#EEE', borderTopWidth: 1, paddingTop: 8 }}>
                 <TouchableOpacity onPress={() =>
+                  navigation.navigate('LocationViewing', {item: item })
+                } style={{ flexDirection: 'row' }}>
+                  <Ionicons name="eye-outline" color='#04487b' size={16}></Ionicons><Text style={{ marginLeft: 4, color: '#04487b', fontSize: 13 }}>Visualizzazione</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() =>
                       navigation.navigate('LocationEditing',{item:item})
                     } style={{ flexDirection: 'row', marginLeft: 13, marginRight: 13 }}>
                   <Ionicons name="ios-create-outline" color='#ff8c00' size={16}></Ionicons>

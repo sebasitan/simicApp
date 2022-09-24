@@ -86,12 +86,19 @@ export const showAlertWithCallBack = (msg, onOkClick) => {
   );
 };
 
-export const setInLocalStorge = async (key: String, token) => {
+export const setInLocalStorge = async (key, token) => {
   try {
-    const res = await AsyncStorage.setItem(key, JSON.stringify(token));
-    console.log('setInLocalStorge', res);
+    console.log(token);
+    await AsyncStorage.setItem(key, JSON.stringify(token));
+    //console.log('setInLocalStorge', res);
   } catch (err) {
-    console.log('setInLocalStorge Error', err);
+    Alert.alert(
+        "Warning",
+        "Sorry, Email or Password Invalid",
+        [
+            { text: "OK" }
+        ]
+    );
   }
 };
 

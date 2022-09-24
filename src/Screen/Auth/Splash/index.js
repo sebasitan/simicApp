@@ -1,5 +1,5 @@
 import React from 'react';
-import {View,Text, ActivityIndicator} from 'react-native';
+import {View,Text, ActivityIndicator, ImageBackground } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 const Splash=({navigation})=>{
     const [loader,setLoader]=React.useState(false)
@@ -13,9 +13,14 @@ const Splash=({navigation})=>{
           );setLoader(false)
         }, 2000);
       }, []);
+
+      let bgimg = '../../../assets/images/splash.webp';
     return(
-        <View style={{alignSelf:'center',justifyContent:'center',marginTop:"50%"}}>
-        <ActivityIndicator size={50} color="red"/>
+        <View style={{flex: 1}}>
+        <ImageBackground
+          source={require(bgimg)}
+          resizeMode="cover" style={{ flex: 1, alignSelf: 'stretch' }}>
+          </ImageBackground>
         </View>
     
     )

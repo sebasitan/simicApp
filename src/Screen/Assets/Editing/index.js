@@ -38,11 +38,12 @@ const AssetsEditing = ({ navigation ,route}) => {
   const {item}= route?.params;
   //console.log("item is.././.",item)
     const [name, setName] = useState('');
-    const [DataDate, setDataDate] = useState('');
+    //const [DataDate, setDataDate] = useState('');
     const [stato, setStato] = useState('');
     const [description, setDrescription] = useState('');
+    const [notes, setNotes] = useState('');
     const [image, setImage] = useState('');
-    const [StatoList, setStatoList] = useState([]);
+    //const [StatoList, setStatoList] = useState([]);
     const [instructionImage,setInstructionImage]=useState('');
     const [loader,setLoader]=useState(false);
     const [categoryName,setCategoryName]=React.useState('');
@@ -98,7 +99,7 @@ const AssetsEditing = ({ navigation ,route}) => {
   }
   const callLocationApi=async(userId)=>{
     axios({
-        url: `${API_BASE_URL}locationlist/${userId}?page=1`,
+        url: `${API_BASE_URL}locationFullList/${userId}`,
         method: 'POST',
         headers: {
             'Accept': 'application/json',
@@ -107,6 +108,7 @@ const AssetsEditing = ({ navigation ,route}) => {
     }).then(res => {
       //console.log(" assets location on Edit page.",res?.data?.location_list)
       var prevCatList = res?.data?.location_list.map(car => ({ value: car?.location_id, label: car?.location_name }));
+      //console.log(prevCatList);
       setLocationList(prevCatList)
       if(res.data.status == 1){
       }else{
@@ -152,7 +154,7 @@ const AssetsEditing = ({ navigation ,route}) => {
         if(res.data.status == 1){
           let itemdetail = JSON.stringify(res?.data?.item_details);
           let itemdetailjson = JSON.parse(itemdetail);
-            //console.log(itemdetailjson);
+        //console.log(itemdetailjson);
           let itemsubcatdata = JSON.stringify(res?.data?.subcat);
           let itemsubcatlistjson = JSON.parse(itemsubcatdata);
           let itemchildcatdata = JSON.stringify(res?.data?.subsubcat);
@@ -169,6 +171,7 @@ const AssetsEditing = ({ navigation ,route}) => {
           //callSubCategoryApi(itemdetailjson?.sub_item_id);
           setLOactionName(itemdetailjson?.location_id);
           setAssetsName(itemdetailjson?.status_id);
+          setNotes(itemchildcatlistjson?.notes);
           setAssetImageName(itemdetailjson?.item_image_name);
           setInstructionImagesName(itemdetailjson?.item_instructions_name)
           setQrcode(itemdetailjson?.qr_code);
@@ -283,6 +286,7 @@ const AssetsEditing = ({ navigation ,route}) => {
     const assetsAddtion=()=>{
         navigation.navigate('DrawerNavigation')
     }
+
     const assetsEdit=()=>{
         setLoader(true);
         let formData = {
@@ -298,6 +302,7 @@ const AssetsEditing = ({ navigation ,route}) => {
             item_image_name:assetImageName,
             documents:instructionImageName,
             qr_code:qrcode,
+            notes: notes
         };
         //console.log(formData);
         if(name === '' || categoryName === '' || subCategoryName === '' || assetsName === '' ){
@@ -326,7 +331,7 @@ const AssetsEditing = ({ navigation ,route}) => {
               //console.log("vikas asset_booking page..",res)
               if(res.data.status == 1){
                   alert("Assert Edit successfully")
-                  //navigation.navigate('DrawerNavigation')
+                  navigation.navigate('DrawerNavigation');
               }else{
                 Alert.alert(
                     "Warning",
@@ -348,9 +353,8 @@ const AssetsEditing = ({ navigation ,route}) => {
                 );
             });
         }
-
-      }
-      const openLocalDatePkr = () => {
+    }
+    const openLocalDatePkr = () => {
         setIsReportingdate(true)
         setIsReturndate(false)
         setDateOpen(true)
@@ -544,7 +548,7 @@ const AssetsEditing = ({ navigation ,route}) => {
                         searchPlaceholder="Search..."
                         value={assetsName}
                         onChange={item => {
-                            setStato(item)
+                            setStato(item);
                         }}
                     />
                 </View>
@@ -564,11 +568,21 @@ const AssetsEditing = ({ navigation ,route}) => {
                         placeholder="Posizione"
                         searchPlaceholder="Search..."
                         onChange={item => {
-                            setStato(item)
+                            setStato(item);
+                            setLOactionName(item?.value);
                         }}
                     />
                 </View>
-                
+                <View style={styles.inputConatiner}>
+                    <TextInput
+                        style={{ height: 80, marginLeft: 10 }}
+                        // numberOfLines="5"
+                        placeholder="Notes"
+                        value={notes}
+                        placeholderTextColor="black"
+                        onChangeText={newText => setNotes(newText)}
+                    />
+                </View>
                 <View style={{flexDirection:'row',justifyContent:'space-evenly'}}>
                 <View style={{ marginLeft: 20, marginTop: 10,alignItems:'center' }}>
                     <Text>Immagine</Text>

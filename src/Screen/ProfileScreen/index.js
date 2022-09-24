@@ -23,6 +23,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Utility from '../../Utility/inbdex';
 import axios from 'axios';
 import { API_BASE_URL } from '../../Services/url';
+
 const ProfileScreen = ({navigation}) => {
   
     const [userid,setUserId]=React.useState();
@@ -45,7 +46,7 @@ const ProfileScreen = ({navigation}) => {
             user_id: userId,
            
         }
-        console.log("aessets addition form...", formData)
+        //console.log("aessets addition form...", formData)
         axios({
             url: `${API_BASE_URL}profileView`,
             method: 'POST',
@@ -55,7 +56,7 @@ const ProfileScreen = ({navigation}) => {
                 'Content-Type': 'multipart/form-data',
             },
         }).then(res => {
-            console.log("vikas profile view", res?.data?.user_details)
+            //console.log("vikas profile view", res?.data?.user_details)
             setLoader(false)
             setUserData(res?.data?.user_details)
         }).catch(e => {
@@ -69,6 +70,12 @@ const ProfileScreen = ({navigation}) => {
             );
         });
     }
+
+    const modifyprofile = (data) => {
+        //console.log(data);
+        navigation.navigate('ProfileEditing', data);
+    };
+
     return(
         <View style={styles.container}>
             <StatusBar backgroundColor='#04487b' hidden={false} />
@@ -77,7 +84,6 @@ const ProfileScreen = ({navigation}) => {
             <View style={{ flex: 1, marginTop: 20 }}>
                 <View style={{ alignItems: 'center' }}>
                     { userData?.profile_image_url !='' ? <Avatar.Image source={{ uri: userData?.profile_image_url }} avatarStyle={{ borderWidth: 0 }}/> : <Avatar.Image source={require('../../assets/images/user.png')} /> }
-                    
                 </View>
                 <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#DDD', marginTop: 20 }}>
                     <Ionicons name="ios-person-circle-outline" size={30} color='#333'/>
@@ -101,7 +107,7 @@ const ProfileScreen = ({navigation}) => {
                     </View>
                 </View>
                 <TouchableOpacity style={{ flexDirection: 'column', marginTop: 10, alignItems: 'center' }}>
-                    <Button color='#04487b' style={[styles.fontFamily]} title="Modifica"/>
+                    <Button color='#04487b' style={[styles.fontFamily]} title="Modifica" onPress={() => modifyprofile(userData)} />
                 </TouchableOpacity>
             </View>
         </View>
@@ -134,7 +140,7 @@ const styles = StyleSheet.create({
       backgroundColor: '#FFFFFF',
     },
     fontFamily: {
-    //   fontFamily : 'Montserrat-Regular'
+        fontFamily : 'Montserrat-Regular'
     }
 });
 

@@ -22,7 +22,7 @@ import * as Utility from '../../../Utility/inbdex';
 
 const Addition = ({ navigation }) => {
     const [name, setName] = useState('');
-    const [DataDate, setDataDate] = useState();
+    //const [DataDate, setDataDate] = useState();
     const [stato, setStato] = useState();
     const [description, setDrescription] = useState('');
     const [categoryId, setCategoryId]=React.useState('');
@@ -79,7 +79,7 @@ const Addition = ({ navigation }) => {
         }
         //console.log("Location user id>>>",userId)
         axios({
-            url: `${API_BASE_URL}locationlist/${userId}?page=1`,
+            url: `${API_BASE_URL}locationFullList/${userId}`,
             method: 'POST',
             data:formData,
             headers: {
@@ -277,6 +277,7 @@ const Addition = ({ navigation }) => {
         });
     }
     const assetsAddtion = () => {
+        
         setLoader(true);
 
         if(name === '' || categoryId === '' || subCategoryId === '' || assetStatusId === '' ){
@@ -303,7 +304,9 @@ const Addition = ({ navigation }) => {
                 item_image_name: imageName,
                 documents: instructionImageName,
                 qr_code: qrCode,
+                notes:notes
             };
+            //console.log(formData);
             axios({
                 url: `${API_BASE_URL}itemadd`,
                 method: 'POST',
@@ -313,12 +316,11 @@ const Addition = ({ navigation }) => {
                     'Content-Type': 'multipart/form-data',
                 },
             }).then(res => {
-                    //console.log(res);
-                    if(res?.data?.status){
-                        navigation.navigate('DrawerNavigation')
-                    }
                 alert("Assets Successfully added");
-                setLoader(false)
+                setLoader(false);
+                if(res?.data?.status){
+                    navigation.navigate('DrawerNavigation')
+                }
             }).catch(e => {
                 setLoader(false)
                 Alert.alert(
