@@ -26,7 +26,6 @@ const style = StyleSheet.create({
   }
 })
 const Addition = ({ navigation }) => {
-  const [category, setCategory] = React.useState();
   const [name, setName] = React.useState('');
   const [descrption, setDrescription] = React.useState('');
   const [userType, setUserType] = React.useState();
@@ -35,8 +34,6 @@ const Addition = ({ navigation }) => {
   const [companyValue, setCompanyValue] = React.useState('');
   const [superCategoryList, setSuperCategoryList] = React.useState([])
   const [superCategoryValue, setSuperCategoryVaule] = React.useState('');
-  const [categoryList, setCategoryList] = React.useState([]);
-  const [categoryValue, setCategoryValue] = React.useState();
   const [loader,setLoader]=React.useState(false)
 
   useEffect(() => {
@@ -45,16 +42,17 @@ const Addition = ({ navigation }) => {
 
   const getUserInfomation = async () => {
     const userRecords = await Utility.getFromLocalStorge('userData');
-    //console.log("user REcords...", userRecords)
+    setUserId(userRecords?.user_id);
     setUserType(userRecords?.user_type);
     if (userRecords?.user_type === "99") {
-      companyApi()
+      companyApi();
     } else {
       //console.log(userRecords.company_id);
-      getSuperCategoryList(userRecords.company_id);
+      //getSuperCategoryList(userRecords.company_id);
+      getSimpleCategoryLis(userRecords?.user_id);
       setCompanyValue(userRecords.company_id);
     }
-    setUserId(userRecords?.user_id)
+    
   }
   const companyApi = () => {
     axios({
@@ -65,7 +63,7 @@ const Addition = ({ navigation }) => {
         'Content-Type': 'multipart/form-data',
       },
     }).then(res => {
-      //console.log("company1..", res?.data)
+     // console.log("company1..", res?.data)
       //console.log("company.", res?.data?.company_list)
       var prevCategoryList = res?.data?.company_list.map(car => ({ value: car?.id, label: car?.company_name }));
       setCompanyList(prevCategoryList)
@@ -79,18 +77,21 @@ const Addition = ({ navigation }) => {
       );
     });
   }
-  const getSimpleCategoryLis = () => {
+  const getSimpleCategoryLis = (id) => {
+    //console.log(userId);
     axios({
-      url: `${API_BASE_URL}getSiteList/${userId}`,
+      url: `${API_BASE_URL}getSiteList/${id}`,
       method: 'GET',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'multipart/form-data',
       },
     }).then(res => {
-      //console.log(" assets Catergory on Edit page.", res?.data?.site_list)
+      //console.log("sdf");
+     // console.log(" assets Catergory on Edit page.", res?.data?.site_list)
       var prevCategoryList = res?.data?.site_list.map(car => ({ value: car?.id, label: car?.site_name }));
-      setCategoryList(prevCategoryList)
+      //console.log(prevCategoryList);
+      setSuperCategoryList(prevCategoryList)
     }).catch(e => {
       Alert.alert(
         "Warning",
@@ -102,6 +103,7 @@ const Addition = ({ navigation }) => {
     });
   }
   const getSuperCategoryList = (id) => {
+   
     axios({
       url: `${API_BASE_URL}getsuperSiteList/${id}`,
       method: 'GET',

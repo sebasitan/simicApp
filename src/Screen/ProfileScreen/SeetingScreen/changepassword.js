@@ -7,8 +7,7 @@ import {
   Switch,
   TouchableOpacity,
   Text,
-  TextInput,
-  Alert
+  TextInput
 } from 'react-native';
 import {
     Avatar,
@@ -16,27 +15,20 @@ import {
     Paragraph,
     Modal
 } from 'react-native-paper';
-import axios from 'axios';
-import { API_BASE_URL } from '../../../Services/url';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Utility from '../../../Utility/inbdex';
-const SettingScreen = ({navigation}) => {
+const ChangePassword = ({navigation}) => {
     const [userToken, setUserToken] = useState(null);
     const [userData, setUserData] = useState([]);
     const [isEnabled, setIsEnabled] = useState(false);
     const [passwordModal,setPasswordModel]=useState(false);
-    const [ oldPassword, setOldPassword] = useState('');
-    const [ newPassword, setNewPassword] = useState('');
-    const [ confirmPassword, setConfirmPassword] = useState('');
     const toggleSwitch = () => setIsEnabled(previousState => !previousState);
     useEffect( () => { (
         async() => { 
-            let usertoken = await AsyncStorage.getItem('userToken');
+            let userToken = await AsyncStorage.getItem('userToken');
             let userDatajosn = await AsyncStorage.getItem('userData');
-            
-            if(usertoken !=null){
-                setUserToken(JSON.parse(usertoken));
+            setUserToken(userToken);
+            if(userToken !=null){
                 setUserData(JSON.parse(userDatajosn));
             }
         } 
@@ -46,71 +38,8 @@ const SettingScreen = ({navigation}) => {
     const hideModal = () => setPasswordModel(false);
     const containerStyle = {backgroundColor: 'white',borderRadius:10,margin:10,paddingBottom:10};
     const signOut=()=>{
-      Utility.signOut();
       navigation.navigate('Signin');
     }
-
-    const updatePassword = () => {
-
-      if( oldPassword !='' && confirmPassword !='' && newPassword !=''){
-
-        if( confirmPassword == newPassword ){
-          if(userToken !=''){
-            let formData = {
-              user_id:userToken,
-              current_password: oldPassword,
-              new_password: newPassword
-            };
-            console.log(formData);
-            axios({
-              url: `${API_BASE_URL}changePassword`,
-              method: 'POST',
-              data: formData,
-              headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'multipart/form-data',
-              },
-            }).then(res => {
-                //console.log(res?.data);
-                if (res?.data?.status == 1) {
-                  alert("Password Changed Succesffuly");
-                  Utility.signOut();
-                  navigation.navigate('Signin');
-                }else{
-                  alert(res?.data?.message);
-                }
-            }).catch(e => {
-              Alert.alert(
-                "Warning",
-                "Somthing went wrong, Try Again",
-                [
-                { text: "OK" }
-                ]
-              );
-            });
-          }
-        }else{
-          Alert.alert(
-            "Warning",
-            "New Password and Confirm Password Not Matched.",
-            [
-            { text: "OK" }
-            ]
-          );
-        }
-      }else{
-        Alert.alert(
-          "Warning",
-          "Password Fields are empty. please fill out.",
-          [
-          { text: "OK" }
-          ]
-        );
-      }
-
-      
-    };
-
     return(
         <View style={styles.container}>
             <StatusBar backgroundColor='#04487b' hidden={false} />
@@ -161,19 +90,19 @@ const SettingScreen = ({navigation}) => {
                 <Text style={{color:'white',textAlign:'center',padding:10}}>Cambia password</Text>
                 {/* <Ionicons name="ios-chevron-forward-sharp" style={{marginLeft}} size={25} color='#777'/> */}
               </View>
-              <View style={[styles.inputTextConatiner, {paddingLeft: 10, paddingRight: 10}]}>
+              <View style={styles.inputTextConatiner}>
               <Ionicons name="ios-key-outline" size={25} color='#333' style={{top:10}}/>
-                <TextInput placeholder='vacchia password' placeholderTextColor="black" onChangeText={(text) => setOldPassword(text)}></TextInput>
+                <TextInput placeholder='vacchia password' placeholderTextColor="black"></TextInput>
               </View>
-              <View style={[styles.inputTextConatiner, {paddingLeft: 10, paddingRight: 10}]}>
+              <View style={styles.inputTextConatiner}> 
               <Ionicons name="ios-key-outline" size={25} color='#333' style={{top:10}}/>
-                <TextInput placeholder='Nuova password' placeholderTextColor="black" onChangeText={(text) => setNewPassword(text)}></TextInput>
+                <TextInput placeholder='Nuova password' placeholderTextColor="black"></TextInput>
               </View>
-              <View style={[styles.inputTextConatiner, {paddingLeft: 10, paddingRight: 10}]}>
+              <View style={styles.inputTextConatiner}>
               <Ionicons name="ios-key-outline" size={25} color='#333' style={{top:10}}/>
-                <TextInput placeholder='Conferma password' placeholderTextColor="black" onChangeText={(text) => setConfirmPassword(text)}></TextInput>
+                <TextInput placeholder='Conferma password' placeholderTextColor="black"></TextInput>
               </View>
-              <TouchableOpacity onPress={()=>updatePassword()}>
+              <TouchableOpacity onPress={()=>setPasswordModel(!passwordModal)}>
               <View style={styles.inviaConatiner}>
                 <Text style={{color:'white'}}>Invia</Text>
               </View>
@@ -234,4 +163,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default SettingScreen;
+export default ChangePassword;

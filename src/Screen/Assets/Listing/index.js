@@ -114,12 +114,13 @@ const AssetsListig = ({ navigation }) => {
   };
 
   const ItemView = ({ item }) => {
+    //console.log(userToken);
     return (
       <TouchableOpacity onPress={() =>
         navigation.navigate('AssetViewScreen', {
-          data: item
-        }
-        )
+          itemid: item.item_id,
+          userid: userToken
+        })
       }>
       <View style={{ padding: 10, backgroundColor: '#FFF', borderRadius: 10 }}>
         <View style={{ flex: 1, flexDirection: 'row', alignContent: 'space-between' }}>
@@ -128,16 +129,16 @@ const AssetsListig = ({ navigation }) => {
             <View style={{ flex: 1, flexDirection: 'column' }}>
               <Title style={[styles.fontMedium, { fontSize: 15, marginBottom: 0, lineHeight: 20, color: 'black' }]}>{item.item_name}</Title>
               <Paragraph style={[styles.fontRegular, { fontSize: 12, lineHeight: 20, marginBottom: 0 }]}>{item.location_name}</Paragraph>
-              <Text style={{ fontSize: 12 }}><Title style={{ fontSize: 12, color: 'black' }}>Scandenza: </Title>{item.expiry_date_time}</Text>
+              <Text style={[ styles.fontRegular, { fontSize: 12, backgroundColor: item.status_colour, paddingLeft: 10, paddingRight: 10, color: 'white', width: 80, paddingTop: 5, paddingBottom: 5, marginTop: 5 }]}>{item?.status_id}</Text>
             </View>
           </View>
         </View>
         <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', marginTop: 8, borderTopColor: '#EEE', borderTopWidth: 1, paddingTop: 8 }}>
           <TouchableOpacity onPress={() =>
-            navigation.navigate('AssetViewScreen', {
-              data: item
-            }
-            )
+           navigation.navigate('AssetViewScreen', {
+            itemid: item.item_id,
+            userid: userToken
+          })
           } style={{ flexDirection: 'row' }}>
             <Ionicons name="eye-outline" color='#04487b' size={16}></Ionicons><Text style={{ marginLeft: 4, color: '#04487b', fontSize: 13 }}>Visualizzazione</Text>
           </TouchableOpacity>
@@ -191,7 +192,7 @@ const AssetsListig = ({ navigation }) => {
     navigation.navigate('AssetAddition');
   }
   const ScanAssets = () => {
-    Alert.alert("Scan")
+    navigation.navigate('QRCodeScreen');
   }
 
   return (

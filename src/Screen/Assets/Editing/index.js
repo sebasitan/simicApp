@@ -138,8 +138,6 @@ const AssetsEditing = ({ navigation ,route}) => {
           user_id :userToken,
           item_id : item?.item_id,
       }
-
-     // console.log("aessets addition form...",formData)
       axios({
           url: `${API_BASE_URL}itemView`,
           method: 'POST',
@@ -149,8 +147,8 @@ const AssetsEditing = ({ navigation ,route}) => {
               'Content-Type': 'multipart/form-data',
           },
       }).then(res => {
-        setLoader(false)
-      //  console.log("vikas view page.. on edit mode",res?.data)
+        setLoader(false);
+      //console.log("vikas view page.. on edit mode",res?.data)
         if(res.data.status == 1){
           let itemdetail = JSON.stringify(res?.data?.item_details);
           let itemdetailjson = JSON.parse(itemdetail);
@@ -283,10 +281,7 @@ const AssetsEditing = ({ navigation ,route}) => {
             });
           });
     }
-    const assetsAddtion=()=>{
-        navigation.navigate('DrawerNavigation')
-    }
-
+   
     const assetsEdit=()=>{
         setLoader(true);
         let formData = {

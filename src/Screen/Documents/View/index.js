@@ -59,9 +59,6 @@ const DocumentView = ({navigation, route}) => {
     if(FILE_URL !=''){
       let file_ext = getFileExtention(FILE_URL);
       file_ext = '.' + file_ext[0];
-   
-    // config: To get response by passing the downloading related options
-    // fs: Root directory path to download
     const { config, fs } = RNFetchBlob;
     let RootDir = fs.dirs.PictureDir;
     let options = {
@@ -91,7 +88,7 @@ const DocumentView = ({navigation, route}) => {
     return /[.]/.exec(fileUrl) ?
              /[^.]+$/.exec(fileUrl) : undefined;
   };
-  console.log(item);
+  //console.log(item);
   return(
     <View style={[ styles.container ]}>
     {loader?

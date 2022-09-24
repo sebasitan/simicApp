@@ -19,31 +19,33 @@ import { API_BASE_URL } from '../../../Services/url';
 import AssetsBooking from '../AssestsBooking';
 
 const Viewing = ({route, navigation}) => {
-const {data}=route?.params;
-  const [userToken, setUserToken] = useState(null);
+  const [itemId, setItemId] = useState(route?.params?.itemid);
+  const [userId, setUserId] = useState(route?.params?.userid);
   const [itemDetails, setItemDetails] = useState([]);
   const [itemLocation, setItemLocation] = useState([]);
   const [loader,setLoader]=React.useState(false);
   const [assetsHistorys,setAssetsHistory]=React.useState([])
   const [assetsMaintainces,setAssetsMaintainces]=React.useState([])
   const [bookingHistory,setBookingHistory]=React.useState([]);
+
   useEffect( () => {
       (
-        async() => { 
-          const userToken = await AsyncStorage.getItem('userToken');
-          //console.log("usertoken...",userToken);
-          getItemDetials(userToken)
+        async() => {
+          if(userId !='' && itemId !=''){
+            getItemDetials();
+          }
         }
       ) ();
   },[]);
-  const getItemDetials=(id)=>{
-    setLoader(true)
-      let formData = {
-          user_id :62,
-          item_id : data?.item_id,
-      }
-      //console.log("aessets addition form...",formData)
-      axios({
+
+  const getItemDetials=()=>{
+    setLoader(true);
+
+    let formData = {
+      user_id : 1,
+      item_id : itemId,
+    }
+    axios({
           url: `${API_BASE_URL}itemView`,
           method: 'POST',
           data: formData,
@@ -52,8 +54,7 @@ const {data}=route?.params;
               'Content-Type': 'multipart/form-data',
           },
       }).then(res => {
-        setLoader(false)
-        //console.log("vikas view page..",res?.data)
+        setLoader(false);
         if(res.data.status == 1){
           let itemdetail = JSON.stringify(res?.data?.item_details);
           let itemdetailjson = JSON.parse(itemdetail);
@@ -150,7 +151,7 @@ const {data}=route?.params;
                   </View>
                   <Ionicons name="ios-chevron-forward-sharp" size={25} color='#777'/>
               </TouchableOpacity>
-              <TouchableOpacity style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#DDD', paddingBottom: 15, paddingTop: 15, alignContent:'space-between', backgroundColor: '#FFF', marginLeft: -15, marginRight: -15, marginTop: 0, paddingLeft: 15, paddingRight: 15, marginBottom: -15 }} onPress={() =>assetsMantiance(assetsMaintainces,data?.item_id)} >
+              <TouchableOpacity style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#DDD', paddingBottom: 15, paddingTop: 15, alignContent:'space-between', backgroundColor: '#FFF', marginLeft: -15, marginRight: -15, marginTop: 0, paddingLeft: 15, paddingRight: 15, marginBottom: -15 }} onPress={() =>assetsMantiance(assetsMaintainces,itemId)} >
                   <View style={{ flex: 1, flexDirection: 'row', alignSelf: 'flex-start'}}>
                     <Ionicons name="construct-outline" size={25} color='#333'style={{alignSelf: 'flex-start'}}/>
                     <Paragraph style={[styles.fontFamily, { marginLeft: 10 } ]}>Manutenzione</Paragraph>

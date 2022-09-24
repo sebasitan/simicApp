@@ -33,7 +33,6 @@ const Listing = ({ navigation }) => {
   const [search, setSearch] = useState('');
   const [drawerStatus, setDrawerStatus] = React.useState(false);
   const [loader, setLoader] = React.useState(false);
-  const [refresh, setRefresh] = React.useState(true);
 
   useEffect(() => {
     (
@@ -47,10 +46,9 @@ const Listing = ({ navigation }) => {
       }
     )();
 
-  }, [refresh]);
+  }, []);
 
   const getDocumentListingData = (userToken) => {
-    console.log("asdas");
     axios({
       url: `${API_BASE_URL}/viewDocument/${userToken}`,
       method: 'GET',
@@ -65,7 +63,6 @@ const Listing = ({ navigation }) => {
         setmasterItemData(itemjson);
         setfilterItemData(itemjson);
         setLoader(false);
-        setRefresh(false);
       } else {
         Alert.alert(
           "Warning",
@@ -99,7 +96,7 @@ const Listing = ({ navigation }) => {
       user_id: userToken,
       document_id: item?.id
     }
-    console.log("aessets addition form...", formData)
+    //console.log("aessets addition form...", formData)
     axios({
       url: `${API_BASE_URL}deleteDocument`,
       method: 'POST',
@@ -224,8 +221,6 @@ const Listing = ({ navigation }) => {
               ItemSeparatorComponent={ItemSeparatorView}
               renderItem={ItemView}
               style={{ marginTop: 20 }}
-              onRefresh={getDocumentListingData}
-              refreshing={true}
             /> : <NoDataFound title={"No Data Found"} />}
           <View style={{ flex: 1 }}>
             <View style={{ position: 'absolute', bottom: 20, alignSelf: 'flex-end' }}>

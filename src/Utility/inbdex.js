@@ -88,9 +88,9 @@ export const showAlertWithCallBack = (msg, onOkClick) => {
 
 export const setInLocalStorge = async (key, token) => {
   try {
-    console.log(token);
+    //console.log(token);
     await AsyncStorage.setItem(key, JSON.stringify(token));
-    //console.log('setInLocalStorge', res);
+    //console.log('success: '+ await AsyncStorage.getItem(key));
   } catch (err) {
     Alert.alert(
         "Warning",
@@ -99,12 +99,14 @@ export const setInLocalStorge = async (key, token) => {
             { text: "OK" }
         ]
     );
+    //console.log('failed: '+ await AsyncStorage.getItem(key));
   }
 };
 
-export const getFromLocalStorge = async (key: String) => {
+export const getFromLocalStorge = async (key) => {
   try {
     const token = await AsyncStorage.getItem(key);
+    //console.log(token);
     return token ? JSON.parse(token) : null;
   } catch (err) {
     console.log('getFromLocalStorge Error', err);

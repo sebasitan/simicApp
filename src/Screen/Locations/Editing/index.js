@@ -27,33 +27,26 @@ const style = StyleSheet.create({
 })
 const Editiing = ({ navigation, route }) => {
   const { item } = route?.params;
-  //console.log("location edit >>>", item)
-  const [category, setCategory] = React.useState();
   const [name, setName] = React.useState();
   const [descrption, setDrescription] = React.useState()
   const [userType, setUserType] = React.useState();
   const [userId, setUserId] = React.useState();
-  const [companyList, setCompanyList] = React.useState([]);
   const [companyValue, setCompanyValue] = React.useState('');
-  const [companyfieldval, setCompanyfieldval] = React.useState('');
   const [sitefieldval, setSitefieldval] = React.useState('');
   const [superCategoryList, setSuperCategoryList] = React.useState([])
   const [superCategoryValue, setSuperCategoryVaule] = React.useState();
-  const [categoryList, setCategoryList] = React.useState([]);
   const [categoryValue, setCategoryValue] = React.useState();
   const [loader, setLoader] = React.useState(false)
-  const [locationdetails, setLocationDetials] = React.useState();
 
   useEffect(() => {
-    getUserInfomation()
+    getUserInfomation();
+  }, []);
 
-  }, [])
-  const getLocationDetials = (userId) => {
+  const getLocationDetials = (userId, usertype) => {
     let formData = {
       user_id: userId,
       location_id: item?.location_id,
     }
-    //console.log("aessets addition form...", formData)
     axios({
       url: `${API_BASE_URL}locationView`,
       method: 'POST',
@@ -64,19 +57,22 @@ const Editiing = ({ navigation, route }) => {
       },
     }).then(res => {
       setLoader(false)
-      //console.log("vikas view page..", res?.data)
+      //console.log(usertype);
       if (res.data.status == 1) {
         let itemdetail = JSON.stringify(res?.data?.location_details);
         let itemdetailjson = JSON.parse(itemdetail);
+        if(usertype == 99){
+          getSuperCategoryList(itemdetailjson?.company_id);
+        }else{
+          getSimpleCategoryList(userId);
+        }
         //console.log(itemdetailjson);
         setName(itemdetailjson?.location_name);
         setDrescription(itemdetailjson?.description)
 
         setSitefieldval(itemdetailjson?.site_id);
-        setCompanyfieldval(itemdetailjson?.company_id);
+        setCompanyValue(itemdetailjson?.company_id);
 
-        setSuperCategoryVaule(itemdetailjson?.site_id);
-        setCategoryValue(itemdetailjson?.site_id)
       } else {
         Alert.alert(
           "Warning",
@@ -100,43 +96,14 @@ const Editiing = ({ navigation, route }) => {
   }
   const getUserInfomation = async () => {
     const userRecords = await Utility.getFromLocalStorge('userData');
-    //console.log("user REcords...", userRecords)
     setUserType(userRecords?.user_type);
-    if (userRecords?.user_type === "99") {
-      companyApi();
-    } else {
-      getSuperCategoryList(userRecords.company_id);
-      setCompanyValue(userRecords.company_id);
-    }
-    setUserId(userRecords?.user_id)
-    getLocationDetials(userRecords?.user_id)
+    setUserId(userRecords?.user_id);
+    getLocationDetials(userRecords?.user_id, userRecords?.user_type);
   }
-  const companyApi = () => {
+
+  const getSimpleCategoryList = (id) => {
     axios({
-      url: `${API_BASE_URL}getCompany`,
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'multipart/form-data',
-      },
-    }).then(res => {
-      //console.log("company1..", res?.data)
-      //console.log("company.", res?.data?.company_list)
-      var prevCategoryList = res?.data?.company_list.map(car => ({ value: car?.id, label: car?.company_name }));
-      setCompanyList(prevCategoryList)
-    }).catch(e => {
-      Alert.alert(
-        "Warning",
-        "Somthing went wrong, Try Again",
-        [
-          { text: "OK" }
-        ]
-      );
-    });
-  }
-  const getSimpleCategoryLis = () => {
-    axios({
-      url: `${API_BASE_URL}getSiteList/${userId}`,
+      url: `${API_BASE_URL}getSiteList/${id}`,
       method: 'GET',
       headers: {
         'Accept': 'application/json',
@@ -145,7 +112,7 @@ const Editiing = ({ navigation, route }) => {
     }).then(res => {
       //console.log(" assets Catergory on Edit page.", res?.data?.site_list)
       var prevCategoryList = res?.data?.site_list.map(car => ({ value: car?.id, label: car?.site_name }));
-      setCategoryList(prevCategoryList)
+      setSuperCategoryList(prevCategoryList);
     }).catch(e => {
       Alert.alert(
         "Warning",
@@ -185,8 +152,6 @@ const Editiing = ({ navigation, route }) => {
       user_id: userId,
       location_name: name,
       description: descrption,
-      site_id: categoryValue || superCategoryValue,
-      company_id: companyValue
     }
     //console.log("aessets addition form...", formData)
     axios({
@@ -198,12 +163,12 @@ const Editiing = ({ navigation, route }) => {
         'Content-Type': 'multipart/form-data',
       },
     }).then(res => {
-      //console.log("", res?.data)
-      if (res?.data?.status) {
-        navigation.navigate('tutte le')
+      console.log("", res?.data)
+      if (res?.data?.status == 1) {
+        navigation.navigate('Tutte le posizioni');
       }
-      alert("Document Added Succesffuly");
-      setLoader(false)
+      alert("Location Updated Succesffuly");
+      setLoader(false);
     }).catch(e => {
       setLoader(false)
       Alert.alert(
@@ -226,55 +191,10 @@ const Editiing = ({ navigation, route }) => {
       <View style={style.inputConatiner}>
         <TextInput placeholder='Descrizione' value={descrption} placeholderTextColor="black" onChangeText={(e) => setDrescription(e)}></TextInput>
       </View>
-      {userType === "99" ?
-        <>
-          <View style={style.inputConatiner}>
-            <Dropdown
-              style={{ marginLeft: 10 }}
-              placeholderStyle={{ color: 'black' }}
-              selectedTextStyle={{ color: 'black' }}
-              inputSearchStyle={styles.inputSearchStyle}
-              iconStyle={styles.iconStyle}
-              data={superCategoryList}
-              maxHeight={200}
-              search
-              labelField="label"
-              valueField="value"
-              placeholder="Nome sito"
-              searchPlaceholder="Search..."
-              value={sitefieldval}
-              onChange={item => {
-                // setCategory(item)s
-                setSuperCategoryVaule(item?.value)
-              }}
-            />
-          </View>
-        </> :
-        <View style={style.inputConatiner}>
-          <Dropdown
-            style={{ marginLeft: 10 }}
-            placeholderStyle={{ color: 'black' }}
-            selectedTextStyle={{ color: 'black' }}
-            inputSearchStyle={styles.inputSearchStyle}
-            iconStyle={styles.iconStyle}
-            data={superCategoryList}
-            maxHeight={200}
-            search
-            labelField="label"
-            valueField="value"
-            placeholder="Nome sito"
-            searchPlaceholder="Search..."
-            value={sitefieldval}
-            onChange={item => {
-              setSuperCategoryVaule(item?.value)
-            }}
-          />
-        </View>}
+      
       <TouchableOpacity onPress={() => addLocation()}>
         <View style={style.saveContainer}>
-
           <Text style={{ color: 'white' }}>Save</Text>
-
         </View>
       </TouchableOpacity>
     </View>

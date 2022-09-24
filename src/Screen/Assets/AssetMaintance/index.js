@@ -84,8 +84,9 @@ const AssetsMaintance = ({ route, navigation }) => {
 
   React.useEffect(()=>{
     getUserdetails();
-
-    item ? setReminderDays( item[0]['rem_days'] ) : setReminderDays(5);
+    //console.log(item);
+    //item ? setReminderDays( item[0]['rem_days'] ) : setReminderDays(5);
+    item !='' ? setReminderDays( item[0]['rem_days'] ) : setReminderDays(5);
 
 },[])
 const getUserdetails=async()=>{

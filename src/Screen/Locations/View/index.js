@@ -18,7 +18,6 @@ import { API_BASE_URL } from '../../../Services/url';
 
 const LocationViewing = ({route, navigation}) => {
   const { item } = route?.params;
-  //console.log(item?.location_id);
   const [loader,setLoader]=React.useState(false);
     return(
       <View style={[ styles.container ]}>
