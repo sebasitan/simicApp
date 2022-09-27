@@ -23,6 +23,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Utility from '../../Utility/inbdex';
 import axios from 'axios';
 import { API_BASE_URL } from '../../Services/url';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 
 const ProfileScreen = ({navigation}) => {
   
@@ -30,10 +31,11 @@ const ProfileScreen = ({navigation}) => {
     const [userDetilas,setUserDetails]=React.useState()
     const [userData,setUserData]=React.useState();
     const [loader,setLoader]=React.useState(false);
+    const isFocused = useIsFocused();
 
     useEffect( () => {
         getUserInfor()
-    },[]);
+    },[isFocused]);
     
     const getUserInfor=async()=>{
         let userId=await Utility.getFromLocalStorge('userToken')

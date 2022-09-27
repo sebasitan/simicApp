@@ -11,13 +11,13 @@ import {
   Image,
   TouchableOpacity,
   TextInput,
-  BackHandler
 } from 'react-native';
+
 import {
   Title,
   Paragraph,
 } from 'react-native-paper';
-import {useFocusEffect} from '@react-navigation/native';
+import {useFocusEffect, useIsFocused} from '@react-navigation/native';
 import axios from "axios";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -31,12 +31,12 @@ const AssetsListig = ({ navigation }) => {
   const [filterItemData, setfilterItemData] = React.useState([]);
   const [pageNumber, setPageNumber] = React.useState(1);
   const [search, setSearch] = useState('');
-  const [drawerStatus, setDrawerStatus] = React.useState(false);
-
+  const [refresh, setRefresh] = useState(false);
+  const isFocused = useIsFocused();
   useFocusEffect(
       React.useCallback(() => {
         fetchAssetsList(1,2)
-      }, []),
+      }, [isFocused]),
   );
 
   const fetchAssetsList = async (pagenumber,type) => {
@@ -182,11 +182,10 @@ const AssetsListig = ({ navigation }) => {
   }
 
   const callMoreApi = () => {
-    //console.log("Calling more Data..", pageNumber + 1);
-
+    setisLoading(true);
     fetchAssetsList(pageNumber + 1,1);
-
-    setPageNumber(pageNumber + 1)
+    setPageNumber(pageNumber + 1);
+    setisLoading(false);
   }
   const AddAssets = () => {
     navigation.navigate('AssetAddition');
@@ -217,9 +216,13 @@ const AssetsListig = ({ navigation }) => {
               keyExtractor={(item, index) => index.toString()}
               ItemSeparatorComponent={ItemSeparatorView}
               renderItem={ItemView}
+              initialNumToRender={5}
+              removeClippedSubviews={true}
               onEndReached={callMoreApi}
               onEndReachedThreshold={0.5}
               style={{ marginTop: 20 }}
+              refreshing={refresh}
+              onRefresh={callMoreApi}
             />
             <View style={{ flex: 1 }}>
               <View style={{ position: 'absolute', bottom: 80, right: 10, alignSelf: 'flex-end' }}>

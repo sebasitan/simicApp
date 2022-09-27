@@ -10,32 +10,32 @@ import {
   Image,
   TouchableOpacity,
 } from 'react-native';
-import ControlPanel from '../../../Navigation/ControlPanel';
+//import ControlPanel from '../../../Navigation/ControlPanel';
 import {
   Title,
   Paragraph,
 } from 'react-native-paper';
+import { useIsFocused } from '@react-navigation/native';
 import axios from "axios";
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+//import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../../../Services/url';
-import HomeHeader from '../../../Component/HomeHeader';
-import NoDataFound from '../../../Component/NoDataFound';
 import * as Utility from '../../../Utility/inbdex';
 
 const LocationListingScreen = ({ navigation }) => {
   const [userToken, setUserToken] = useState(null);
-  const [isLoading, setisLoading] = useState(false);
-  const [masterItemData, setmasterItemData] = useState([]);
+  //const [masterItemData, setmasterItemData] = useState([]);
   const [filterItemData, setfilterItemData] = useState([]);
-  const [search, setSearch] = useState('');
-  const [drawerStatus, setDrawerStatus] = React.useState(false);
+  //const [search, setSearch] = useState('');
   const [loader,setLoader]=React.useState(false);
   const [page,setPage]=React.useState(1);
+  const [refresh, setRefresh] = useState(false);
+  const isFocused = useIsFocused();
+
   useEffect(() => {
     (
       async () => {
-        const userToken= await Utility.getFromLocalStorge('userToken');
+        let userToken = await Utility.getFromLocalStorge('userToken');
         setUserToken(userToken);
         if (userToken != null) {
           callLocation(userToken,page);
@@ -43,11 +43,10 @@ const LocationListingScreen = ({ navigation }) => {
       }
     )();
 
-  },[]);
-  const openDrawer = () => {
-    setDrawerStatus(!drawerStatus);
-  }
+  },[isFocused]);
+
   const callLocation=(userToken,page)=>{
+    //console.log('location page: '+ page);
     axios({
       url: `${API_BASE_URL}/locationList/${userToken}?page=${page}`,
       method: 'GET',
@@ -58,9 +57,9 @@ const LocationListingScreen = ({ navigation }) => {
     }).then(res => {
       if (res.data.status == 1) {
         let location_list = JSON.stringify(res.data.location_list);
-        let locationjson = JSON.parse(location_list);
-        setmasterItemData(locationjson);
-        setfilterItemData([...filterItemData,...locationjson]);
+        let itemjson = JSON.parse(location_list);
+        //setmasterItemData(locationjson);
+        setfilterItemData([...filterItemData, ...itemjson]);
       } else {
         Alert.alert(
           "Warning",
@@ -80,10 +79,7 @@ const LocationListingScreen = ({ navigation }) => {
       );
     });
   }
-  const drawerStyles = {
-    drawer: { shadowColor: '#000000', shadowOpacity: 0.8, shadowRadius: 3 },
-    main: { paddingLeft: 3 },
-  }
+ 
   const ItemView = ({ item }) => {
     return (
       <TouchableOpacity>
@@ -121,36 +117,8 @@ const LocationListingScreen = ({ navigation }) => {
     );
   };
 
-
-  const searchFilterFunction = (text) => {
-    // Check if searched text is not blank
-    if (text) {
-      // Inserted text is not blank
-      // Filter the masterDataSource and update FilteredDataSource
-      const newData = masterItemData.filter(function (item) {
-        // Applying filter for the inserted text in search bar
-        const itemData = item.location_name
-          ? item.location_name.toUpperCase()
-          : ''.toUpperCase();
-        //console.log(item);
-        const textData = text.toUpperCase();
-        return itemData.indexOf(textData) > -1;
-      });
-
-      setfilterItemData(newData);
-      setSearch(text);
-
-    } else {
-      // Inserted text is blank
-      // Update FilteredDataSource with masterDataSource
-      setfilterItemData(masterItemData);
-      setSearch(text);
-    }
-  };
-
   const ItemSeparatorView = () => {
     return (
-      // Flat List Item Separator
       <View
         style={{
           height: 10,
@@ -161,35 +129,35 @@ const LocationListingScreen = ({ navigation }) => {
     );
   };
 
-  if (loader == true) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
   const locationAddition=()=>{
     navigation.navigate('LocationAddition')
   }
   const callMoreApi=()=>{
+    setLoader(true);
     callLocation(userToken,page+1);
     setPage(page+1);
+    setLoader(false);
   }
   return (
     <>
       {/* <HomeHeader title="Tutti gli oggetti" openDrawer={openDrawer} /> */}
     <View style={styles.container}>
       <StatusBar backgroundColor='#04487b' hidden={false} />
+      {loader? <ActivityIndicator size={50}/> : null }
       <View style={{ flex: 1, marginTop: 20 }}>
-        {filterItemData?.length>0?
         <FlatList
           data={filterItemData}
           keyExtractor={(item, index) => index.toString()}
           ItemSeparatorComponent={ItemSeparatorView}
           renderItem={ItemView}
+          initialNumToRender={5}
+          removeClippedSubviews={true}
           onEndReached={callMoreApi}
+          onEndReachedThreshold={0.5}
           style={{ marginTop: 20 }}
-        />:<NoDataFound title={"No data Found"}/>}
+          refreshing={refresh}
+          onRefresh={callMoreApi}
+        />
         <View style={{ flex: 1 }}>
           <View style={{ position: 'absolute', bottom: 20, alignSelf: 'flex-end' }}>
             <TouchableOpacity onPress={()=>locationAddition()}>

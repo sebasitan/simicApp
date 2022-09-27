@@ -43,6 +43,7 @@ const SignIn = ({ navigation }) => {
             device_id: deviceId,
             device_type: deviceType,
         };
+        //console.log(formData);
         axios({
             url: `${API_BASE_URL}/signIn`,
             method: 'POST',

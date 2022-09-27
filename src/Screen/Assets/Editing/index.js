@@ -57,6 +57,8 @@ const AssetsEditing = ({ navigation ,route}) => {
     const [childCategoriesList,setChildCategoriesList]=React.useState([]);
     const [assestsStatusList,setAssestsStatusList]=React.useState([]);
     const [userId,setUserId]=React.useState('');
+    const [userRole, setUserRole]=React.useState('');
+    const [userData, setUserData]=React.useState(['']);
     const [qrcode,setQrcode]=React.useState('');
     const [assetImageName,setAssetImageName]=React.useState('');
     const [instructionImageName,setInstructionImagesName]=React.useState('');
@@ -73,6 +75,8 @@ const AssetsEditing = ({ navigation ,route}) => {
   },[]);
   const getUserInfo= async()=>{
     let userId = await Utility.getFromLocalStorge('userToken');
+    let userdata = await Utility.getFromLocalStorge('userData');
+    //console.log(userdata);
     setUserId(userId);
     callLocationApi(userId)
   }
@@ -439,6 +443,7 @@ const AssetsEditing = ({ navigation ,route}) => {
             );
         });
     }
+    //console.log(user);
     return (
         <View style={{ flex: 1 }}>
             <ScrollView>

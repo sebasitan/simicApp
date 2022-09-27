@@ -16,13 +16,14 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 //import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import * as Utility from '../Utility/inbdex';
 
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 
 const CustomDrawer = (props) => {
   const [loginData,setLoginData]=React.useState();
+  const isFocused = useIsFocused();
   useEffect(()=>{
     getUserInfo()
-  },[])
+  },[isFocused])
   const getUserInfo=async()=>{
     const  userToken = await Utility.getFromLocalStorge('userData');
     //console.log("drawer data?",userToken)

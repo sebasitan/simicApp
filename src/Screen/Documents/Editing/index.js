@@ -209,7 +209,7 @@ const DocumentEditing = ({ navigation,route }) => {
       }).then(res => {
         //console.log("", res?.data)
         if (res?.data?.status) {
-          navigation.navigate('DrawerNavigation','DocumentsListing')
+          navigation.navigate('Documenti');
         }
         alert("Document Updated Succesffuly");
         setLoader(false)

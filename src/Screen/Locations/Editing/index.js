@@ -163,7 +163,7 @@ const Editiing = ({ navigation, route }) => {
         'Content-Type': 'multipart/form-data',
       },
     }).then(res => {
-      console.log("", res?.data)
+      //console.log("", res?.data)
       if (res?.data?.status == 1) {
         navigation.navigate('Tutte le posizioni');
       }

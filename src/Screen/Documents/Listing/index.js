@@ -18,22 +18,22 @@ import {
   Title,
   Paragraph,
 } from 'react-native-paper';
+import { useIsFocused } from '@react-navigation/native';
 import axios from "axios";
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+//import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../../../Services/url';
-import HomeHeader from '../../../Component/HomeHeader';
+//import HomeHeader from '../../../Component/HomeHeader';
 import NoDataFound from '../../../Component/NoDataFound';
 import * as Utility from '../../../Utility/inbdex';
 const Listing = ({ navigation }) => {
   const [userToken, setUserToken] = useState(null);
-  const [isLoading, setisLoading] = useState(false);
+  //const [isLoading, setisLoading] = useState(false);
   const [masterItemData, setmasterItemData] = useState([]);
   const [filterItemData, setfilterItemData] = useState([]);
-  const [search, setSearch] = useState('');
-  const [drawerStatus, setDrawerStatus] = React.useState(false);
+  //const [search, setSearch] = useState('');
   const [loader, setLoader] = React.useState(false);
-
+  const isFocused = useIsFocused();
   useEffect(() => {
     (
       async () => {
@@ -43,10 +43,11 @@ const Listing = ({ navigation }) => {
           // setLoader(true)
           getDocumentListingData(userToken);
         }
+        
       }
     )();
 
-  }, []);
+  }, [isFocused]);
 
   const getDocumentListingData = (userToken) => {
     axios({
@@ -157,30 +158,6 @@ const Listing = ({ navigation }) => {
       </TouchableOpacity>
     );
   };
-  const drawerStyles = {
-    drawer: { shadowColor: '#000000', shadowOpacity: 0.8, shadowRadius: 3 },
-    main: { paddingLeft: 3 },
-  }
-  const searchFilterFunction = (text) => {
-    if (text) {
-
-      const newData = masterItemData.filter(function (item) {
-        const itemData = item.shop_assistant
-          ? item.shop_assistant.toUpperCase()
-          : ''.toUpperCase();
-        const textData = text.toUpperCase();
-        return itemData.indexOf(textData) > -1;
-      });
-
-      setfilterItemData(newData);
-      setSearch(text);
-
-    } else {
-
-      setfilterItemData(masterItemData);
-      setSearch(text);
-    }
-  };
 
   const ItemSeparatorView = () => {
     return (
@@ -201,10 +178,7 @@ const Listing = ({ navigation }) => {
       </View>
     );
   }
-  const openDrawer = () => {
-    setDrawerStatus(!drawerStatus);
-  }
-
+ 
   const documentAddition = () => {
     navigation.navigate('DocumentAddition')
   }
