@@ -20,8 +20,6 @@ import DeviceInfo from 'react-native-device-info';
 import { API_BASE_URL } from '../../../Services/url';
 import { ActivityIndicator } from 'react-native-paper';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
 // import { AuthContext } from '../context/AuthContext';
 
 const SignIn = ({ navigation }) => {

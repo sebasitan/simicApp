@@ -20,34 +20,44 @@ import {
 import {useFocusEffect, useIsFocused} from '@react-navigation/native';
 import axios from "axios";
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../../../Services/url';
-//import HomeHeader from '../../../Component/HomeHeader';
 import * as Utility from '../../../Utility/inbdex';
-const AssetsListig = ({ navigation }) => {
+import NoDataFound from '../../../Component/NoDataFound';
+
+const AssetsListing = ({ navigation }) => {
   const [userToken, setUserToken] = React.useState(null);
   const [isLoading, setisLoading] = React.useState(false);
   const [masterItemData, setmasterItemData] = React.useState([]);
   const [filterItemData, setfilterItemData] = React.useState([]);
   const [pageNumber, setPageNumber] = React.useState(1);
   const [search, setSearch] = useState('');
-  const [refresh, setRefresh] = useState(false);
+  const [isSearch, setIsSearch] = React.useState(false);
+  const [totalItems, setTotalItems] = useState();
   const isFocused = useIsFocused();
+
   useFocusEffect(
       React.useCallback(() => {
-        fetchAssetsList(1,2)
+        if(search.length > 3){
+          searchFilterFunction(search);
+        }else{
+          fetchAssetsList(1,2);
+        }
       }, [isFocused]),
   );
 
   const fetchAssetsList = async (pagenumber,type) => {
-    // setisLoading(true)
+
+    setisLoading(true);
+
     if(type===2){
-      // alert("yes")
-      setfilterItemData([])
+      setmasterItemData([]);
+      setPageNumber(1);
     }
-  
-    let userToken =await Utility.getFromLocalStorge('userToken');
+    //console.log(masterItemData);
+    let userToken = await Utility.getFromLocalStorge('userToken');
+
     setUserToken(userToken);
+
     if (userToken != null) {
       let formData = {
         user_id: userToken,
@@ -62,16 +72,16 @@ const AssetsListig = ({ navigation }) => {
           'Content-Type': 'multipart/form-data',
         },
       }).then(res => {
-        //console.log("data is", res);
         if (res.data.status == 1) {
-          // setisLoading(false)
-          let item_list = JSON.stringify(res.data.item_list);
-          //console.log("Vikas All listing data..", item_list);
+          let item_list = JSON.stringify(res?.data?.item_list);
           let itemjson = JSON.parse(item_list);
-          setmasterItemData(itemjson);
-          setfilterItemData([...filterItemData, ...itemjson]);
+          if(type===2){
+            setmasterItemData(itemjson);
+          }else{
+            setmasterItemData([...masterItemData, ...itemjson]);
+          }
+          setTotalItems(res?.data?.itemcount);
         } else {
-          // setisLoading(false)
           Alert.alert(
             "Warning",
             "Somthing went wrong, Try Again",
@@ -81,7 +91,6 @@ const AssetsListig = ({ navigation }) => {
           );
         }
       }).catch(e => {
-        // setisLoading(false)
         Alert.alert(
           "Warning",
           "Somthing went wrong, Try Again",
@@ -91,30 +100,117 @@ const AssetsListig = ({ navigation }) => {
         );
       });
     }
+    setisLoading(false);
   }
+
+  const deleteAsset = (id) => {
+
+    let formData = {
+      user_id: userToken,
+      item_id: id
+    };
+
+    Alert.alert(
+      "Warning",
+      "Are you sure to delete?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        { 
+          text: "DELETE", 
+          onPress: () => {
+            axios({
+              url: `${API_BASE_URL}item_delete`,
+              method: 'POST',
+              data: formData,
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'multipart/form-data',
+              },
+            }).then(res => {
+              if (res?.data?.status == 1) {
+                alert("Item delete Succesffuly");
+                fetchAssetsList(1,2);
+              }else{
+                Alert.alert(
+                  "Warning",
+                  "Somthing went wrong, Try Again",
+                  [
+                    { text: "OK" }
+                  ]
+                );
+              }
+            }).catch(e => {
+              Alert.alert(
+                "Warning",
+                "Somthing went wrong, Try Again",
+                [
+                  { text: "OK" }
+                ]
+              );
+            });
+          }
+        }
+      ]
+    );
+  };
+
   const searchFilterFunction = (text) => {
-    // Check if searched text is not blank
-    if (text) {
-      // Inserted text is not blank
-      // Filter the masterDataSource and update FilteredDataSource
-      const newData = masterItemData.filter(function (item) {
-        // Applying filter for the inserted text in search bar
-        const itemData = item.item_name
-          ? item.item_name.toUpperCase()
-          : ''.toUpperCase();
-        const textData = text.toUpperCase();
-        return itemData.indexOf(textData) > -1;
-      });
-      setfilterItemData(newData);
+    setmasterItemData([]);
+    setfilterItemData([]);
+    setPageNumber(1);
+    if(text.length > 3 ){
+      setIsSearch(true);
       setSearch(text);
-    } else {
-      setfilterItemData(masterItemData);
+      if (userToken != null) {
+        let formData = {
+          user_id: userToken,
+          search_key: text,
+        }
+        axios({
+          url: `${API_BASE_URL}/itemlistsearch`,
+          method: 'POST',
+          data: formData,
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'multipart/form-data',
+          },
+        }).then(res => {
+          if (res.data.status == 1) {
+            let item_list = JSON.stringify(res.data.item_list);
+            let itemjson = JSON.parse(item_list);
+            //console.log(itemjson);
+            setfilterItemData(itemjson);
+          } else {
+            Alert.alert(
+              "Warning",
+              "Somthing went wrong, Try Again",
+              [
+                { text: "OK" }
+              ]
+            );
+          }
+        }).catch(e => {
+          Alert.alert(
+            "Warning",
+            "Somthing went wrong, Try Again",
+            [
+              { text: "OK" }
+            ]
+          );
+        });
+      }
+    }else{
+      setIsSearch(false);
       setSearch(text);
+      fetchAssetsList(1,2);
+      navigation.navigate('DrawerNavigation');
     }
   };
 
   const ItemView = ({ item }) => {
-    //console.log(userToken);
     return (
       <TouchableOpacity onPress={() =>
         navigation.navigate('AssetViewScreen', {
@@ -149,7 +245,7 @@ const AssetsListig = ({ navigation }) => {
           } style={{ flexDirection: 'row', marginLeft: 13, marginRight: 13 }}>
             <Ionicons name="ios-create-outline" color='#ff8c00' size={16}></Ionicons><Text style={{ marginLeft: 0, color: '#ff8c00', fontSize: 13 }}>Modifica</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => alert("Are you want to delete")} style={{ flexDirection: 'row' }}>
+          <TouchableOpacity onPress={() => deleteAsset(item?.item_id)} style={{ flexDirection: 'row' }}>
             <Ionicons name="ios-trash-outline" color='#B31817' size={16}></Ionicons><Text style={{ marginLeft: 0, color: '#B31817', fontSize: 13 }}>Cancella</Text>
           </TouchableOpacity>
 
@@ -172,20 +268,20 @@ const AssetsListig = ({ navigation }) => {
     );
   };
 
-
-  if (isLoading == true) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
-
-  const callMoreApi = () => {
-    setisLoading(true);
-    fetchAssetsList(pageNumber + 1,1);
-    setPageNumber(pageNumber + 1);
-    setisLoading(false);
+  const callMoreItem = () => {
+    if(totalItems > 0 ){
+      let totalpage = Math.ceil(totalItems / 10);
+      let currentpage;
+      if( pageNumber <= totalpage ){
+        currentpage = pageNumber + 1;
+        fetchAssetsList(currentpage,1);
+        //console.log(currentpage);
+        setPageNumber(currentpage);
+      }else{
+        fetchAssetsList(1,2);
+        setPageNumber(1);
+      }
+    }
   }
   const AddAssets = () => {
     navigation.navigate('AssetAddition');
@@ -195,36 +291,49 @@ const AssetsListig = ({ navigation }) => {
   }
 
   return (
-      <>
-      {isLoading?
-      <ActivityIndicator size={50} color="blue"/>:null
-      }
-        <View style={styles.container}>
-          <StatusBar backgroundColor='#04487b' hidden={false} />
-          <View style={{ flex: 1, marginTop: 20 }}>
-            <TextInput
-              placeholder="Cerca qui..."
-              style={[styles.textInputStyle, styles.fontRegular]}
-              underlineColorAndroid="transparent"
-              value={search}
-              onChangeText={(text) => searchFilterFunction(text)}
-            >
-            </TextInput>
-         
-            <FlatList
-              data={filterItemData}
-              keyExtractor={(item, index) => index.toString()}
-              ItemSeparatorComponent={ItemSeparatorView}
-              renderItem={ItemView}
-              initialNumToRender={5}
-              removeClippedSubviews={true}
-              onEndReached={callMoreApi}
-              onEndReachedThreshold={0.5}
-              style={{ marginTop: 20 }}
-              refreshing={refresh}
-              onRefresh={callMoreApi}
-            />
-            <View style={{ flex: 1 }}>
+    <View style={styles.container}>
+      <StatusBar backgroundColor='#04487b' hidden={false} />
+        <View style={{ flex: 1, marginTop: 20 }}>
+          { totalItems === 0 ? <NoDataFound title={"No Data Found"}/> : 
+            <>
+              <TextInput
+                placeholder="Cerca qui..."
+                style={[styles.textInputStyle, styles.fontRegular]}
+                underlineColorAndroid="transparent"
+                value={search}
+                onChangeText={(text) => searchFilterFunction(text)}
+              >
+              </TextInput>
+              { isSearch != true ? <>
+                <FlatList
+                data={masterItemData}
+                keyExtractor={(item, index) => index.toString()}
+                ItemSeparatorComponent={ItemSeparatorView}
+                renderItem={ItemView}
+                initialNumToRender={5}
+                removeClippedSubviews={true}
+                onEndReached={callMoreItem}
+                onEndReachedThreshold={0.5}
+                style={{ marginTop: 20 }}
+                refreshing={isLoading}
+                onRefresh={callMoreItem}
+                //ListFooterComponent={<NoMoreDataFound title={'End of List'}/>}
+              />
+              </>: <>
+                <FlatList
+                  data={filterItemData}
+                  keyExtractor={(item, index) => index.toString()}
+                  ItemSeparatorComponent={ItemSeparatorView}
+                  renderItem={ItemView}
+                  initialNumToRender={5}
+                  removeClippedSubviews={true}
+                  style={{ marginTop: 20 }}
+                />
+              </>}
+            </> 
+          }
+    
+          <View style={{ flex: 1 }}>
               <View style={{ position: 'absolute', bottom: 80, right: 10, alignSelf: 'flex-end' }}>
                 <TouchableOpacity onPress={() => ScanAssets()}><Ionicons name="ios-qr-code-outline" color='#B31817' size={30}></Ionicons>
                 </TouchableOpacity>
@@ -233,10 +342,9 @@ const AssetsListig = ({ navigation }) => {
                 <TouchableOpacity onPress={() => AddAssets()}><Ionicons name="add-circle-sharp" color='#B31817' size={45}></Ionicons>
                 </TouchableOpacity>
               </View>
-            </View>
           </View>
-        </View>
-      </>
+      </View>
+    </View>
   );
 
 };
@@ -270,12 +378,17 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   fontRegular: {
+    fontFamily: 'Montserrat-Regular'
   },
   fontMedium: {
   },
   primaryColor: {
     color: '#04487b'
+  },
+  mainConatiner:{
+    marginTop:50,
+    alignSelf:'center'
   }
 
 });
-export default AssetsListig;
+export default AssetsListing;

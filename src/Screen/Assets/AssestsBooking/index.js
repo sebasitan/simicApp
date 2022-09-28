@@ -1,7 +1,13 @@
 import React, { useEffect,useState } from "react";
+
 import {View,Text, StyleSheet, ScrollView, TouchableOpacity, Alert, FlatList} from 'react-native';
+
+import {useFocusEffect, useIsFocused} from '@react-navigation/native';
+
 import { TextInput, Title } from "react-native-paper";
+
 import moment from 'moment';
+
 import { Dropdown } from "react-native-element-dropdown";
 import axios from "axios";
 import { API_BASE_URL } from '../../../Services/url';
@@ -72,9 +78,10 @@ const AssetsBooking=({navigation,route})=>{
     const [secondDateOpen,setSecondDateOpen]=React.useState(false);
     const [reportingdate,setReportingDate]=React.useState(new Date());
     const [secondReportingDate,setSecondReportingDate]=React.useState(new Date());
+    const isFocused = useIsFocused();
     React.useEffect(()=>{
         getUserdetails()
-    },[])
+    },[isFocused])
     const getUserdetails=async()=>{
         let id=await Utility.getFromLocalStorge('userToken');
         setUserId(id);
@@ -143,8 +150,8 @@ const AssetsBooking=({navigation,route})=>{
             //console.log("vikas asset_booking page..",res)
             if(res.data.status == 1){
                 alert("Assets Booking Successfully")
-                navigation.goBack()
-                // navigation.navigate('DrawerNavigation')
+                //navigation.goBack()
+                navigation.navigate('DrawerNavigation')
             }else{
               Alert.alert(
                   "Warning",

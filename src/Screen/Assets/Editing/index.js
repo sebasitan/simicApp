@@ -13,37 +13,23 @@ import {
     ScrollView
 } from 'react-native';
 
-import {
-    Avatar,
-    Title,
-    Caption,
-    Paragraph,
-    Drawer,
-    TouchableRipple,
-    Switch
-} from 'react-native-paper';
 import ImagePicker from 'react-native-image-crop-picker';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
 import axios from "axios";
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import { API_BASE_URL } from '../../../Services/url';
+
 import * as Utility from '../../../Utility/inbdex';
 
 const AssetsEditing = ({ navigation ,route}) => {
   const {item}= route?.params;
-  //console.log("item is.././.",item)
     const [name, setName] = useState('');
-    //const [DataDate, setDataDate] = useState('');
     const [stato, setStato] = useState('');
     const [description, setDrescription] = useState('');
     const [notes, setNotes] = useState('');
     const [image, setImage] = useState('');
-    //const [StatoList, setStatoList] = useState([]);
     const [instructionImage,setInstructionImage]=useState('');
     const [loader,setLoader]=useState(false);
     const [categoryName,setCategoryName]=React.useState('');
@@ -58,28 +44,32 @@ const AssetsEditing = ({ navigation ,route}) => {
     const [assestsStatusList,setAssestsStatusList]=React.useState([]);
     const [userId,setUserId]=React.useState('');
     const [userRole, setUserRole]=React.useState('');
-    const [userData, setUserData]=React.useState(['']);
+    const [userData, setUserData]=React.useState([]);
     const [qrcode,setQrcode]=React.useState('');
     const [assetImageName,setAssetImageName]=React.useState('');
     const [instructionImageName,setInstructionImagesName]=React.useState('');
+
     useEffect( () => {
       (
         async() => { 
           getUserInfo();
           getItemDetials()
-        //   callLocationApi()
           callParentCategory()
           getAssetsStatus()
         }
       ) ();
-  },[]);
+    },[]);
+
   const getUserInfo= async()=>{
     let userId = await Utility.getFromLocalStorge('userToken');
     let userdata = await Utility.getFromLocalStorge('userData');
     //console.log(userdata);
     setUserId(userId);
+    setUserData(userdata);
+    setUserRole(userdata?.user_role);
     callLocationApi(userId)
   }
+  //console.log(userData);
   const callParentCategory=async()=>{
     axios({
         url: `${API_BASE_URL}get_cat_list`,
@@ -165,12 +155,10 @@ const AssetsEditing = ({ navigation ,route}) => {
           setName(itemdetailjson?.item_name)
           setDrescription(itemdetailjson?.description)
           setImage(itemdetailjson?.item_image_url)
-        //   setAssetImageName()
           setCategoryName(itemdetailjson?.parent_item_id);
           setSubCategoryName(itemdetailjson?.sub_item_id);
           setChildCategoryName(itemdetailjson?.sub_subitem_id);
 
-          //callSubCategoryApi(itemdetailjson?.sub_item_id);
           setLOactionName(itemdetailjson?.location_id);
           setAssetsName(itemdetailjson?.status_id);
           setNotes(itemchildcatlistjson?.notes);
@@ -178,11 +166,9 @@ const AssetsEditing = ({ navigation ,route}) => {
           setInstructionImagesName(itemdetailjson?.item_instructions_name)
           setQrcode(itemdetailjson?.qr_code);
           setInstructionImage(itemdetailjson?.item_instructions_url)
-
+            //console.log(locationName);
           if(itemsubcatlistjson.length > 0 ){
-            //console.log(itemsubcatlistjson);
             let subcateories = itemsubcatlistjson.map(key => ({ value: key.id, label: key.category_name }));
-            //console.log(subcateories);
             setSubCategoriesList(subcateories);
           }
 
@@ -301,7 +287,7 @@ const AssetsEditing = ({ navigation ,route}) => {
             item_image_name:assetImageName,
             documents:instructionImageName,
             qr_code:qrcode,
-            notes: notes
+            notes: notes != undefined ? notes : ''
         };
         //console.log(formData);
         if(name === '' || categoryName === '' || subCategoryName === '' || assetsName === '' ){
@@ -329,7 +315,7 @@ const AssetsEditing = ({ navigation ,route}) => {
               setLoader(false)
               //console.log("vikas asset_booking page..",res)
               if(res.data.status == 1){
-                  alert("Assert Edit successfully")
+                  alert("Asset Updated successfully")
                   navigation.navigate('DrawerNavigation');
               }else{
                 Alert.alert(
@@ -353,11 +339,6 @@ const AssetsEditing = ({ navigation ,route}) => {
             });
         }
     }
-    const openLocalDatePkr = () => {
-        setIsReportingdate(true)
-        setIsReturndate(false)
-        setDateOpen(true)
-    };
     const callSubCategoryApi=(id)=>{
         // alert("sub category call");
         let formData = {
@@ -443,94 +424,189 @@ const AssetsEditing = ({ navigation ,route}) => {
             );
         });
     }
-    //console.log(user);
+    //console.log(userRole);
     return (
         <View style={{ flex: 1 }}>
             <ScrollView>
               {loader?
               <ActivityIndicator size={50}/>:null}
                 <View style={styles.inputConatiner}>
+                    {userRole == 3 ? <>
+                        <TextInput
+                            style={{ height: 40, marginLeft: 10 }}
+                            placeholder="Nome articolo"
+                            value={name}
+                            placeholderTextColor="black"
+                            onChangeText={newText => setName(newText)}
+                            editable={false}
+                            selectTextOnFocus={false}
+                        />
+                    </> : <>
+                        <TextInput
+                            style={{ height: 40, marginLeft: 10 }}
+                            placeholder="Nome articolo"
+                            value={name}
+                            placeholderTextColor="black"
+                            onChangeText={newText => setName(newText)}
+                        />
+                    </>}
+                </View>
+                <View style={styles.inputConatiner}>
+                    {userRole == 3 ? <>
+                        <TextInput
+                            style={{ height: 40, marginLeft: 10 }}
+                            placeholder="Descrizione"
+                            value={description}
+                            placeholderTextColor="black"
+                            onChangeText={newText => setDrescription(newText)}
+                            editable={false}
+                            selectTextOnFocus={false}
+                        />
+                    </> : <>
                     <TextInput
-                        style={{ height: 40, marginLeft: 10 }}
-                        placeholder="Nome articolo"
-                        value={name}
-                        placeholderTextColor="black"
-                        onChangeText={newText => setName(newText)}
-                    />
+                            style={{ height: 40, marginLeft: 10 }}
+                            placeholder="Descrizione"
+                            value={description}
+                            placeholderTextColor="black"
+                            onChangeText={newText => setDrescription(newText)}
+                        />
+                    </> }
                 </View>
                 <View style={styles.inputConatiner}>
-                    <TextInput
-                        style={{ height: 40, marginLeft: 10 }}
-                        placeholder="Descrizione"
-                        value={description}
-                        placeholderTextColor="black"
-                        onChangeText={newText => setDrescription(newText)}
-                    />
+                    {userRole == 3 ? <>
+                        <Dropdown
+                            style={{ marginLeft: 10 }}
+                            //placeholderStyle={{ color: 'black' }}
+                            //selectedTextStyle={{ color: 'black' }}
+                            inputSearchStyle={styles.inputSearchStyle}
+                            iconStyle={styles.iconStyle}
+                            data={categoryList}
+                            maxHeight={200}
+                            value={categoryName}
+                            search
+                            labelField="label"
+                            valueField="value"
+                            placeholder="Categorie"
+                            searchPlaceholder="Search..."
+                            onChange={item => {
+                                callSubCategoryApi(item?.value);
+                                setCategoryName(item?.value);
+                                setStato(item)
+                            }}
+                            disable={true}
+                        />
+                    </> : <>
+                        <Dropdown
+                            style={{ marginLeft: 10 }}
+                            placeholderStyle={{ color: 'black' }}
+                            selectedTextStyle={{ color: 'black' }}
+                            inputSearchStyle={styles.inputSearchStyle}
+                            iconStyle={styles.iconStyle}
+                            data={categoryList}
+                            maxHeight={200}
+                            value={categoryName}
+                            search
+                            labelField="label"
+                            valueField="value"
+                            placeholder="Categorie"
+                            searchPlaceholder="Search..."
+                            onChange={item => {
+                                callSubCategoryApi(item?.value);
+                                setCategoryName(item?.value);
+                                setStato(item)
+                            }}
+                        />
+                    </>}
                 </View>
                 <View style={styles.inputConatiner}>
-                    <Dropdown
-                        style={{ marginLeft: 10 }}
-                        placeholderStyle={{ color: 'black' }}
-                        selectedTextStyle={{ color: 'black' }}
-                        inputSearchStyle={styles.inputSearchStyle}
-                        iconStyle={styles.iconStyle}
-                        data={categoryList}
-                        maxHeight={200}
-                        value={categoryName}
-                        search
-                        labelField="label"
-                        valueField="value"
-                        placeholder="Categorie"
-                        searchPlaceholder="Search..."
-                        onChange={item => {
-                            callSubCategoryApi(item?.value);
-                            setCategoryName(item?.value);
-                            setStato(item)
-                        }}
-                    />
+                    {userRole == 3 ? <>
+                        <Dropdown
+                            style={{ marginLeft: 10 }}
+                            //placeholderStyle={{ color: 'black' }}
+                            //selectedTextStyle={{ color: 'black' }}
+                            inputSearchStyle={styles.inputSearchStyle}
+                            iconStyle={styles.iconStyle}
+                            data={subCategoriesList}
+                            maxHeight={200}
+                            value={subCategoryName}
+                            search
+                            labelField="label"
+                            valueField="value"
+                            placeholder="Categorie"
+                            searchPlaceholder="Search..."
+                            onChange={item => {
+                                callChildCategoryApi(item?.value);
+                                setSubCategoryName(item?.value);
+                                setStato(item)
+                            }}
+                            disable={true}
+                        />
+                    </> : <>
+                        <Dropdown
+                            style={{ marginLeft: 10 }}
+                            placeholderStyle={{ color: 'black' }}
+                            selectedTextStyle={{ color: 'black' }}
+                            inputSearchStyle={styles.inputSearchStyle}
+                            iconStyle={styles.iconStyle}
+                            data={subCategoriesList}
+                            maxHeight={200}
+                            value={subCategoryName}
+                            search
+                            labelField="label"
+                            valueField="value"
+                            placeholder="Categorie"
+                            searchPlaceholder="Search..."
+                            onChange={item => {
+                                callChildCategoryApi(item?.value);
+                                setSubCategoryName(item?.value);
+                                setStato(item)
+                            }}
+                        />
+                    </> }
                 </View>
                 <View style={styles.inputConatiner}>
-                    <Dropdown
-                        style={{ marginLeft: 10 }}
-                        placeholderStyle={{ color: 'black' }}
-                        selectedTextStyle={{ color: 'black' }}
-                        inputSearchStyle={styles.inputSearchStyle}
-                        iconStyle={styles.iconStyle}
-                        data={subCategoriesList}
-                        maxHeight={200}
-                        value={subCategoryName}
-                        search
-                        labelField="label"
-                        valueField="value"
-                        placeholder="Categorie"
-                        searchPlaceholder="Search..."
-                        onChange={item => {
-                            callChildCategoryApi(item?.value);
-                            setSubCategoryName(item?.value);
-                            setStato(item)
-                        }}
-                    />
-                </View>
-                <View style={styles.inputConatiner}>
-                    <Dropdown
-                        style={{ marginLeft: 10 }}
-                        placeholderStyle={{ color: 'black' }}
-                        selectedTextStyle={{ color: 'black' }}
-                        inputSearchStyle={styles.inputSearchStyle}
-                        iconStyle={styles.iconStyle}
-                        data={childCategoriesList}
-                        value={childCategoryName}
-                        maxHeight={200}
-                        search
-                        labelField="label"
-                        valueField="value"
-                        placeholder="Terza categoria"
-                        searchPlaceholder="Search..."
-                        onChange={item => {
-                            setChildCategoryName(item?.value);
-                            setStato(item)
-                        }}
-                    />
+                    {userRole == 3 ? <>
+                        <Dropdown
+                            style={{ marginLeft: 10 }}
+                            //placeholderStyle={{ color: 'black' }}
+                            //selectedTextStyle={{ color: 'white' }}
+                            inputSearchStyle={styles.inputSearchStyle}
+                            iconStyle={styles.iconStyle}
+                            data={childCategoriesList}
+                            value={childCategoryName}
+                            maxHeight={200}
+                            search
+                            labelField="label"
+                            valueField="value"
+                            placeholder="Terza categoria"
+                            searchPlaceholder="Search..."
+                            onChange={item => {
+                                setChildCategoryName(item?.value);
+                                setStato(item)
+                            }}
+                            disable={true}
+                        />
+                    </> : <>
+                        <Dropdown
+                            style={{ marginLeft: 10 }}
+                            placeholderStyle={{ color: 'black' }}
+                            selectedTextStyle={{ color: 'black' }}
+                            inputSearchStyle={styles.inputSearchStyle}
+                            iconStyle={styles.iconStyle}
+                            data={childCategoriesList}
+                            value={childCategoryName}
+                            maxHeight={200}
+                            search
+                            labelField="label"
+                            valueField="value"
+                            placeholder="Terza categoria"
+                            searchPlaceholder="Search..."
+                            onChange={item => {
+                                setChildCategoryName(item?.value);
+                                setStato(item)
+                            }}
+                        />
+                    </> }
                 </View>
                 <View style={styles.inputConatiner}>
                     <Dropdown
@@ -549,6 +625,7 @@ const AssetsEditing = ({ navigation ,route}) => {
                         value={assetsName}
                         onChange={item => {
                             setStato(item);
+                            setAssetsName(item?.value);
                         }}
                     />
                 </View>
@@ -583,27 +660,28 @@ const AssetsEditing = ({ navigation ,route}) => {
                         onChangeText={newText => setNotes(newText)}
                     />
                 </View>
+                {userRole == 3 ? null : <>
                 <View style={{flexDirection:'row',justifyContent:'space-evenly'}}>
-                <View style={{ marginLeft: 20, marginTop: 10,alignItems:'center' }}>
-                    <Text>Immagine</Text>
-                    <View style={{flexDirection:'row',alignItems:'center'}}>
-                    <Image source={ image ? { uri:image } : null } style={{height:70,width:100,borderRadius:10}}/>
-                    <TouchableOpacity onPress={()=>assestImage()}>
-                        <Ionicons name="camera" color='#04487b' size={16}></Ionicons>
-                    </TouchableOpacity>
+                    <View style={{ marginLeft: 20, marginTop: 10,alignItems:'center' }}>
+                        <Text>Immagine</Text>
+                        <View style={{flexDirection:'row',alignItems:'center'}}>
+                        <Image source={ image ? { uri:image } : null } style={{height:70,width:100,borderRadius:10}}/>
+                        <TouchableOpacity onPress={()=>assestImage()}>
+                            <Ionicons name="camera" color='#04487b' size={16}></Ionicons>
+                        </TouchableOpacity>
+                        </View>
+                    </View>
+                    <View style={{ marginLeft: 20, marginTop: 10,alignItems:'center'}}>
+                        <Text>Istruzioni</Text>
+                        <View style={{flexDirection:'row',alignItems:'center'}}>
+                        <Image source={ instructionImage ? { uri:instructionImage } : null } style={{height:70,width:100,borderRadius:10}}/>
+                        <TouchableOpacity onPress={()=>instructionAssets()}>
+                            <Ionicons name="camera" color='#04487b' size={16}></Ionicons>
+                        </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
-                <View style={{ marginLeft: 20, marginTop: 10,alignItems:'center'}}>
-                    <Text>Istruzioni</Text>
-                    <View style={{flexDirection:'row',alignItems:'center'}}>
-                    
-                    <Image source={ instructionImage ? { uri:instructionImage } : null } style={{height:70,width:100,borderRadius:10}}/>
-                    <TouchableOpacity onPress={()=>instructionAssets()}>
-                        <Ionicons name="camera" color='#04487b' size={16}></Ionicons>
-                    </TouchableOpacity>
-                    </View>
-                </View>
-                </View>
+                </> }
                 <View style={{ alignSelf: 'center', width: '60%',marginTop:10,marginBottom:20 }}>
                     <Button title='Save' onPress={assetsEdit} color="#04487b" />
                 </View>

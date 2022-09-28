@@ -8,8 +8,7 @@ import { API_BASE_URL } from '../../../Services/url';
 import DatePicker from 'react-native-date-picker'
 import * as Utility from '../../../Utility/inbdex';
 import NoDataFound from "../../../Component/NoDataFound";
-import { black } from "react-native-paper/lib/typescript/styles/colors";
-// import { useEffect, useState } from 'react';
+
 const styles=StyleSheet.create({
   mainConatiner:{
   },
@@ -154,8 +153,8 @@ const AddMaintinace=()=>{
             //console.log("vikas asset_booking page..",res)
             if(res.data.status == 1){
                 alert("Maintaince Added Successfully")
-                navigation.goBack()
-                // navigation.navigate('DrawerNavigation')
+                //navigation.goBack()
+                navigation.navigate('DrawerNavigation')
             }else{
               Alert.alert(
                   "Warning",

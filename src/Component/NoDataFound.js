@@ -1,6 +1,7 @@
 import React  from "react";
 import { StyleSheet,View,Text } from 'react-native';
-const style=StyleSheet.create({
+
+const styles=StyleSheet.create({
     mainConatiner:{
         marginTop:50,
         alignSelf:'center'
@@ -8,9 +9,9 @@ const style=StyleSheet.create({
 })
 const NoDataFound=({title})=>{
     return(
-        <View style={style.mainConatiner}>
-            <Text style={{fontWeight:'600',fontSize:20,color:'black'}}>{title}</Text>
-        </View>
+        <View style={styles.mainConatiner}>
+          <Text style={{ fontWeight:'500', fontSize:18,color:'black', fontFamily: 'Montserrat-Regular'}}>{title}</Text>
+      </View>
     )
 }
 export default NoDataFound;

@@ -7,11 +7,7 @@ import {
   TouchableOpacity, Alert
 } from 'react-native';
 import axios from "axios";
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../../../Services/url';
-import { Dropdown } from 'react-native-element-dropdown';
-import HomeHeader from '../../../Component/HomeHeader';
 import * as Utility from '../../../Utility/inbdex';
 const style = StyleSheet.create({
   inputConatiner: { borderWidth: 1, alignSelf: 'center', width: '90%', margin: 10, borderRadius: 5, padding: 5 },
@@ -34,8 +30,6 @@ const Editiing = ({ navigation, route }) => {
   const [companyValue, setCompanyValue] = React.useState('');
   const [sitefieldval, setSitefieldval] = React.useState('');
   const [superCategoryList, setSuperCategoryList] = React.useState([])
-  const [superCategoryValue, setSuperCategoryVaule] = React.useState();
-  const [categoryValue, setCategoryValue] = React.useState();
   const [loader, setLoader] = React.useState(false)
 
   useEffect(() => {
@@ -163,12 +157,12 @@ const Editiing = ({ navigation, route }) => {
         'Content-Type': 'multipart/form-data',
       },
     }).then(res => {
-      //console.log("", res?.data)
+      setLoader(false);
       if (res?.data?.status == 1) {
+        alert("Location Updated Succesffuly");
         navigation.navigate('Tutte le posizioni');
       }
-      alert("Location Updated Succesffuly");
-      setLoader(false);
+      
     }).catch(e => {
       setLoader(false)
       Alert.alert(

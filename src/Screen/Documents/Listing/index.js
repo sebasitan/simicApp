@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from 'react';
 
 import {
-  SafeAreaView,
   StyleSheet,
   Text,
   View,
-  ScrollView,
   StatusBar,
-  Button,
   Alert,
   FlatList,
   ActivityIndicator,
@@ -15,56 +12,67 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {
-  Title,
   Paragraph,
 } from 'react-native-paper';
-import { useIsFocused } from '@react-navigation/native';
+import { useIsFocused, useFocusEffect } from '@react-navigation/native';
 import axios from "axios";
 import Ionicons from 'react-native-vector-icons/Ionicons';
-//import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../../../Services/url';
-//import HomeHeader from '../../../Component/HomeHeader';
-import NoDataFound from '../../../Component/NoDataFound';
 import * as Utility from '../../../Utility/inbdex';
-const Listing = ({ navigation }) => {
+import NoDataFound from '../../../Component/NoDataFound';
+
+const DocumentListing = ({ navigation }) => {
   const [userToken, setUserToken] = useState(null);
-  //const [isLoading, setisLoading] = useState(false);
   const [masterItemData, setmasterItemData] = useState([]);
-  const [filterItemData, setfilterItemData] = useState([]);
-  //const [search, setSearch] = useState('');
   const [loader, setLoader] = React.useState(false);
+  const [page,setPage]=React.useState(1);
+  const [totalItems, setTotalItems] = useState();
   const isFocused = useIsFocused();
-  useEffect(() => {
-    (
-      async () => {
-        let userToken = await Utility.getFromLocalStorge('userToken');
-        setUserToken(userToken);
-        if (userToken != null) {
-          // setLoader(true)
-          getDocumentListingData(userToken);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      getDocumentListingData(1,2);
+    }, [isFocused]),
+  );
+
+  const getDocumentListingData = async (page, type) => {
+    setLoader(true);
+    if(type===2){
+      setmasterItemData([]);
+      setPage(1);
+    }
+
+    let userToken = await Utility.getFromLocalStorge('userToken');
+    setUserToken(userToken);
+    if(userToken != null){
+      axios({
+        url: `${API_BASE_URL}/viewDocument/${userToken}?page=${page}`,
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'multipart/form-data',
+        },
+      }).then(res => {
+        if (res.data.status == 1) {
+          let item_list = JSON.stringify(res.data.document_list);
+          let itemjson = JSON.parse(item_list);
+          if(type===2){
+            setmasterItemData(itemjson);
+          }else{
+            setmasterItemData([...masterItemData, ...itemjson]);
+          }
+          setTotalItems(res?.data?.document_count);
+          setLoader(false);
+        } else {
+          Alert.alert(
+            "Warning",
+            "Somthing went wrong, Try Again",
+            [
+              { text: "OK" }
+            ]
+          );
         }
-        
-      }
-    )();
-
-  }, [isFocused]);
-
-  const getDocumentListingData = (userToken) => {
-    axios({
-      url: `${API_BASE_URL}/viewDocument/${userToken}`,
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'multipart/form-data',
-      },
-    }).then(res => {
-      if (res.data.status == 1) {
-        let item_list = JSON.stringify(res.data.document_list);
-        let itemjson = JSON.parse(item_list);
-        setmasterItemData(itemjson);
-        setfilterItemData(itemjson);
-        setLoader(false);
-      } else {
+      }).catch(e => {
         Alert.alert(
           "Warning",
           "Somthing went wrong, Try Again",
@@ -72,16 +80,9 @@ const Listing = ({ navigation }) => {
             { text: "OK" }
           ]
         );
-      }
-    }).catch(e => {
-      Alert.alert(
-        "Warning",
-        "Somthing went wrong, Try Again",
-        [
-          { text: "OK" }
-        ]
-      );
-    });
+      });
+    }
+    setLoader(false);
   };
 
   const goToDocumentEdit = (item) => {
@@ -91,39 +92,57 @@ const Listing = ({ navigation }) => {
   const goToDocumentView = (item) => {
     navigation.navigate('DocumentView', { itemId: item })
   }
-  const deleteDocument = (item) => {
-    setLoader(true)
+  const deleteDocument = (id) => {
     let formData = {
       user_id: userToken,
-      document_id: item?.id
+      document_id: id
     }
-    //console.log("aessets addition form...", formData)
-    axios({
-      url: `${API_BASE_URL}deleteDocument`,
-      method: 'POST',
-      data: formData,
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'multipart/form-data',
-      },
-    }).then(res => {
-      //console.log("", res?.data)
-      if (res?.data?.status) {
-
-      }
-      alert("Document delete Succesffuly");
-      setLoader(false)
-    }).catch(e => {
-      setLoader(false)
-      Alert.alert(
-        "Warning",
-        "Somthing went wrong, Try Again",
-        [
-          { text: "OK" }
-        ]
-      );
-    });
-    // alert('Documents Deleted Successfuly')
+    Alert.alert(
+      "Warning",
+      "Are you sure to delete?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        { 
+          text: "DELETE", 
+          onPress: () => {
+            axios({
+              url: `${API_BASE_URL}deleteDocument`,
+              method: 'POST',
+              data: formData,
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'multipart/form-data',
+              },
+            }).then(res => {
+              if (res?.data?.status == 1) {
+                alert("Document delete Succesffuly");
+                getDocumentListingData(1,2);
+              }else{
+                Alert.alert(
+                  "Warning",
+                  "Somthing went wrong, Try Again",
+                  [
+                    { text: "OK" }
+                  ]
+                );
+              }
+            }).catch(e => {
+              Alert.alert(
+                "Warning",
+                "Somthing went wrong, Try Again",
+                [
+                  { text: "OK" }
+                ]
+              );
+            });
+          }
+        }
+      ]
+    );
+    
   }
   const ItemView = ({ item }) => {
 
@@ -150,7 +169,7 @@ const Listing = ({ navigation }) => {
             <TouchableOpacity onPress={() => goToDocumentEdit(item)} style={{ flexDirection: 'row', marginLeft: 13, marginRight: 13 }}>
               <Ionicons name="ios-create-outline" color='#ff8c00' size={16}></Ionicons><Text style={{ marginLeft: 0, color: '#ff8c00', fontSize: 13 }}>Modifica</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => deleteDocument(item)} style={{ flexDirection: 'row' }}>
+            <TouchableOpacity onPress={() => deleteDocument(item?.id)} style={{ flexDirection: 'row' }}>
               <Ionicons name="ios-trash-outline" color='#B31817' size={16}></Ionicons><Text style={{ marginLeft: 0, color: '#B31817', fontSize: 13 }}>Cancella</Text>
             </TouchableOpacity>
           </View>
@@ -171,31 +190,50 @@ const Listing = ({ navigation }) => {
     );
   };
 
-  if (loader == true) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
- 
   const documentAddition = () => {
     navigation.navigate('DocumentAddition')
   }
+  
+  const callMoreItem =()=>{
+    setLoader(true);
+    if(totalItems > 0 ){
+      let totalpage = Math.ceil(totalItems / 10);
+      let currentpage;
+      if( page <= totalpage ){
+        currentpage = page + 1;
+        getDocumentListingData(currentpage,1);
+        setPage(currentpage);
+        //console.log(pageNumber);
+      }else{
+        getDocumentListingData(1,2);
+        setPage(1);
+      }
+    }
+    setLoader(false);
+  }
+
   return (
-    <>
-      {/* <HomeHeader title="Tutti gli oggetti" openDrawer={openDrawer} /> */}
       <View style={styles.container}>
         <StatusBar backgroundColor='#04487b' hidden={false} />
         <View style={{ flex: 1, marginTop: 20 }}>
-          {filterItemData?.length > 0 ?
-            <FlatList
-              data={filterItemData}
-              keyExtractor={(item, index) => index.toString()}
-              ItemSeparatorComponent={ItemSeparatorView}
-              renderItem={ItemView}
-              style={{ marginTop: 20 }}
-            /> : <NoDataFound title={"No Data Found"} />}
+        { totalItems === 0 ? 
+            <NoDataFound title={"No Data Found"}/> : 
+            <>
+              <FlatList
+                data={masterItemData}
+                keyExtractor={(item, index) => index.toString()}
+                ItemSeparatorComponent={ItemSeparatorView}
+                renderItem={ItemView}
+                initialNumToRender={5}
+                removeClippedSubviews={true}
+                onEndReached={callMoreItem}
+                onEndReachedThreshold={0.5}
+                style={{ marginTop: 20 }}
+                refreshing={loader}
+                onRefresh={callMoreItem}
+              />
+            </>
+        }
           <View style={{ flex: 1 }}>
             <View style={{ position: 'absolute', bottom: 20, alignSelf: 'flex-end' }}>
               <TouchableOpacity onPress={() => documentAddition()}>
@@ -205,8 +243,6 @@ const Listing = ({ navigation }) => {
           </View>
         </View>
       </View>
-    </>
-
   );
 };
 
@@ -241,4 +277,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default Listing;
+export default DocumentListing;

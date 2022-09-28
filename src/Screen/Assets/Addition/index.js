@@ -16,11 +16,10 @@ import {
 import ImagePicker from 'react-native-image-crop-picker';
 import axios from "axios";
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../../../Services/url';
 import * as Utility from '../../../Utility/inbdex';
 
-const Addition = ({ navigation }) => {
+const AssetAddition = ({ navigation }) => {
     const [name, setName] = useState('');
     //const [DataDate, setDataDate] = useState();
     const [stato, setStato] = useState();
@@ -543,7 +542,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFFFFF',
     },
     fontFamily: {
-        fontFamily: 'Poppins-Regular'
+        fontFamily: 'Montserrat-Regular'
     }
 });
-export default Addition;
+export default AssetAddition;

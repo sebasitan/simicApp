@@ -13,9 +13,7 @@ import { TextInput, Title } from "react-native-paper";
 import ImagePicker from 'react-native-image-crop-picker';
 import axios from "axios";
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../../../Services/url';
-//import HomeHeader from '../../../Component/HomeHeader';
 import * as Utility from '../../../Utility/inbdex';
 import DatePicker from 'react-native-date-picker';
 import moment from 'moment';
@@ -94,11 +92,9 @@ const DocumentEditing = ({ navigation,route }) => {
   const [loader,setLoader]=React.useState(false);
   const [imageurl,setImageUrl]=React.useState(itemId?.documents);
   const [documentName,setDocumentName]=React.useState(itemId?.documents_image);
-  //let docId = 112;
   
   useEffect(() => {
     getUserInfomation();
-    //getDocumentData(docId);
   }, []);
 
   const getUserInfomation = async () => {
@@ -108,40 +104,6 @@ const DocumentEditing = ({ navigation,route }) => {
     setUserId(userRecords?.user_id)
   }
 
-  const getDocumentData = (id) => {
-    axios({
-      url: `${API_BASE_URL}/editDocument/${id}`,
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'multipart/form-data',
-      },
-    }).then(res => {
-      //console.log(res?.data?.status );
-      if(res?.data?.status == 1){
-        let item_list = JSON.stringify(res.data.document_list);
-        let itemjson = JSON.parse(item_list);
-        console.log(res.data);
-      }else{
-        Alert.alert(
-          "Warning",
-          "Somthing went wrong, Try Again",
-          [
-            { text: "OK" }
-          ]
-        );
-      }
-    }).catch(e => {
-      Alert.alert(
-        "Warning",
-        "Somthing went wrong, Try Again",
-        [
-          { text: "OK" }
-        ]
-      );
-    });
-  }
-  
   const AddDocumentImage = () => {
     ImagePicker.openPicker({
       width: 300,

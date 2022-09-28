@@ -7,11 +7,8 @@ import {
   TouchableOpacity, Alert, ActivityIndicator
 } from 'react-native';
 import axios from "axios";
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../../../Services/url';
 import { Dropdown } from 'react-native-element-dropdown';
-import HomeHeader from '../../../Component/HomeHeader';
 import * as Utility from '../../../Utility/inbdex';
 const style = StyleSheet.create({
   inputConatiner: { borderWidth: 1, alignSelf: 'center', width: '90%', margin: 10, borderRadius: 5, padding: 5 },

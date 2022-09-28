@@ -22,9 +22,6 @@ import {
 import ImagePicker from 'react-native-image-crop-picker';
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Utility from '../../../Utility/inbdex';
 import axios from 'axios';
 import { API_BASE_URL } from '../../../Services/url';
 

@@ -1,7 +1,6 @@
 
 import React from "react";
 import {View,Text, FlatList} from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
     Title,
     Paragraph,

@@ -19,7 +19,6 @@ import {
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Utility from '../../Utility/inbdex';
 import axios from 'axios';
 import { API_BASE_URL } from '../../Services/url';
@@ -28,7 +27,6 @@ import { useNavigation, useIsFocused } from '@react-navigation/native';
 const ProfileScreen = ({navigation}) => {
   
     const [userid,setUserId]=React.useState();
-    const [userDetilas,setUserDetails]=React.useState()
     const [userData,setUserData]=React.useState();
     const [loader,setLoader]=React.useState(false);
     const isFocused = useIsFocused();
@@ -82,7 +80,7 @@ const ProfileScreen = ({navigation}) => {
         <View style={styles.container}>
             <StatusBar backgroundColor='#04487b' hidden={false} />
             {loader?
-            <ActivityIndicator size={50}/>:null}
+            <ActivityIndicator size={50} color="#04487b"/>:null}
             <View style={{ flex: 1, marginTop: 20 }}>
                 <View style={{ alignItems: 'center' }}>
                     { userData?.profile_image_url !='' ? <Avatar.Image source={{ uri: userData?.profile_image_url }} avatarStyle={{ borderWidth: 0 }}/> : <Avatar.Image source={require('../../assets/images/user.png')} /> }
