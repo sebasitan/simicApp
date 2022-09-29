@@ -120,12 +120,7 @@ const SignIn = ({ navigation }) => {
                             style={styles.fontFamily}
                             onPress={() => { loginHandle(email, password) }}
                         />
-                        <View style={{ flexDirection: 'row', marginTop: 20, alignSelf: 'center' }}>
-                            <Text style={styles.registerHintText}>Nuovo uthente?</Text>
-                            <TouchableOpacity onPress={() => registerPage()}>
-                                <Text style={styles.registerText}>Registrati</Text>
-                            </TouchableOpacity>
-                        </View>
+                        
                     </View>
                 </View>
             </ImageBackground>

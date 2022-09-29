@@ -1,7 +1,6 @@
 import React from "react";
 import { } from 'react-native';
 import Signin from '../Screen/Auth/Signin';
-import Signup from '../Screen/Auth/Signup';
 import ForgotPassword from '../Screen/Auth/ForgotPassword';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -35,8 +34,7 @@ const StackAuthNavigator = () => {
         <Stack.Navigator>
             <Stack.Screen name="Splash" component={Splash} options={{headerShown:false}}/>
             <Stack.Screen name="Signin" component={Signin} options={{ headerShown: false }} />
-            <Stack.Screen name="Signup" component={Signup} options={{ headerShown: false }} />
-            <Stack.Screen name="ForgotPassword" component={ForgotPassword} options={{ headerShown: false }} />
+            <Stack.Screen name="ForgotPassword" component={ForgotPassword} options={{ headerShown: false, title: 'Password dimenticata' }} />
             <Stack.Screen name="DrawerNavigation" component={DrawerNavigation} options={{ headerShown: false }} />
             <Stack.Screen name="AssetAddition" component={AssetAddition} options={{title:'Aggiungi nuovo oggetto' }} />
             <Stack.Screen name="AssetsEditing"  component={AssetsEditing} options={{ title:'Modifica oggetto' }} />

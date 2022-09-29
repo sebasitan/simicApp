@@ -118,11 +118,11 @@ const Viewing = ({route, navigation}) => {
                 <Title style={[ styles.regularFont, { fontSize: 14 }]}>Descrizione: </Title>
                 <Text style={[ styles.regularFont, { fontSize: 14 }]}>{itemDetails?.description}</Text>
               </View>
-              <View style={{  flexDirection: 'row', justifyContent: 'space-between', alignItems:'center' }}>
+              <View style={{  flexDirection: 'column', justifyContent: 'space-between'}}>
                 <Title style={[ styles.regularFont, { fontSize: 14, marginRight: 10 }]}>Categorie: </Title>
-                <Text style={[ styles.regularFont, { fontSize: 14 }]}>{itemDetails.parent_item_name ? itemDetails.parent_item_name  : '' }</Text>
-                <Text style={[ styles.regularFont, { fontSize: 14 }]}>{itemDetails.sub_item_name ? itemDetails.sub_item_name  : '' }</Text>
-                <Text style={[ styles.regularFont, { fontSize: 14 }]}>{itemDetails.sub_subitem_name ? itemDetails.sub_subitem_name  : '' }</Text>
+                <Text style={[ styles.regularFont, { fontSize: 14 }]}>{itemDetails.parent_item_name ? '>> '+ itemDetails.parent_item_name  : '' }</Text>
+                <Text style={[ styles.regularFont, { fontSize: 14 }]}>{itemDetails.sub_item_name ? '>> '+ itemDetails.sub_item_name  : '' }</Text>
+                <Text style={[ styles.regularFont, { fontSize: 14 }]}>{itemDetails.sub_subitem_name ? '>> '+ itemDetails.sub_subitem_name  : '' }</Text>
               </View>
               <View style={{  flexDirection: 'row', justifyContent: 'space-between', alignItems:'center' }}>
                 <Title style={[ styles.regularFont, { fontSize: 14 }]}>Stato articolo: </Title>

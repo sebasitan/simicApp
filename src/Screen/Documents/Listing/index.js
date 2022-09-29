@@ -118,7 +118,7 @@ const DocumentListing = ({ navigation }) => {
               },
             }).then(res => {
               if (res?.data?.status == 1) {
-                alert("Document delete Succesffuly");
+                alert("Document deleted Succesffuly");
                 getDocumentListingData(1,2);
               }else{
                 Alert.alert(

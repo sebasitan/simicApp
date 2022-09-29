@@ -178,7 +178,7 @@ const LocationListing = ({ navigation }) => {
               },
             }).then(res => {
               if (res?.data?.status == 1) {
-                alert("Location delete Succesffuly");
+                alert("Location deleted Succesffuly");
                 fetchLocationList(1,2);
               }else{
                 Alert.alert(

@@ -131,7 +131,7 @@ const AssetsListing = ({ navigation }) => {
               },
             }).then(res => {
               if (res?.data?.status == 1) {
-                alert("Item delete Succesffuly");
+                alert("Item deleted Succesffuly");
                 fetchAssetsList(1,2);
               }else{
                 Alert.alert(

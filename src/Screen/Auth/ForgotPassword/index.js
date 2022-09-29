@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,59 +7,55 @@ import {
   Button,
   TouchableOpacity,
   ImageBackground,
-  StatusBar
+  StatusBar,
+  Alert
 } from 'react-native';
 import axios from "axios";
-import DeviceInfo from 'react-native-device-info';
 import { API_BASE_URL } from '../../../Services/url';
 const ForgotPassword = ({navigation}) => {
     const [ email, setEmail ] = useState(null);
-    let deviceId = DeviceInfo.getDeviceId();
-    let deviceType = DeviceInfo.getDeviceType();
-    const loginHandle = (email, password) =>{
-        navigation.navigate('Signin')
-        // let formData = {
-        //     email_id : email,
-        //     password : password,
-        //     device_id : deviceId,
-        //     device_type : deviceType,
-        // };
-        // axios({
-        //     url: `${API_BASE_URL}/signIn`,
-        //     method: 'POST',
-        //     data: formData,
-        //     headers: {
-        //         'Accept': 'application/json',
-        //         'Content-Type': 'multipart/form-data',
-        //     },
-        // }).then(res => {
-        //     if(res.data.status == 1){
-        //         let userInfo = JSON.stringify(res.data.user_details);
-        //         let result = JSON.parse(userInfo);
-        //         // signIn(result['user_id'], userInfo);
-        //     }else{
-        //         Alert.alert(
-        //             "Warning",
-        //             "Sorry, Email or Password Invalid",
-        //             [
-        //               { text: "OK" }
-        //             ]
-        //         );
-        //     }
-          
-        // }).catch(e => {
-        //     Alert.alert(
-        //         "Warning",
-        //         "Somthing went wrong, Try Again",
-        //         [
-        //           { text: "OK" }
-        //         ]
-        //     );
-        // });
+
+    const forgotHandle = (email) =>{
+        let formData = {
+            email_id : email,
+        };
+        console.log(formData);
+        axios({
+            url: `${API_BASE_URL}/forgotPassword`,
+            method: 'POST',
+            data: formData,
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'multipart/form-data',
+            },
+        }).then(res => {
+            console.log(res.data);
+            if(res.data.status == 1){
+                let message = JSON.stringify(res.data.message);
+                Alert.alert(
+                    "message",
+                    message,
+                    [ { text: "OK" } ]
+                );
+            }else{
+                let message = JSON.stringify(res.data.message);
+                Alert.alert(
+                    "Warning",
+                    message,
+                    [ { text: "OK" } ]
+                );
+            }
+        }).catch(e => {
+            Alert.alert(
+                "Warning",
+                "Somthing went wrong, Try Again",
+                [ { text: "OK" } ]
+            );
+        });
     }
-     const loginPage=()=>{
+    const loginPage=()=>{
         navigation.navigate('Signin')
-     }
+    }
     const bgimg = '../../../assets/images/bg_login.jpeg';
     return (
         <View style={styles.container}>
@@ -77,7 +73,7 @@ const ForgotPassword = ({navigation}) => {
                             title="Invia"
                             color="#04487b"
                             style={styles.fontFamily}
-                            onPress={ () => { loginHandle(email) } }
+                            onPress={ () => { forgotHandle(email) } }
                         />
                         <View style={{ flexDirection : 'row', marginTop: 20,alignSelf:'center'}}>
                             <Text style={styles.registerHintText}>Torna Indietro?</Text>
@@ -112,7 +108,7 @@ const styles = StyleSheet.create({
         color: 'blue',
     },
     fontFamily :{
-        // fontFamily: 'Montserrat-Regular',
+        fontFamily: 'Montserrat-Regular',
     },
     backgroundColor : {
         backgroundColor : '#900'
