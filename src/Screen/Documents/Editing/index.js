@@ -8,15 +8,18 @@ import {
   TouchableOpacity,
   Image,
   Alert,
+  ActivityIndicator,
+  PermissionsAndroid
 } from 'react-native';
 import { TextInput, Title } from "react-native-paper";
-import ImagePicker from 'react-native-image-crop-picker';
 import axios from "axios";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { API_BASE_URL } from '../../../Services/url';
 import * as Utility from '../../../Utility/inbdex';
 import DatePicker from 'react-native-date-picker';
 import moment from 'moment';
+import DocumentPicker from "react-native-document-picker";
+import RNFetchBlob from 'rn-fetch-blob';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -66,6 +69,16 @@ const styles = StyleSheet.create({
     borderRadius:5,
     padding:5,
 },
+loading: {
+  position: 'absolute',
+  left: 0,
+  right: 0,
+  top: 0,
+  bottom: 0,
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: '#F5FCFF88'
+}
 });
 const DocumentEditing = ({ navigation,route }) => {
 
@@ -104,41 +117,70 @@ const DocumentEditing = ({ navigation,route }) => {
     setUserId(userRecords?.user_id)
   }
 
-  const AddDocumentImage = () => {
-    ImagePicker.openPicker({
-      width: 300,
-      height: 400,
-      cropping: true
-    }).then(image => {
-      const formData = new FormData();
-      formData.append('item_image', { type: image.mime, uri: image.path, name: image.path.split("/").pop() });
-      axios({
-        url: `${API_BASE_URL}item_image`,
-        method: 'POST',
-        data: formData,
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
-        },
-      }).then(res => {
-        if (res?.data?.status == 1) {
-          setDocumentName(res?.data?.picture)
-          alert("Document Image Added successfully")
-        } else {
-          alert("Document Image not uploaded")
-        }
+  const AddDocumentFile = async () => {
+    
+    try {
+        const res = await DocumentPicker.pick({
+          // Provide which type of file you want user to pick
+          type: [DocumentPicker.types.allFiles],
+          // There can me more options as well
+          // DocumentPicker.types.allFiles
+          // DocumentPicker.types.images
+          // DocumentPicker.types.plainText
+          // DocumentPicker.types.audio
+          // DocumentPicker.types.pdf
+        });
+        
+        if(res.length > 0 ){
 
-      }).catch(e => {
-        Alert.alert(
-          "Warning",
-          "Somthing went wrong, Try Again",
-          [
-            { text: "OK" }
-          ]
-        );
-      });
-    });
-  }
+            let formData = new FormData();
+            let filedata = JSON.parse(JSON.stringify(res))[0];
+            formData.append('item_image', { type: filedata.type, uri: filedata.uri, name: filedata.name.split("/").pop() });
+            setLoader(true);
+            axios({
+                url: `${API_BASE_URL}item_image`,
+                method: 'POST',
+                data:formData,
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'multipart/form-data',
+                },
+            }).then(response => {
+                //console.log(" assets location on Edit page.", res?.data)
+                if(response?.data?.status==1){
+                    setDocumentName(response?.data?.picture)
+                    alert("File Uploaded");
+                }else{
+                    alert("File Not Uploaded")
+                }
+            }).catch(e => {
+                Alert.alert(
+                    "Warning",
+                    "Somthing went wrong, Try Again",
+                    [
+                        { text: "OK" }
+                    ]
+                );
+            });
+        }
+        setLoader(false);
+    } catch (err) {
+
+        setLoader(true);
+      
+        setDocument('');
+
+        if (DocumentPicker.isCancel(err)) {
+          alert('Canceled');
+        } else {
+          alert('Unknown Error: ' + JSON.stringify(err));
+          throw err;
+        }
+        setLoader(false);
+    }
+    
+}
+
   const saveDocument = () => {
     setLoader(true);
     if( documentType !='' && supplierName !='' && jobnumber !='' && ddtNumber !='' && description !='' && companyId !=''){
@@ -200,6 +242,69 @@ const DocumentEditing = ({ navigation,route }) => {
     setDateOpen(true)
   };
 
+  const downloadDocument = async(url) => {
+
+    if (Platform.OS === 'android') {
+        try {
+          const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+            {
+              title: 'Storage Permission Required',
+              message: 'Application needs access to your storage to download File',
+            }
+          );
+          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+            // Start downloading
+            downloadFile(url);
+            //console.log('Storage Permission Granted.');
+          } else {
+            // If permission denied then show alert
+            Alert.alert('Error','Storage Permission Not Granted');
+          }
+        } catch (err) {
+          // To handle permission related exception
+          Alert.alert('Error','Something went wrong. please try again.');
+        }
+    }
+    
+}
+
+const downloadFile = (url) => {
+    let date = new Date();
+    var FILE_URL = url;
+    //console.log(FILE_URL);
+    if(FILE_URL !=''){
+      let file_ext = getFileExtention(FILE_URL);
+      file_ext = '.' + file_ext[0];
+    const { config, fs } = RNFetchBlob;
+    let RootDir = fs.dirs.PictureDir;
+    let options = {
+      fileCache: true,
+      addAndroidDownloads: {
+        path: RootDir+'/file_' + Math.floor(date.getTime() + date.getSeconds() / 2) + file_ext,
+        description: 'downloading file...',
+        notification: true,
+        useDownloadManager: true,   
+      },
+    };
+    config(options)
+      .fetch('GET', FILE_URL)
+      .then(res => {
+        // Alert after successful downloading
+        //console.log('res -> ', JSON.stringify(res));
+        alert('File Downloaded Successfully.');
+      });
+    }else{
+      Alert.alert('Error','Something went wrong. please try again.');
+    }
+
+};
+
+const getFileExtention = fileUrl => {
+    // To get the file extension
+    return /[.]/.exec(fileUrl) ? /[^.]+$/.exec(fileUrl) : undefined;
+};
+
   let documentid = itemId?.document_type === 1 ? 1 : 2;
 
   return (
@@ -207,6 +312,7 @@ const DocumentEditing = ({ navigation,route }) => {
     <View style={{ flex: 1, marginTop: 20 }}>
       <ScrollView>
         <View style={styles.dropDownConatiner}>
+        {loader ? <View style={styles.loading}><ActivityIndicator size={50}></ActivityIndicator></View> : null }
           <Dropdown
             style={{ marginLeft: 10 }}
             placeholderStyle={{ color: 'black' }}
@@ -322,11 +428,15 @@ const DocumentEditing = ({ navigation,route }) => {
             value={supplierName}></TextInput>
         </View>
         <View style={styles.inputConatiners}>
-          <Text>Allegato</Text>
-          {imageurl ? <Image source={{uri:imageurl}} style={{height:50,width:50}}/> : ''}
-            <TouchableOpacity onPress={() => AddDocumentImage()}>
-              <Ionicons name="camera" color='#04487b' size={16}></Ionicons>
-            </TouchableOpacity>
+          <TouchableOpacity style={{ marginLeft: 30, marginRight: 30, marginTop: 10, marginBottom: 20, alignItems: 'center', borderWidth: 1, borderRadius: 5, paddingTop: 20, paddingBottom: 20, paddingLeft: 20, paddingRight: 20, borderColor: '#DDD' }} onPress={() => AddDocumentFile()}>
+            <Text>Allegato</Text>
+              <Ionicons name="document-text" color='#04487b' size={28}></Ionicons>
+          </TouchableOpacity>
+          { imageurl ? <>
+          <TouchableOpacity style={{ marginLeft: 20, alignItems: 'center'}} onPress={()=>downloadDocument(imageurl)}>
+              <Text style={{ color: '#04487b'}}>{ documentName }</Text>
+          </TouchableOpacity>
+          </> : null }
         </View>
         <TouchableOpacity style={styles.saveContainer} onPress={() => saveDocument()}>
           <View>

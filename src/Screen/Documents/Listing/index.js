@@ -144,14 +144,35 @@ const DocumentListing = ({ navigation }) => {
     );
     
   }
-  const ItemView = ({ item }) => {
 
+  const getFileExtention = fileUrl => {
+    // To get the file extension
+    return /[.]/.exec(fileUrl) ? /[^.]+$/.exec(fileUrl) : undefined;
+  };
+
+  const getFileURL = () => {
+    let imgsrc = '../../../assets/images/file.png';
+    return imgsrc;
+  };
+  var imgsrc;
+  const ItemView = ({ item }) => {
+    let documentfile = item.documents;
+    if( documentfile !='' ){
+      let file_ext = getFileExtention(item?.documents);
+      if( file_ext =='jpg' || file_ext =='png' || file_ext =='jpeg' || file_ext =='webp' || file_ext =='gif'){
+        imgsrc = item.documents;
+      }else{
+        imgsrc = '../../../assets/images/file.png';
+      }
+    }else{
+      imgsrc = '../../../assets/images/file.png';
+    }
     return (
-      <TouchableOpacity>
+       <TouchableOpacity>
         <View style={{ padding: 10, backgroundColor: '#FFF', borderRadius: 10 }}>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignContent: 'space-between' }}>
             <View style={{ alignSelf: 'flex-start', justifyContent: 'center' }}>
-              {item.documents != '' ? <Image source={{ uri: item.documents }} style={{ width: 70, height: 100, marginRight: 15 }} /> : <Image source={require('../../../assets/images/empty.png')} style={{ width: 80, height: 100, marginRight: 15 }} />}
+              {item.documents != '' ? <Image source={{ uri: imgsrc }} style={{ width: 70, height: 100, marginRight: 15 }} /> : <Image source={require('../../../assets/images/file.png')} style={{ width: 80, height: 100, marginRight: 15 }} />}
             </View>
             <View style={{ alignSelf: 'flex-start' }}>
               <View style={{ flexDirection: 'column' }}>

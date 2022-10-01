@@ -32,6 +32,12 @@ target 'newsimicsapp' do
 
   pod 'RNPermissions', :path => '../node_modules/react-native-permissions'
 
+  pod 'react-native-document-picker', :path => '../node_modules/react-native-document-picker'
+
+  pod 'RNFileViewer', :path => '../node_modules/react-native-file-viewer'
+
+  pod 'RNFS', :path => '../node_modules/react-native-fs'
+
   target 'newsimicsappTests' do
     inherit! :complete
     # Pods for testing

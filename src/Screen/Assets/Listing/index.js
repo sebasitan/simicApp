@@ -225,7 +225,7 @@ const AssetsListing = ({ navigation }) => {
             <View style={{ flex: 1, flexDirection: 'column' }}>
               <Title style={[styles.fontMedium, { fontSize: 15, marginBottom: 0, lineHeight: 20, color: 'black' }]}>{item.item_name}</Title>
               <Paragraph style={[styles.fontRegular, { fontSize: 12, lineHeight: 20, marginBottom: 0 }]}>{item.location_name}</Paragraph>
-              <Text style={[ styles.fontRegular, { fontSize: 12, backgroundColor: item.status_colour, paddingLeft: 10, paddingRight: 10, color: 'white', width: 80, paddingTop: 5, paddingBottom: 5, marginTop: 5 }]}>{item?.status_id}</Text>
+              <Text style={[ styles.fontRegular, { fontSize: 12, backgroundColor: item.status_colour, paddingLeft: 10, paddingRight: 10, color: 'white', width: 100, flexDirection: 'row', paddingTop: 5, paddingBottom: 5, marginTop: 5 }]}>{item?.status_id}</Text>
             </View>
           </View>
         </View>

@@ -1,1 +1,1 @@
-export const API_BASE_URL = 'https://stallioni.co.in/api/';
+export const API_BASE_URL = 'https://stallioni.co.in/v2/api/';

@@ -18,6 +18,7 @@ import axios from "axios";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { API_BASE_URL } from '../../../Services/url';
 import * as Utility from '../../../Utility/inbdex';
+import DocumentPicker from 'react-native-document-picker';
 
 const AssetAddition = ({ navigation }) => {
     const [name, setName] = useState('');
@@ -32,8 +33,6 @@ const AssetAddition = ({ navigation }) => {
     const [imageName,setImageName]=React.useState('');
     const [instructionImageName,setInstructionImageName]=React.useState('');
     const [image, setImage] = useState('');
-    const [StatoList, setStatoList] = useState([]);
-    const [instructionImage, setInstructionImage] = useState('');
     const [userId, setUserId] = React.useState('');
     const [qrCode, setQrcode] = React.useState('');
     const [notes, setNotes] = useState('');
@@ -198,6 +197,7 @@ const AssetAddition = ({ navigation }) => {
     }
 
     const assestImage = () => {
+        setLoader(true);
         ImagePicker.openPicker({
             width: 300,
             height: 400,
@@ -235,46 +235,73 @@ const AssetAddition = ({ navigation }) => {
             });
 
         });
+        setLoader(false);
     }
 
-    const instructionAssets = () => {
-        ImagePicker.openPicker({
-            width: 300,
-            height: 400,
-            cropping: true
-        }).then(image => {
-            //console.log(image);
-            setInstructionImage(image?.path)
-            
-            const formData = new FormData();
-            formData.append('item_image', { type: image.mime, uri: image.path, name: image.path.split("/").pop() });
-            axios({
-                url: `${API_BASE_URL}item_image`,
-                method: 'POST',
-                data:formData,
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'multipart/form-data',
-                },
-            }).then(res => {
-                if(res?.data?.status==1){
-                    setInstructionImageName(res?.data?.picture)
-                    alert("Instruction Image Added successfully")
-                }else{
-                    alert("Your Instruction image not uploaded")
-                }
-            }).catch(e => {
-                Alert.alert(
-                    "Warning",
-                    "Somthing went wrong, Try Again",
-                    [
-                        { text: "OK" }
-                    ]
-                );
+    const instructionAssets = async () => {
+        
+        try {
+            const res = await DocumentPicker.pick({
+              // Provide which type of file you want user to pick
+              type: [DocumentPicker.types.allFiles],
+              // There can me more options as well
+              // DocumentPicker.types.allFiles
+              // DocumentPicker.types.images
+              // DocumentPicker.types.plainText
+              // DocumentPicker.types.audio
+              // DocumentPicker.types.pdf
             });
+            
+            setLoader(true);
 
-        });
-    }
+            if(res.length > 0 ){
+
+                let formData = new FormData();
+                let filedata = JSON.parse(JSON.stringify(res))[0];
+                formData.append('item_image', { type: filedata.type, uri: filedata.uri, name: filedata.name.split("/").pop() });
+
+                axios({
+                    url: `${API_BASE_URL}item_image`,
+                    method: 'POST',
+                    data:formData,
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'multipart/form-data',
+                    },
+                }).then(response => {
+                    //console.log(" assets location on Edit page.", res?.data)
+                    if(response?.data?.status==1){
+                        setInstructionImageName(response?.data?.picture)
+                        alert("File Uploaded");
+                    }else{
+                        alert("File Not Uploaded")
+                    }
+                }).catch(e => {
+                    Alert.alert(
+                        "Warning",
+                        "Somthing went wrong, Try Again",
+                        [
+                            { text: "OK" }
+                        ]
+                    );
+                });
+            }
+            setLoader(false);
+        } catch (err) {
+            setLoader(true);
+            setInstructionImageName('');
+
+            if (DocumentPicker.isCancel(err)) {
+              alert('Canceled');
+            } else {
+              alert('Unknown Error: ' + JSON.stringify(err));
+              throw err;
+            }
+            setLoader(false);
+        }
+        
+    };
+
     const assetsAddtion = () => {
         
         setLoader(true);
@@ -358,8 +385,7 @@ const AssetAddition = ({ navigation }) => {
     return (
         <View style={{ flex: 1 }}>
             <ScrollView>
-                {loader ?
-                    <ActivityIndicator size={50}></ActivityIndicator> : null}
+                {loader ? <View style={styles.loading}><ActivityIndicator size={50}></ActivityIndicator></View> : null }
                 <View style={styles.inputConatiner}>
                     <TextInput
                         style={{ height: 40, marginLeft: 10 }}
@@ -489,23 +515,14 @@ const AssetAddition = ({ navigation }) => {
                     />
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
-                    <View style={{ marginLeft: 20, marginTop: 10, alignItems: 'center' }}>
+                    <TouchableOpacity style={{ marginLeft: 20, marginTop: 10, marginBottom: 20, alignItems: 'center', borderWidth: 1, borderRadius: 5, paddingTop: 20, paddingBottom: 20, paddingLeft: 10, paddingRight: 10, borderColor: '#DDD' }} onPress={() => assestImage()}>
                         <Text>Immagine</Text>
-                        {image?
-                        <Image source={{uri:image}} style={{height:90,width:90,borderRadius:20}}/>:null}
-                        <TouchableOpacity onPress={() => assestImage()}>
-                            <Ionicons name="camera" color='#04487b' size={16}></Ionicons>
-                        </TouchableOpacity>
-                    </View>
-                    <View style={{ marginLeft: 20, marginTop: 10, alignItems: 'center' }}>
+                        <Ionicons name="camera" color='#04487b' size={28}></Ionicons>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{ marginLeft: 20, marginTop: 10, marginBottom: 20, alignItems: 'center', borderWidth: 1, borderRadius: 5, paddingTop: 20, paddingBottom: 20, paddingLeft: 10, paddingRight: 10, borderColor: '#DDD' }} onPress={() => instructionAssets()}>
                         <Text>Istruzioni</Text>
-                        {instructionImage?
-                        <Image source={{uri:instructionImage}} style={{height:90,width:90,borderRadius:20}}/>:null}
-                        <TouchableOpacity onPress={() => instructionAssets()}>
-                            <Ionicons name="camera" color='#04487b' size={16}></Ionicons>
-                        </TouchableOpacity>
-
-                    </View>
+                        <Ionicons name="document-text" color='#04487b' size={28}></Ionicons>
+                    </TouchableOpacity>
                 </View>
                 <View style={{ alignSelf: 'center', width: '60%', marginTop: 10, marginBottom: 20 }}>
                     <Button title='Save' onPress={assetsAddtion} color="#04487b" />
@@ -543,6 +560,16 @@ const styles = StyleSheet.create({
     },
     fontFamily: {
         fontFamily: 'Montserrat-Regular'
+    },
+    loading: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#F5FCFF88'
     }
 });
 export default AssetAddition;

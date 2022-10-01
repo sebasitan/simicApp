@@ -10,10 +10,14 @@ import {
     Image,
     TouchableOpacity,
     TextInput,
-    ScrollView
+    ScrollView,
+    PermissionsAndroid
 } from 'react-native';
 
 import ImagePicker from 'react-native-image-crop-picker';
+
+import DocumentPicker from "react-native-document-picker";
+import RNFetchBlob from 'rn-fetch-blob';
 
 import axios from "axios";
 
@@ -23,14 +27,19 @@ import { API_BASE_URL } from '../../../Services/url';
 
 import * as Utility from '../../../Utility/inbdex';
 
+var fileImg = '../../../assets/images/file.png';
+
 const AssetsEditing = ({ navigation ,route}) => {
-  const {item}= route?.params;
+
+    const {item}= route?.params;
     const [name, setName] = useState('');
     const [stato, setStato] = useState('');
     const [description, setDrescription] = useState('');
     const [notes, setNotes] = useState('');
-    const [image, setImage] = useState('');
-    const [instructionImage,setInstructionImage]=useState('');
+    const [assetImageName,setAssetImageName]=React.useState('');
+    const [assetImageURL, setAssetImageURL] = useState('');
+    const [assetFileName, setAssetFileName] = useState('');
+    const [assetFileURL, setAssetFileURL] = React.useState('');
     const [loader,setLoader]=useState(false);
     const [categoryName,setCategoryName]=React.useState('');
     const [subCategoryName,setSubCategoryName]=React.useState('');
@@ -46,8 +55,6 @@ const AssetsEditing = ({ navigation ,route}) => {
     const [userRole, setUserRole]=React.useState('');
     const [userData, setUserData]=React.useState([]);
     const [qrcode,setQrcode]=React.useState('');
-    const [assetImageName,setAssetImageName]=React.useState('');
-    const [instructionImageName,setInstructionImagesName]=React.useState('');
 
     useEffect( () => {
       (
@@ -144,38 +151,40 @@ const AssetsEditing = ({ navigation ,route}) => {
         setLoader(false);
       //console.log("vikas view page.. on edit mode",res?.data)
         if(res.data.status == 1){
-          let itemdetail = JSON.stringify(res?.data?.item_details);
-          let itemdetailjson = JSON.parse(itemdetail);
-        //console.log(itemdetailjson);
-          let itemsubcatdata = JSON.stringify(res?.data?.subcat);
-          let itemsubcatlistjson = JSON.parse(itemsubcatdata);
-          let itemchildcatdata = JSON.stringify(res?.data?.subsubcat);
-          let itemchildcatlistjson = JSON.parse(itemchildcatdata);
-          //console.log(itemchildcatlistjson);
-          setName(itemdetailjson?.item_name)
-          setDrescription(itemdetailjson?.description)
-          setImage(itemdetailjson?.item_image_url)
-          setCategoryName(itemdetailjson?.parent_item_id);
-          setSubCategoryName(itemdetailjson?.sub_item_id);
-          setChildCategoryName(itemdetailjson?.sub_subitem_id);
+            let itemdetail = JSON.stringify(res?.data?.item_details);
+            let itemdetailjson = JSON.parse(itemdetail);
+            //console.log(itemdetailjson);
+            let itemsubcatdata = JSON.stringify(res?.data?.subcat);
+            let itemsubcatlistjson = JSON.parse(itemsubcatdata);
+            let itemchildcatdata = JSON.stringify(res?.data?.subsubcat);
+            let itemchildcatlistjson = JSON.parse(itemchildcatdata);
+            //console.log(itemchildcatlistjson);
+            setName(itemdetailjson?.item_name)
+            setDrescription(itemdetailjson?.description)
+            setCategoryName(itemdetailjson?.parent_item_id);
+            setSubCategoryName(itemdetailjson?.sub_item_id);
+            setChildCategoryName(itemdetailjson?.sub_subitem_id);
 
-          setLOactionName(itemdetailjson?.location_id);
-          setAssetsName(itemdetailjson?.status_id);
-          setNotes(itemchildcatlistjson?.notes);
-          setAssetImageName(itemdetailjson?.item_image_name);
-          setInstructionImagesName(itemdetailjson?.item_instructions_name)
-          setQrcode(itemdetailjson?.qr_code);
-          setInstructionImage(itemdetailjson?.item_instructions_url)
-            //console.log(locationName);
-          if(itemsubcatlistjson.length > 0 ){
-            let subcateories = itemsubcatlistjson.map(key => ({ value: key.id, label: key.category_name }));
-            setSubCategoriesList(subcateories);
-          }
+            setLOactionName(itemdetailjson?.location_id);
+            setAssetsName(itemdetailjson?.status_id);
+            setNotes(itemchildcatlistjson?.notes);
 
-          if(itemchildcatlistjson.length > 0 ){
-            let childcateories = itemchildcatlistjson.map(key => ({ value: key.id, label: key.category_name }));
-            setChildCategoriesList(childcateories);
-          }
+            setAssetImageName(itemdetailjson?.item_image_name);
+            setAssetImageURL(itemdetailjson?.item_image_url);
+            setAssetFileName(itemdetailjson?.item_instructions_name);
+            setAssetFileURL(itemdetailjson?.item_instructions_url);
+        
+            setQrcode(itemdetailjson?.qr_code);
+
+            if(itemsubcatlistjson.length > 0 ){
+                let subcateories = itemsubcatlistjson.map(key => ({ value: key.id, label: key.category_name }));
+                setSubCategoriesList(subcateories);
+            }
+
+            if(itemchildcatlistjson.length > 0 ){
+                let childcateories = itemchildcatlistjson.map(key => ({ value: key.id, label: key.category_name }));
+                setChildCategoriesList(childcateories);
+            }
           
         }else{
           Alert.alert(
@@ -203,11 +212,11 @@ const AssetsEditing = ({ navigation ,route}) => {
             width: 300,
             height: 400,
             cropping: true
-          }).then(image => {
-            //console.log(image);
-             setImage(image?.path)
-            const formData = new FormData();
-            formData.append('item_image', { type: image.mime, uri: image.path, name: image.path.split("/").pop() });
+            }).then(image => {
+                setLoader(true);
+                setAssetImageURL(image?.path)
+                const formData = new FormData();
+                formData.append('item_image', { type: image.mime, uri: image.path, name: image.path.split("/").pop() });
             axios({
                 url: `${API_BASE_URL}item_image`,
                 method: 'POST',
@@ -217,13 +226,14 @@ const AssetsEditing = ({ navigation ,route}) => {
                     'Content-Type': 'multipart/form-data',
                 },
             }).then(res => {
-                //console.log(" assets location on Edit page.", res?.data)
+                    //console.log(" assets location on Edit page.", res?.data)
                 if(res?.data?.status==1){
                     setAssetImageName(res?.data?.picture)
-                    alert("Instruction Image Added successfully")
+                    alert("Image Uploaded")
                 }else{
-                    alert("Your Instruction image not uploaded")
+                    alert("Image not uploaded")
                 }
+                setLoader(false);
             }).catch(e => {
                 Alert.alert(
                     "Warning",
@@ -232,46 +242,72 @@ const AssetsEditing = ({ navigation ,route}) => {
                         { text: "OK" }
                     ]
                 );
+                setLoader(true);
             });
-          });
+        });
     }
-    const instructionAssets=()=>{
-        ImagePicker.openPicker({
-            width: 300,
-            height: 400,
-            cropping: true
-          }).then(image => {
-            setInstructionImage(image?.path)
-            const formData = new FormData();
-            formData.append('item_image', { type: image.mime, uri: image.path, name: image.path.split("/").pop() });
-            axios({
-                url: `${API_BASE_URL}item_image`,
-                method: 'POST',
-                data:formData,
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'multipart/form-data',
-                },
-            }).then(res => {
-                //console.log(" assets location on Edit page.", res?.data)
-                if(res?.data?.status==1){
-                    setInstructionImagesName(res?.data?.picture)
-                    alert("Instruction Image Added successfully")
-                }else{
-                    alert("Your Instruction image not uploaded")
-                }
-            }).catch(e => {
-                Alert.alert(
-                    "Warning",
-                    "Somthing went wrong, Try Again",
-                    [
-                        { text: "OK" }
-                    ]
-                );
+
+    const instructionAssets = async () => {
+        try {
+            const res = await DocumentPicker.pick({
+              // Provide which type of file you want user to pick
+              type: [DocumentPicker.types.allFiles],
+              // There can me more options as well
+              // DocumentPicker.types.allFiles
+              // DocumentPicker.types.images
+              // DocumentPicker.types.plainText
+              // DocumentPicker.types.audio
+              // DocumentPicker.types.pdf
             });
-          });
-    }
-   
+    
+            if(res.length > 0 ){
+
+                let formData = new FormData();
+                let filedata = JSON.parse(JSON.stringify(res))[0];
+                formData.append('item_image', { type: filedata.type, uri: filedata.uri, name: filedata.name.split("/").pop() });
+                setLoader(true);
+                axios({
+                    url: `${API_BASE_URL}item_image`,
+                    method: 'POST',
+                    data:formData,
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'multipart/form-data',
+                    },
+                }).then(response => {
+                    //console.log(" assets location on Edit page.", res?.data)
+                    if(response?.data?.status==1){
+                        setAssetFileName(response?.data?.picture)
+                        alert("File Uploaded");
+                    }else{
+                        alert("File Not Uploaded")
+                    }
+                    setLoader(false);
+                }).catch(e => {
+                    setLoader(true);
+                    Alert.alert(
+                        "Warning",
+                        "Somthing went wrong, Try Again",
+                        [
+                            { text: "OK" }
+                        ]
+                    );
+                    setLoader(false);
+                });
+            }
+
+        } catch (err) {
+            setLoader(true);
+            if (DocumentPicker.isCancel(err)) {
+              alert('Canceled');
+            } else {
+              alert('Unknown Error: ' + JSON.stringify(err));
+              throw err;
+            }
+            setLoader(false);
+        }
+    };
+
     const assetsEdit=()=>{
         setLoader(true);
         let formData = {
@@ -285,7 +321,7 @@ const AssetsEditing = ({ navigation ,route}) => {
             location_id:locationName,
             status_id:assetsName,
             item_image_name:assetImageName,
-            documents:instructionImageName,
+            documents:assetFileName,
             qr_code:qrcode,
             notes: notes != undefined ? notes : ''
         };
@@ -423,13 +459,79 @@ const AssetsEditing = ({ navigation ,route}) => {
                 ]
             );
         });
+    };
+
+    const downloadDocument = async(id) => {
+
+        if (Platform.OS === 'android') {
+            try {
+              const granted = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+                {
+                  title: 'Storage Permission Required',
+                  message: 'Application needs access to your storage to download File',
+                }
+              );
+              if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                // Start downloading
+                downloadFile(id);
+                //console.log('Storage Permission Granted.');
+              } else {
+                // If permission denied then show alert
+                Alert.alert('Error','Storage Permission Not Granted');
+              }
+            } catch (err) {
+              // To handle permission related exception
+              Alert.alert('Error','Something went wrong. please try again.');
+            }
+        }
+        
     }
+
+    const downloadFile = (id) => {
+        let date = new Date();
+        if(id == 2 ){
+            var FILE_URL = assetFileURL;
+        }else{
+            var FILE_URL = assetImageURL;
+        }
+        //console.log(FILE_URL);
+        if(FILE_URL !=''){
+          let file_ext = getFileExtention(FILE_URL);
+          file_ext = '.' + file_ext[0];
+        const { config, fs } = RNFetchBlob;
+        let RootDir = fs.dirs.PictureDir;
+        let options = {
+          fileCache: true,
+          addAndroidDownloads: {
+            path: RootDir+'/file_' + Math.floor(date.getTime() + date.getSeconds() / 2) + file_ext,
+            description: 'downloading file...',
+            notification: true,
+            useDownloadManager: true,   
+          },
+        };
+        config(options)
+          .fetch('GET', FILE_URL)
+          .then(res => {
+            // Alert after successful downloading
+            //console.log('res -> ', JSON.stringify(res));
+            alert('File Downloaded Successfully.');
+          });
+        }else{
+          Alert.alert('Error','Something went wrong. please try again.');
+        }
+    
+    };
+    
+    const getFileExtention = fileUrl => {
+        // To get the file extension
+        return /[.]/.exec(fileUrl) ? /[^.]+$/.exec(fileUrl) : undefined;
+    };
     //console.log(userRole);
     return (
         <View style={{ flex: 1 }}>
             <ScrollView>
-              {loader?
-              <ActivityIndicator size={50}/>:null}
+            {loader ? <View style={styles.loading}><ActivityIndicator size={50}></ActivityIndicator></View> : null }
                 <View style={styles.inputConatiner}>
                     {userRole == 3 ? <>
                         <TextInput
@@ -661,26 +763,29 @@ const AssetsEditing = ({ navigation ,route}) => {
                     />
                 </View>
                 {userRole == 3 ? null : <>
-                <View style={{flexDirection:'row',justifyContent:'space-evenly'}}>
-                    <View style={{ marginLeft: 20, marginTop: 10,alignItems:'center' }}>
-                        <Text>Immagine</Text>
-                        <View style={{flexDirection:'row',alignItems:'center'}}>
-                        <Image source={ image ? { uri:image } : null } style={{height:70,width:100,borderRadius:10}}/>
-                        <TouchableOpacity onPress={()=>assestImage()}>
-                            <Ionicons name="camera" color='#04487b' size={16}></Ionicons>
+                    <View style={{flexDirection:'row',justifyContent:'space-evenly'}}>
+                        <TouchableOpacity style={{ marginLeft: 20, marginTop: 10, marginBottom: 20, alignItems: 'center', borderWidth: 1, borderRadius: 5, paddingTop: 20, paddingBottom: 20, paddingLeft: 10, paddingRight: 10, borderColor: '#DDD' }} onPress={()=>assestImage()}>
+                            <Text>Immagine</Text>
+                            <Ionicons name="camera" color='#04487b' size={28}></Ionicons>
                         </TouchableOpacity>
-                        </View>
-                    </View>
-                    <View style={{ marginLeft: 20, marginTop: 10,alignItems:'center'}}>
-                        <Text>Istruzioni</Text>
-                        <View style={{flexDirection:'row',alignItems:'center'}}>
-                        <Image source={ instructionImage ? { uri:instructionImage } : null } style={{height:70,width:100,borderRadius:10}}/>
-                        <TouchableOpacity onPress={()=>instructionAssets()}>
-                            <Ionicons name="camera" color='#04487b' size={16}></Ionicons>
+                        <TouchableOpacity style={{ marginLeft: 20, marginTop: 10, marginBottom: 20, alignItems: 'center', borderWidth: 1, borderRadius: 5, paddingTop: 20, paddingBottom: 20, paddingLeft: 10, paddingRight: 10, borderColor: '#DDD' }} onPress={()=>instructionAssets()}>
+                            <Text>Istruzioni</Text>
+                            <Ionicons name="document-text" color='#04487b' size={28}></Ionicons>
                         </TouchableOpacity>
-                        </View>
                     </View>
-                </View>
+                    <View style={{flexDirection:'row', justifyContent:'space-evenly', marginBottom: 20 }}>
+                        { assetImageURL ? <>
+                            <TouchableOpacity style={{ marginLeft: 20, alignItems: 'center'}} onPress={()=>downloadDocument(1)}>
+                            <Text style={{ color: '#04487b'}}>{ assetImageName }</Text>
+                            </TouchableOpacity>
+                        </> : null }
+                        { assetFileURL ? <>
+                            <TouchableOpacity style={{ marginLeft: 20, alignItems: 'center'}} onPress={()=>downloadDocument(2)}>
+                            <Text style={{ color: '#04487b'}}>{ assetFileName }</Text>
+                        </TouchableOpacity>
+                        </> : null }
+                        
+                    </View>
                 </> }
                 <View style={{ alignSelf: 'center', width: '60%',marginTop:10,marginBottom:20 }}>
                     <Button title='Save' onPress={assetsEdit} color="#04487b" />
@@ -716,7 +821,17 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFFFFF',
     },
     fontFamily: {
-        fontFamily: 'Poppins-Regular'
+        fontFamily: 'Montserrat-Regular'
+    },
+    loading: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#F5FCFF88'
     }
 });
 export default AssetsEditing;

@@ -6,16 +6,17 @@ import {
   View,
   ScrollView,
   TouchableOpacity,
-  Alert
+  Alert,
+  ActivityIndicator
 } from 'react-native';
 import { TextInput, Title } from "react-native-paper";
-import ImagePicker from 'react-native-image-crop-picker';
 import axios from "axios";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { API_BASE_URL } from '../../../Services/url';
 import * as Utility from '../../../Utility/inbdex';
 import DatePicker from 'react-native-date-picker';
 import moment from 'moment';
+import DocumentPicker from 'react-native-document-picker';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -64,7 +65,18 @@ const styles = StyleSheet.create({
   },
   inputConatiners: {
     margin:10,
-  }
+  },
+  loading: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F5FCFF88'
+}
+  
 });
 const DocumentAddition = ({ navigation }) => {
   const [documentType, setDocumentType] = React.useState('');
@@ -77,6 +89,7 @@ const DocumentAddition = ({ navigation }) => {
   const [document, setDocument] = React.useState('');
   const [cerNumber, setCerNumber] = React.useState('');
   const [supplierName, setSupplierName] = React.useState('');
+  const [loader, setLoader] = React.useState(false);
 
   const [documentList, setDocumentList] = React.useState([{ label: 'Transport Document', value: 1 }, { label: 'Formulary', value: 2 }]);
   
@@ -126,41 +139,71 @@ const DocumentAddition = ({ navigation }) => {
       );
     });
   }
-  const AddDocumentImage = () => {
-    ImagePicker.openPicker({
-      width: 300,
-      height: 400,
-      cropping: true
-    }).then(image => {
-      const formData = new FormData();
-      formData.append('item_image', { type: image.mime, uri: image.path, name: image.path.split("/").pop() });
-      axios({
-        url: `${API_BASE_URL}item_image`,
-        method: 'POST',
-        data: formData,
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
-        },
-      }).then(res => {
-        if (res?.data?.status == 1) {
-          setDocument(res?.data?.picture)
-          alert("Image Added successfully")
-        } else {
-          alert("Image not uploaded")
-        }
 
-      }).catch(e => {
-        Alert.alert(
-          "Warning",
-          "Somthing went wrong, Try Again",
-          [
-            { text: "OK" }
-          ]
-        );
-      });
-    });
+  const AddDocumentFile = async () => {
+    
+        try {
+            const res = await DocumentPicker.pick({
+              // Provide which type of file you want user to pick
+              type: [DocumentPicker.types.allFiles],
+              // There can me more options as well
+              // DocumentPicker.types.allFiles
+              // DocumentPicker.types.images
+              // DocumentPicker.types.plainText
+              // DocumentPicker.types.audio
+              // DocumentPicker.types.pdf
+            });
+            setLoader(true);
+            if(res.length > 0 ){
+
+                let formData = new FormData();
+                let filedata = JSON.parse(JSON.stringify(res))[0];
+                formData.append('item_image', { type: filedata.type, uri: filedata.uri, name: filedata.name.split("/").pop() });
+
+                axios({
+                    url: `${API_BASE_URL}item_image`,
+                    method: 'POST',
+                    data:formData,
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'multipart/form-data',
+                    },
+                }).then(response => {
+                    //console.log(" assets location on Edit page.", res?.data)
+                    if(response?.data?.status==1){
+                        setDocument(response?.data?.picture)
+                        alert("File Uploaded");
+                    }else{
+                        alert("File Not Uploaded")
+                    }
+                }).catch(e => {
+                    Alert.alert(
+                        "Warning",
+                        "Somthing went wrong, Try Again",
+                        [
+                            { text: "OK" }
+                        ]
+                    );
+                });
+            }
+            setLoader(false);
+        } catch (err) {
+
+            setLoader(true);
+          
+            setDocument('');
+
+            if (DocumentPicker.isCancel(err)) {
+              alert('Canceled');
+            } else {
+              alert('Unknown Error: ' + JSON.stringify(err));
+              throw err;
+            }
+            setLoader(false);
+        }
+        
   }
+
   const saveDocument = () => {
     //console.log(companyId);
     if( documentType !='' && supplierName !='' && jobnumber !='' && ddtNumber !='' && description !='' && companyId !='' && document !=''){
@@ -180,8 +223,7 @@ const DocumentAddition = ({ navigation }) => {
         cercode: cerNumber,
         company_id: companyId,
       };
-      //navigation.navigate('Documenti');
-      //console.log(formData);
+     setLoader(true);
       axios({
         url: `${API_BASE_URL}AddDocument`,
         method: 'POST',
@@ -206,6 +248,7 @@ const DocumentAddition = ({ navigation }) => {
               ]
         );
       });
+      setLoader(false);
     }else{
       Alert.alert(
         "Warning",
@@ -221,6 +264,7 @@ const DocumentAddition = ({ navigation }) => {
   };
   return (
     <View style={{ flex: 1, marginTop: 20 }}>
+      {loader ? <View style={styles.loading}><ActivityIndicator size={50}></ActivityIndicator></View> : null }
       <ScrollView>
         <View style={styles.dropDownConatiner}>
           <Dropdown
@@ -331,10 +375,10 @@ const DocumentAddition = ({ navigation }) => {
           theme={{ colors: { primary: '#04487b', underlineColor: 'yellow', accent: '#99e8e4' } }} 
           onChangeText={(e)=>setSupplierName(e)}></TextInput>
         </View>
-        <View style={{ flexDirection: 'column', marginTop: 10, marginBottom: 10, alignSelf: 'center'}}>
-          <TouchableOpacity onPress={() => AddDocumentImage()}>
+        <View style={{ flexDirection: 'column', marginTop: 10, marginBottom: 10 }}>
+          <TouchableOpacity style={{ marginLeft: 30, marginRight: 30, marginTop: 10, marginBottom: 20, alignItems: 'center', borderWidth: 1, borderRadius: 5, paddingTop: 20, paddingBottom: 20, paddingLeft: 20, paddingRight: 20, borderColor: '#DDD' }} onPress={() => AddDocumentFile()}>
             <Text>Allegato</Text>
-            <Ionicons name="camera" color='#04487b' size={16}></Ionicons>
+            <Ionicons name="document-text" color='#04487b' size={28}></Ionicons>
           </TouchableOpacity>
         </View>
         {userType == 99 ?<>

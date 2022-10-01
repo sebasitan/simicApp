@@ -6,7 +6,8 @@ import {
   Alert,
   Image,
   TouchableOpacity,
-  ActivityIndicator
+  ActivityIndicator,
+  PermissionsAndroid
 } from 'react-native';
 import {
     Title,
@@ -15,8 +16,9 @@ import {
 import axios from "axios";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { API_BASE_URL } from '../../../Services/url';
+import RNFetchBlob from 'rn-fetch-blob';
 
-const Viewing = ({route, navigation}) => {
+const AssetViewScreen = ({route, navigation}) => {
   const [itemId, setItemId] = useState(route?.params?.itemid);
   const [userId, setUserId] = useState(route?.params?.userid);
   const [itemDetails, setItemDetails] = useState([]);
@@ -25,6 +27,8 @@ const Viewing = ({route, navigation}) => {
   const [assetsHistorys,setAssetsHistory]=React.useState([])
   const [assetsMaintainces,setAssetsMaintainces]=React.useState([])
   const [bookingHistory,setBookingHistory]=React.useState([]);
+
+  var fileImg = '../../../assets/images/file.png';
 
   useEffect( () => {
       (
@@ -100,6 +104,70 @@ const Viewing = ({route, navigation}) => {
   const assetsBooking=(item)=>{
     navigation.navigate('AssetsBooking' ,{item:item,booking:bookingHistory})
   }
+
+
+  const downloadDocument = async(url) => {
+
+    if (Platform.OS === 'android') {
+        try {
+          const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+            {
+              title: 'Storage Permission Required',
+              message: 'Application needs access to your storage to download File',
+            }
+          );
+          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+            // Start downloading
+            downloadFile(url);
+            //console.log('Storage Permission Granted.');
+          } else {
+            // If permission denied then show alert
+            Alert.alert('Error','Storage Permission Not Granted');
+          }
+        } catch (err) {
+          // To handle permission related exception
+          Alert.alert('Error','Something went wrong. please try again.');
+        }
+    }
+    
+}
+
+  const downloadFile = (url) => {
+      let date = new Date();
+      var FILE_URL = url;
+      //console.log(FILE_URL);
+      if(FILE_URL !=''){
+        let file_ext = getFileExtention(FILE_URL);
+        file_ext = '.' + file_ext[0];
+      const { config, fs } = RNFetchBlob;
+      let RootDir = fs.dirs.PictureDir;
+      let options = {
+        fileCache: true,
+        addAndroidDownloads: {
+          path: RootDir+'/file_' + Math.floor(date.getTime() + date.getSeconds() / 2) + file_ext,
+          description: 'downloading file...',
+          notification: true,
+          useDownloadManager: true,   
+        },
+      };
+      config(options)
+        .fetch('GET', FILE_URL)
+        .then(res => {
+          // Alert after successful downloading
+          //console.log('res -> ', JSON.stringify(res));
+          alert('File Downloaded Successfully.');
+        });
+      }else{
+        Alert.alert('Error','Something went wrong. please try again.');
+      }
+
+  };
+
+  const getFileExtention = fileUrl => {
+      // To get the file extension
+      return /[.]/.exec(fileUrl) ? /[^.]+$/.exec(fileUrl) : undefined;
+  };
     return(
           <View style={[ styles.container ]}>
             {loader?
@@ -133,7 +201,15 @@ const Viewing = ({route, navigation}) => {
                 <Text style={[ styles.regularFont, { fontSize: 14 }]}>{ itemDetails?.location_name }</Text>
               </View>
               <View style={{  flexDirection: 'row', justifyContent: 'space-between', alignItems:'center', marginTop: 10 }}>
-                { itemDetails.item_image_url !='' ? <Image source={{uri:itemDetails?.item_image_url}} style={{width: 150, height: 150, borderRadius: 10, marginRight: 20 }}/> : <Image source={ require('../../../assets/images/empty.png') } style={{width: 150, height: 150, borderRadius: 10, marginRight: 20 }}/> }
+                <TouchableOpacity>
+                  { itemDetails.item_image_url !='' ? <Image source={{uri:itemDetails?.item_image_url}} style={{width: 150, height: 150, borderRadius: 10, marginRight: 20 }}/> : <Image source={ require('../../../assets/images/empty.png') } style={{width: 150, height: 150, borderRadius: 10, marginRight: 20 }}/> }
+                </TouchableOpacity>
+                { itemDetails.item_instructions_url !='' ? <>
+                  <TouchableOpacity onPress={()=>downloadDocument(itemDetails.item_instructions_url)}>
+                    <Image source={ require(fileImg) } style={{ alignSelf: 'center'}}></Image>
+                    <Text style={{ marginTop: 10, color:"#04487b" }}>{ itemDetails?.item_instructions_name }</Text>
+                  </TouchableOpacity>
+                </> : null }
               </View>
               <TouchableOpacity style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#DDD', paddingBottom: 15, paddingTop: 15, alignContent:'space-between', backgroundColor: '#FFF', marginLeft: -15, marginRight: -15, marginTop: 15, paddingLeft: 15, paddingRight: 15 }} onPress={() =>assetsHistory(assetsHistorys) }>
                   <View style={{ flex: 1, flexDirection: 'row', alignSelf: 'flex-start'}}>
@@ -177,4 +253,4 @@ const styles = StyleSheet.create({
       color: '#04487b'
     }
 });
-export default Viewing
+export default AssetViewScreen;
