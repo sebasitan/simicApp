@@ -195,8 +195,7 @@ const DocumentEditing = ({ navigation,route }) => {
         description: description,
         documents: documentName,
         document_date: moment(toDate)
-        .format('YYYY-MM-DD') + moment(toDate)
-        .format(' hh:mm:ss'),
+        .format('YYYY-MM-DD'),
         protocol: protocol,
         cercode: cerNumber,
         company_id: companyId || '',
@@ -445,6 +444,7 @@ const getFileExtention = fileUrl => {
         </TouchableOpacity>
         <DatePicker
           modal
+          mode='date'
           minDate={new Date()}
           minimumDate={new Date(new Date().getTime() + 24 * 60 * 60 * 1000)}
           open={open}

@@ -5,10 +5,10 @@ import {
   View,
   StatusBar,
   Alert,
-  FlatList,
   ActivityIndicator,
   Image,
   TouchableOpacity,
+  VirtualizedList
 } from 'react-native';
 import {
   Title,
@@ -31,21 +31,18 @@ const LocationListing = ({ navigation }) => {
 
   useFocusEffect(
     React.useCallback(() => {
-      fetchLocationList(1,2);
+      fetchLocationList();
     }, [isFocused]),
   );
 
-  const fetchLocationList = async (page, type) => {
+  const fetchLocationList = async () => {
     setLoader(true);
-    if( type === 2){
-        setmasterItemData([]);
-        setPage(1);
-    }
+    setmasterItemData([]);
     let userToken =await Utility.getFromLocalStorge('userToken');
     setUserToken(userToken);
     if(userToken != null){
       axios({
-        url: `${API_BASE_URL}/locationList/${userToken}?page=${page}`,
+        url: `${API_BASE_URL}/locationFullList/${userToken}`,
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -54,14 +51,12 @@ const LocationListing = ({ navigation }) => {
       }).then(res => {
         if (res.data.status == 1) {
           let location_list = JSON.stringify(res.data.location_list);
-          //console.log(res.data);
           let itemjson = JSON.parse(location_list);
-          if( type === 2){
+          setTimeout(function(){
             setmasterItemData(itemjson);
-          }else{
-            setmasterItemData([...masterItemData, ...itemjson]);
-          }
-          setTotalItems(res?.data?.location_count);
+            setTotalItems(res?.data?.location_count);
+            setLoader(false);
+          }, 1000);
         } else {
           Alert.alert(
             "Warning",
@@ -70,6 +65,7 @@ const LocationListing = ({ navigation }) => {
               { text: "OK" }
             ]
           );
+          setLoader(false);
         }
       }).catch(e => {
         Alert.alert(
@@ -79,46 +75,54 @@ const LocationListing = ({ navigation }) => {
             { text: "OK" }
           ]
         );
+        setLoader(false);
       });
     }
-    setLoader(false);
+    
   }
  
-  const ItemView = ({ item }) => {
-    return (
-      <TouchableOpacity>
-      <View style={{ padding: 10, backgroundColor: '#FFF', borderRadius: 10 }} >
-        <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', alignContent: 'space-between' }}>
-          <View style={{ flex: 1, flexDirection: 'row' }}>
-            <Ionicons name="md-location-outline" color='#B31817' size={45}></Ionicons>
-            <View style={{ flex: 1, flexDirection: 'column', marginLeft: 20}}>
-              <Title style={[styles.fontFamily, { fontSize: 14, width: 250, lineHeight: 20, marginBottom: 5 }]}>{item.location_name}</Title>
-              <Paragraph style={[styles.fontFamily, { fontSize: 12 }]}>{item.description}</Paragraph>
-            </View>
+  const renderItem = ({ item }) => {
+    if(item != undefined){
+      return (
+        <TouchableOpacity>
+            <View style={{ padding: 10, backgroundColor: '#FFF', borderRadius: 10 }} >
+                <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', alignContent: 'space-between' }}>
+                  <View style={{ flex: 1, flexDirection: 'row' }}>
+                    <Ionicons name="md-location-outline" color='#B31817' size={45}></Ionicons>
+                    <View style={{ flex: 1, flexDirection: 'column', marginLeft: 20}}>
+                      <Title style={[styles.fontFamily, { fontSize: 14, width: 250, lineHeight: 20, marginBottom: 5 }]}>{item.location_name}</Title>
+                      <Paragraph style={[styles.fontFamily, { fontSize: 12 }]}>{item.description}</Paragraph>
+                    </View>
+                  </View>
+                </View>
+            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', marginTop: 8, borderTopColor: '#EEE', borderTopWidth: 1, paddingTop: 8 }}>
+                <TouchableOpacity onPress={() =>
+                    navigation.navigate('LocationViewing', {item: item })
+                  } style={{ flexDirection: 'row' }}>
+                    <Ionicons name="eye-outline" color='#04487b' size={16}></Ionicons><Text style={{ marginLeft: 4, color: '#04487b', fontSize: 13 }}>Visualizzazione</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() =>
+                        navigation.navigate('LocationEditing',{item:item})
+                      } style={{ flexDirection: 'row', marginLeft: 13, marginRight: 13 }}>
+                    <Ionicons name="ios-create-outline" color='#ff8c00' size={16}></Ionicons>
+                    <Text style={{ marginLeft: 0, color: '#ff8c00', fontSize: 13 }}>Modifica</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() =>
+                        deleteLocation(item?.location_id)
+                      } style={{ flexDirection: 'row' }}>
+                      <Ionicons name="ios-trash-outline" color='#B31817' size={16}></Ionicons>
+                      <Text style={{ marginLeft: 0, color: '#B31817', fontSize: 13 }}>Cancella</Text>
+                  </TouchableOpacity>
+              </View>
           </View>
-        </View>
-        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', marginTop: 8, borderTopColor: '#EEE', borderTopWidth: 1, paddingTop: 8 }}>
-                <TouchableOpacity onPress={() =>
-                  navigation.navigate('LocationViewing', {item: item })
-                } style={{ flexDirection: 'row' }}>
-                  <Ionicons name="eye-outline" color='#04487b' size={16}></Ionicons><Text style={{ marginLeft: 4, color: '#04487b', fontSize: 13 }}>Visualizzazione</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() =>
-                      navigation.navigate('LocationEditing',{item:item})
-                    } style={{ flexDirection: 'row', marginLeft: 13, marginRight: 13 }}>
-                  <Ionicons name="ios-create-outline" color='#ff8c00' size={16}></Ionicons>
-                  <Text style={{ marginLeft: 0, color: '#ff8c00', fontSize: 13 }}>Modifica</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() =>
-                      deleteLocation(item?.location_id)
-                    } style={{ flexDirection: 'row' }}>
-                    <Ionicons name="ios-trash-outline" color='#B31817' size={16}></Ionicons>
-                    <Text style={{ marginLeft: 0, color: '#B31817', fontSize: 13 }}>Cancella</Text>
-                </TouchableOpacity>
-        </View>
-      </View>
-      </TouchableOpacity>
-    );
+        </TouchableOpacity>
+      );
+    }
+    
+  };
+
+  const getItem = (data, index) => {
+    return data[index];
   };
 
   const ItemSeparatorView = () => {
@@ -137,26 +141,13 @@ const LocationListing = ({ navigation }) => {
     navigation.navigate('LocationAddition')
   }
 
-  const callMoreItem = () => {
-    if(totalItems > 0 ){
-      let totalpage = Math.ceil(totalItems / 10);
-      let currentpage;
-      if( page <= totalpage ){
-        currentpage = page + 1;
-        fetchLocationList(currentpage,1);
-        setPage(currentpage);
-      }
-    }else{
-      fetchLocationList(1,2);
-      setPage(1);
-    }
-  }
-
   const deleteLocation = (id) => {
+
     let formData = {
       user_id: userToken,
       location_id : id
     };
+
     Alert.alert(
       "Warning",
       "Are you sure to delete?",
@@ -179,7 +170,7 @@ const LocationListing = ({ navigation }) => {
             }).then(res => {
               if (res?.data?.status == 1) {
                 alert("Location deleted Succesffuly");
-                fetchLocationList(1,2);
+                fetchLocationList();
               }else{
                 Alert.alert(
                   "Warning",
@@ -211,20 +202,24 @@ const LocationListing = ({ navigation }) => {
         { totalItems === 0 ? 
             <NoDataFound title={"No Data Found"} /> : 
             <>
-          <FlatList
-            data={masterItemData}
-            keyExtractor={(item, index) => index.toString()}
-            ItemSeparatorComponent={ItemSeparatorView}
-            renderItem={ItemView}
-            initialNumToRender={5}
-            removeClippedSubviews={true}
-            onEndReached={callMoreItem}
-            onEndReachedThreshold={0.5}
-            style={{ marginTop: 20 }}
-            refreshing={loader}
-            onRefresh={callMoreItem}
-          />
-        </> }
+                { loader ? 
+                    <View style={styles.loading}><ActivityIndicator size={50}/></View> : 
+                  <>
+                      <VirtualizedList
+                          data={masterItemData}
+                          initialNumToRender={10}
+                          renderItem={renderItem}
+                          keyExtractor={(item, index) => index.toString()}
+                          ItemSeparatorComponent={ItemSeparatorView}
+                          getItemCount={(data) => totalItems}
+                          getItem={getItem}
+                          style={{ marginTop: 20 }}
+                          refreshing={loader}
+                      />
+                  </> }
+            
+            </> 
+        }
         <View style={{ flex: 1 }}>
           <View style={{ position: 'absolute', bottom: 20, alignSelf: 'flex-end' }}>
             <TouchableOpacity onPress={()=>locationAddition()}>
@@ -264,6 +259,16 @@ const styles = StyleSheet.create({
   fontRegular: {
     fontFamily: 'Montserrat-Regular'
   },
+  loading: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F5FCFF88'
+  }
 });
 
 export default LocationListing;

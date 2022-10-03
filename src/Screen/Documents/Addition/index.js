@@ -216,9 +216,7 @@ const DocumentAddition = ({ navigation }) => {
         order_no: orderNumber,
         description: description,
         documents: document,
-        document_date: moment(toDate)
-        .format('YYYY-MM-DD') + moment(toDate)
-        .format(' hh:mm:ss'),
+        document_date: moment(toDate).format('YYYY-MM-DD'),
         protocol: protocol,
         cercode: cerNumber,
         company_id: companyId,
@@ -408,6 +406,7 @@ const DocumentAddition = ({ navigation }) => {
         </TouchableOpacity>
         <DatePicker
           modal
+          mode="date"
           minDate={new Date()}
           minimumDate={new Date(new Date().getTime() + 24 * 60 * 60 * 1000)}
           open={open}

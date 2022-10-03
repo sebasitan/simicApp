@@ -72,7 +72,7 @@ const AssetsMaintance = ({ route, navigation }) => {
   const [fromDate,setFromDate]=React.useState();
   const [descrption,setDescrption]=React.useState('');
   const [category,setCategory]=React.useState();
-  const [categoryList,setCategoryList]=React.useState([ {value:1, label:'maintaince'},{value:2, label:'Revision'}]);
+  const [categoryList,setCategoryList]=React.useState([ {value:1, label:'Manutenzione'},{value:2, label:'Revisione'}]);
   const [reminderDays, setReminderDays] = React.useState('');
   const [userId,setUserId]=React.useState();
   const [loader,setLoader]=React.useState(false);
@@ -129,52 +129,50 @@ const econdDatePkr=()=>{
     setSecondDateOpen(true)
 }
 const AddMaintinace=()=>{
-       let formData = {
-            user_id:userId,
-            asset_id:id,
-            reminders_days:reminderDays,
-            expiry_type:category,
-            date:moment(toDate)
-            .format('YYYY/MM/DD'),
-            notes:descrption,
-          }
-          //console.log("aessets Booking . form",formData)
-          axios({
-              url: `${API_BASE_URL}asset_maintenance`,
-              method: 'POST',
-              data: formData,
-              headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'multipart/form-data',
-              },
-          }).then(res => {
-            //console.log("vikas asset_booking page..",res)
-            setLoader(false)
-            //console.log("vikas asset_booking page..",res)
-            if(res.data.status == 1){
-                alert("Maintaince Added Successfully")
-                //navigation.goBack()
-                navigation.navigate('DrawerNavigation')
-            }else{
-              Alert.alert(
-                  "Warning",
-                  "Somthing went wrong, Try Again",
-                  [
-                    { text: "OK" }
-                  ]
-              );
-            }
+  let formData = {
+      user_id:userId,
+      asset_id:id,
+      reminders_days:reminderDays,
+      expiry_type:category,
+      date:moment(toDate)
+      .format('YYYY-MM-DD'),
+      notes:descrption,
+    }
+    axios({
+      url: `${API_BASE_URL}asset_maintenance`,
+      method: 'POST',
+      data: formData,
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'multipart/form-data',
+      },
+    }).then(res => {
+    setLoader(false)
+    if(res.data.status == 1){
+      alert("Manutenzione Added Successfully")
+      //navigation.goBack()
+      navigation.navigate('DrawerNavigation')
+    }else{
+      Alert.alert(
+        "Warning",
+        "Somthing went wrong, Try Again",
+        [
+        { text: "OK" }
+        ]
+      );
+    }
     
-          }).catch(e => {
-            setLoader(false)
-              Alert.alert(
-                  "Warning",
-                  "Somthing went wrong, Try Again",
-                  [
-                    { text: "OK" }
-                  ]
-              );
-          });
+    }).catch(e => {
+    setLoader(false)
+      Alert.alert(
+        "Warning",
+        "Somthing went wrong, Try Again",
+        [
+        { text: "OK" }
+        ]
+      );
+});
+    
 }
   return (
     <View style={{ flex: 1, flexGrow: 1}}>
@@ -249,7 +247,7 @@ const AddMaintinace=()=>{
                             mode="outlined"
                             // style={{height:47}}
                             label="Data a"
-                            value={moment(fromDate).format('DD-MM-YYYY HH:mm')}
+                            value={moment(fromDate).format('DD-MM-YYYY')}
                             placeholder="Data a"
                             theme={{ colors: { primary: '#99e8e4', underlineColor: 'yellow', accent: '#99e8e4' } }}
                             maxLength={10}
@@ -282,13 +280,13 @@ const AddMaintinace=()=>{
             </TouchableOpacity>
             <DatePicker
                         modal
+                        mode="date"
                         minDate={new Date()}
                         minimumDate={new Date(new Date().getTime() + 24 * 60 * 60 * 1000)}
                         open={open}
                         date={reportingdate}
                         onConfirm={(date) => {
                             setDateOpen(false)
-                            //console.log("Return date choose may...", date)
                             setToDate(date);
                             setReportingDate(date)
                         }}
@@ -298,14 +296,15 @@ const AddMaintinace=()=>{
                     />
                       <DatePicker
                         modal
+                        mode="date"
                         minDate={new Date()}
                         minimumDate={new Date(new Date().getTime() + 24 * 60 * 60 * 1000)}
                         open={secondDateOpen}
                         date={secondReportingDate}
                         onConfirm={(date) => {
                             setSecondDateOpen(false)
-                            //console.log("Return date choose may...", date)
                             setFromDate(date);
+                            setToDate(date);
                             setSecondReportingDate(date)
                         }}
                         onCancel={() => {

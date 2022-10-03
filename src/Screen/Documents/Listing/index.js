@@ -6,10 +6,10 @@ import {
   View,
   StatusBar,
   Alert,
-  FlatList,
   ActivityIndicator,
   Image,
   TouchableOpacity,
+  VirtualizedList
 } from 'react-native';
 import {
   Paragraph,
@@ -31,22 +31,18 @@ const DocumentListing = ({ navigation }) => {
 
   useFocusEffect(
     React.useCallback(() => {
-      getDocumentListingData(1,2);
+      getDocumentListingData();
     }, [isFocused]),
   );
 
-  const getDocumentListingData = async (page, type) => {
+  const getDocumentListingData = async () => {
     setLoader(true);
-    if(type===2){
-      setmasterItemData([]);
-      setPage(1);
-    }
-
+    setmasterItemData([]);
     let userToken = await Utility.getFromLocalStorge('userToken');
     setUserToken(userToken);
     if(userToken != null){
       axios({
-        url: `${API_BASE_URL}/viewDocument/${userToken}?page=${page}`,
+        url: `${API_BASE_URL}/viewDocument/${userToken}`,
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -56,13 +52,11 @@ const DocumentListing = ({ navigation }) => {
         if (res.data.status == 1) {
           let item_list = JSON.stringify(res.data.document_list);
           let itemjson = JSON.parse(item_list);
-          if(type===2){
+          setTimeout(function(){
             setmasterItemData(itemjson);
-          }else{
-            setmasterItemData([...masterItemData, ...itemjson]);
-          }
-          setTotalItems(res?.data?.document_count);
-          setLoader(false);
+            setTotalItems(res?.data?.document_count);
+            setLoader(false);
+          }, 1000);
         } else {
           Alert.alert(
             "Warning",
@@ -71,6 +65,7 @@ const DocumentListing = ({ navigation }) => {
               { text: "OK" }
             ]
           );
+          setLoader(false);
         }
       }).catch(e => {
         Alert.alert(
@@ -80,9 +75,9 @@ const DocumentListing = ({ navigation }) => {
             { text: "OK" }
           ]
         );
+        setLoader(false);
       });
     }
-    setLoader(false);
   };
 
   const goToDocumentEdit = (item) => {
@@ -119,7 +114,7 @@ const DocumentListing = ({ navigation }) => {
             }).then(res => {
               if (res?.data?.status == 1) {
                 alert("Document deleted Succesffuly");
-                getDocumentListingData(1,2);
+                getDocumentListingData();
               }else{
                 Alert.alert(
                   "Warning",
@@ -154,49 +149,53 @@ const DocumentListing = ({ navigation }) => {
     let imgsrc = '../../../assets/images/file.png';
     return imgsrc;
   };
+  
   var imgsrc;
-  const ItemView = ({ item }) => {
-    let documentfile = item.documents;
-    if( documentfile !='' ){
-      let file_ext = getFileExtention(item?.documents);
-      if( file_ext =='jpg' || file_ext =='png' || file_ext =='jpeg' || file_ext =='webp' || file_ext =='gif'){
-        imgsrc = item.documents;
+  
+  const renderItem = ({ item }) => {
+    if( item != undefined){
+      let documentfile = item.documents;
+      if( documentfile !='' ){
+        let file_ext = getFileExtention(item?.documents);
+        if( file_ext =='jpg' || file_ext =='png' || file_ext =='jpeg' || file_ext =='webp' || file_ext =='gif'){
+          imgsrc = <Image source={{ uri: item.documents }} style={{ width: 70, height: 100, marginRight: 15 }} />;
+        }else{
+          imgsrc = <Image source={require('../../../assets/images/file.png')} style={{ width: 80, height: 100, marginRight: 15 }} />;
+        }
       }else{
-        imgsrc = '../../../assets/images/file.png';
+        imgsrc = <Image source={require('../../../assets/images/file.png')} style={{ width: 80, height: 100, marginRight: 15 }} />;
       }
-    }else{
-      imgsrc = '../../../assets/images/file.png';
-    }
-    return (
-       <TouchableOpacity>
-        <View style={{ padding: 10, backgroundColor: '#FFF', borderRadius: 10 }}>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignContent: 'space-between' }}>
-            <View style={{ alignSelf: 'flex-start', justifyContent: 'center' }}>
-              {item.documents != '' ? <Image source={{ uri: imgsrc }} style={{ width: 70, height: 100, marginRight: 15 }} /> : <Image source={require('../../../assets/images/file.png')} style={{ width: 80, height: 100, marginRight: 15 }} />}
-            </View>
-            <View style={{ alignSelf: 'flex-start' }}>
-              <View style={{ flexDirection: 'column' }}>
-                <Paragraph style={[styles.fontFamily, { fontSize: 12 }]}>Tipo documento: {item.document_type === 1 ? 'Transport Document' : 'Formulary'}</Paragraph>
-                <Paragraph style={[styles.fontFamily, { fontSize: 12 }]}>Numero del documento: {item.shop_assistant}</Paragraph>
-                <Paragraph style={[styles.fontFamily, { fontSize: 12 }]}>Numero DDT / Formulario: {item.ddt_number}</Paragraph>
-                <Paragraph style={[styles.fontFamily, { fontSize: 12 }]}>Numero commessa: {item.order_no}</Paragraph>
+      return (
+         <TouchableOpacity>
+          <View style={{ padding: 10, backgroundColor: '#FFF', borderRadius: 10 }}>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignContent: 'space-between' }}>
+              <View style={{ alignSelf: 'flex-start', justifyContent: 'center' }}>
+                {imgsrc}
+              </View>
+              <View style={{ alignSelf: 'flex-start' }}>
+                <View style={{ flexDirection: 'column' }}>
+                  <Paragraph style={[styles.fontFamily, { fontSize: 12 }]}>Tipo documento: {item.document_type === 1 ? 'Transport Document' : 'Formulary'}</Paragraph>
+                  <Paragraph style={[styles.fontFamily, { fontSize: 12 }]}>Numero del documento: {item.shop_assistant}</Paragraph>
+                  <Paragraph style={[styles.fontFamily, { fontSize: 12 }]}>Numero DDT / Formulario: {item.ddt_number}</Paragraph>
+                  <Paragraph style={[styles.fontFamily, { fontSize: 12 }]}>Numero commessa: {item.order_no}</Paragraph>
+                </View>
               </View>
             </View>
+            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', marginTop: 8, borderTopColor: '#EEE', borderTopWidth: 1, paddingTop: 8 }}>
+              <TouchableOpacity onPress={() => goToDocumentView(item)} style={{ flexDirection: 'row' }}>
+                <Ionicons name="eye-outline" color='#04487b' size={16}></Ionicons><Text style={{ marginLeft: 4, color: '#04487b', fontSize: 13 }}>Visualizzazione</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => goToDocumentEdit(item)} style={{ flexDirection: 'row', marginLeft: 13, marginRight: 13 }}>
+                <Ionicons name="ios-create-outline" color='#ff8c00' size={16}></Ionicons><Text style={{ marginLeft: 0, color: '#ff8c00', fontSize: 13 }}>Modifica</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => deleteDocument(item?.id)} style={{ flexDirection: 'row' }}>
+                <Ionicons name="ios-trash-outline" color='#B31817' size={16}></Ionicons><Text style={{ marginLeft: 0, color: '#B31817', fontSize: 13 }}>Cancella</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-          <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', marginTop: 8, borderTopColor: '#EEE', borderTopWidth: 1, paddingTop: 8 }}>
-            <TouchableOpacity onPress={() => goToDocumentView(item)} style={{ flexDirection: 'row' }}>
-              <Ionicons name="eye-outline" color='#04487b' size={16}></Ionicons><Text style={{ marginLeft: 4, color: '#04487b', fontSize: 13 }}>Visualizzazione</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => goToDocumentEdit(item)} style={{ flexDirection: 'row', marginLeft: 13, marginRight: 13 }}>
-              <Ionicons name="ios-create-outline" color='#ff8c00' size={16}></Ionicons><Text style={{ marginLeft: 0, color: '#ff8c00', fontSize: 13 }}>Modifica</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => deleteDocument(item?.id)} style={{ flexDirection: 'row' }}>
-              <Ionicons name="ios-trash-outline" color='#B31817' size={16}></Ionicons><Text style={{ marginLeft: 0, color: '#B31817', fontSize: 13 }}>Cancella</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </TouchableOpacity>
-    );
+        </TouchableOpacity>
+      );
+    }
   };
 
   const ItemSeparatorView = () => {
@@ -215,23 +214,9 @@ const DocumentListing = ({ navigation }) => {
     navigation.navigate('DocumentAddition')
   }
   
-  const callMoreItem =()=>{
-    setLoader(true);
-    if(totalItems > 0 ){
-      let totalpage = Math.ceil(totalItems / 10);
-      let currentpage;
-      if( page <= totalpage ){
-        currentpage = page + 1;
-        getDocumentListingData(currentpage,1);
-        setPage(currentpage);
-        //console.log(pageNumber);
-      }else{
-        getDocumentListingData(1,2);
-        setPage(1);
-      }
-    }
-    setLoader(false);
-  }
+  const getItem = (data, index) => {
+    return data[index];
+  };
 
   return (
       <View style={styles.container}>
@@ -240,19 +225,25 @@ const DocumentListing = ({ navigation }) => {
         { totalItems === 0 ? 
             <NoDataFound title={"No Data Found"}/> : 
             <>
-              <FlatList
-                data={masterItemData}
-                keyExtractor={(item, index) => index.toString()}
-                ItemSeparatorComponent={ItemSeparatorView}
-                renderItem={ItemView}
-                initialNumToRender={5}
-                removeClippedSubviews={true}
-                onEndReached={callMoreItem}
-                onEndReachedThreshold={0.5}
-                style={{ marginTop: 20 }}
-                refreshing={loader}
-                onRefresh={callMoreItem}
-              />
+
+              { loader ? 
+                  <View style={styles.loading}><ActivityIndicator size={50}/></View> : 
+                  <> 
+                      <VirtualizedList
+                        data={masterItemData}
+                        renderItem={renderItem}
+                        initialNumToRender={10}
+                        keyExtractor={(item, index) => index.toString()}
+                        ItemSeparatorComponent={ItemSeparatorView}
+                        getItemCount={(data) => totalItems}
+                        getItem={getItem}
+                        //removeClippedSubviews={true}
+                        style={{ marginTop: 20 }}
+                        refreshing={loader}
+                      />
+                  </> 
+              }
+              
             </>
         }
           <View style={{ flex: 1 }}>
@@ -266,7 +257,6 @@ const DocumentListing = ({ navigation }) => {
       </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
@@ -294,7 +284,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   fontRegular: {
-    // fontFamily : 'Montserrat-Regular'
+    fontFamily : 'Montserrat-Regular'
+  },
+  loading: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F5FCFF88'
   }
 });
 

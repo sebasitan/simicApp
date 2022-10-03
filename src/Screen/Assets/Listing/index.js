@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 
 import {
   StyleSheet,
@@ -6,11 +6,12 @@ import {
   View,
   StatusBar,
   Alert,
-  FlatList,
   ActivityIndicator,
   Image,
   TouchableOpacity,
   TextInput,
+  VirtualizedList,
+  FlatList
 } from 'react-native';
 
 import {
@@ -36,24 +37,21 @@ const AssetsListing = ({ navigation }) => {
   const isFocused = useIsFocused();
 
   useFocusEffect(
-      React.useCallback(() => {
-        if(search.length > 3){
-          searchFilterFunction(search);
-        }else{
-          fetchAssetsList(1,2);
-        }
-      }, [isFocused]),
+    React.useCallback(() => {
+      if(search.length > 3){
+        searchFilterFunction(search);
+      }else{
+        fetchAssetsList();
+      }
+    }, [isFocused]),
   );
 
-  const fetchAssetsList = async (pagenumber,type) => {
+  const fetchAssetsList = async () => {
 
     setisLoading(true);
 
-    if(type===2){
-      setmasterItemData([]);
-      setPageNumber(1);
-    }
-    //console.log(masterItemData);
+    setmasterItemData([]);
+
     let userToken = await Utility.getFromLocalStorge('userToken');
 
     setUserToken(userToken);
@@ -64,7 +62,7 @@ const AssetsListing = ({ navigation }) => {
         search_key: '',
       }
       axios({
-        url: `${API_BASE_URL}/itemlist?page=${pagenumber}`,
+        url: `${API_BASE_URL}/itemlist`,
         method: 'POST',
         data: formData,
         headers: {
@@ -75,12 +73,12 @@ const AssetsListing = ({ navigation }) => {
         if (res.data.status == 1) {
           let item_list = JSON.stringify(res?.data?.item_list);
           let itemjson = JSON.parse(item_list);
-          if(type===2){
+          setTimeout(function(){
             setmasterItemData(itemjson);
-          }else{
-            setmasterItemData([...masterItemData, ...itemjson]);
-          }
-          setTotalItems(res?.data?.itemcount);
+            setTotalItems(res?.data?.itemcount);
+            setisLoading(false);
+          }, 1000);
+          
         } else {
           Alert.alert(
             "Warning",
@@ -89,6 +87,7 @@ const AssetsListing = ({ navigation }) => {
               { text: "OK" }
             ]
           );
+          setisLoading(false);
         }
       }).catch(e => {
         Alert.alert(
@@ -98,9 +97,10 @@ const AssetsListing = ({ navigation }) => {
             { text: "OK" }
           ]
         );
+        setisLoading(false);
       });
     }
-    setisLoading(false);
+    
   }
 
   const deleteAsset = (id) => {
@@ -132,7 +132,7 @@ const AssetsListing = ({ navigation }) => {
             }).then(res => {
               if (res?.data?.status == 1) {
                 alert("Item deleted Succesffuly");
-                fetchAssetsList(1,2);
+                fetchAssetsList();
               }else{
                 Alert.alert(
                   "Warning",
@@ -160,7 +160,7 @@ const AssetsListing = ({ navigation }) => {
   const searchFilterFunction = (text) => {
     setmasterItemData([]);
     setfilterItemData([]);
-    setPageNumber(1);
+    //setPageNumber(1);
     if(text.length > 3 ){
       setIsSearch(true);
       setSearch(text);
@@ -181,8 +181,13 @@ const AssetsListing = ({ navigation }) => {
           if (res.data.status == 1) {
             let item_list = JSON.stringify(res.data.item_list);
             let itemjson = JSON.parse(item_list);
-            //console.log(itemjson);
-            setfilterItemData(itemjson);
+            if(itemjson !=''){
+              setfilterItemData(itemjson);
+              setTotalItems(res?.data?.itemcount);
+            }else{
+              setTotalItems(0);
+            }
+
           } else {
             Alert.alert(
               "Warning",
@@ -205,54 +210,55 @@ const AssetsListing = ({ navigation }) => {
     }else{
       setIsSearch(false);
       setSearch(text);
-      fetchAssetsList(1,2);
+      fetchAssetsList();
       navigation.navigate('DrawerNavigation');
     }
   };
 
-  const ItemView = ({ item }) => {
-    return (
-      <TouchableOpacity onPress={() =>
-        navigation.navigate('AssetViewScreen', {
-          itemid: item.item_id,
-          userid: userToken
-        })
-      }>
-      <View style={{ padding: 10, backgroundColor: '#FFF', borderRadius: 10 }}>
-        <View style={{ flex: 1, flexDirection: 'row', alignContent: 'space-between' }}>
-          <View style={{ flex: 1, flexDirection: 'row' }}>
-            {item.item_image_url != '' ? <Image source={{ uri: item.item_image_url }} style={{ width: 50, height: 80, borderRadius: 10, marginRight: 20 }} /> : <Image source={require('../../../assets/images/empty.png')} style={{ width: 50, height: 80, borderRadius: 10, marginRight: 20 }} />}
-            <View style={{ flex: 1, flexDirection: 'column' }}>
-              <Title style={[styles.fontMedium, { fontSize: 15, marginBottom: 0, lineHeight: 20, color: 'black' }]}>{item.item_name}</Title>
-              <Paragraph style={[styles.fontRegular, { fontSize: 12, lineHeight: 20, marginBottom: 0 }]}>{item.location_name}</Paragraph>
-              <Text style={[ styles.fontRegular, { fontSize: 12, backgroundColor: item.status_colour, paddingLeft: 10, paddingRight: 10, color: 'white', width: 100, flexDirection: 'row', paddingTop: 5, paddingBottom: 5, marginTop: 5 }]}>{item?.status_id}</Text>
-            </View>
-          </View>
-        </View>
-        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', marginTop: 8, borderTopColor: '#EEE', borderTopWidth: 1, paddingTop: 8 }}>
-          <TouchableOpacity onPress={() =>
-           navigation.navigate('AssetViewScreen', {
+  const renderItem = ({ item }) => {
+    if(item != undefined){
+      return (
+        <TouchableOpacity onPress={() =>
+          navigation.navigate('AssetViewScreen', {
             itemid: item.item_id,
             userid: userToken
           })
-          } style={{ flexDirection: 'row' }}>
-            <Ionicons name="eye-outline" color='#04487b' size={16}></Ionicons><Text style={{ marginLeft: 4, color: '#04487b', fontSize: 13 }}>Visualizzazione</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() =>
-            navigation.navigate('AssetsEditing', {
-              item:item
+        }>
+        <View style={{ padding: 10, backgroundColor: '#FFF', borderRadius: 10 }}>
+          <View style={{ flex: 1, flexDirection: 'row', alignContent: 'space-between' }}>
+            <View style={{ flex: 1, flexDirection: 'row' }}>
+              {item.item_image_url != '' ? <Image source={{ uri: item.item_image_url }} style={{ width: 50, height: 80, borderRadius: 10, marginRight: 20 }} /> : <Image source={require('../../../assets/images/empty.png')} style={{ width: 50, height: 80, borderRadius: 10, marginRight: 20 }} />}
+              <View style={{ flex: 1, flexDirection: 'column' }}>
+                <Title style={[styles.fontMedium, { fontSize: 15, marginBottom: 0, lineHeight: 20, color: 'black' }]}>{item.item_name}</Title>
+                <Paragraph style={[styles.fontRegular, { fontSize: 12, lineHeight: 20, marginBottom: 0 }]}>{item.location_name}</Paragraph>
+                <Text style={[ styles.fontRegular, { fontSize: 12, backgroundColor: item.status_colour, paddingLeft: 10, paddingRight: 10, color: 'white', width: 100, flexDirection: 'row', paddingTop: 5, paddingBottom: 5, marginTop: 5 }]}>{item?.status_id}</Text>
+              </View>
+            </View>
+          </View>
+          <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', marginTop: 8, borderTopColor: '#EEE', borderTopWidth: 1, paddingTop: 8 }}>
+            <TouchableOpacity onPress={() =>
+             navigation.navigate('AssetViewScreen', {
+              itemid: item.item_id,
+              userid: userToken
             })
-          } style={{ flexDirection: 'row', marginLeft: 13, marginRight: 13 }}>
-            <Ionicons name="ios-create-outline" color='#ff8c00' size={16}></Ionicons><Text style={{ marginLeft: 0, color: '#ff8c00', fontSize: 13 }}>Modifica</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => deleteAsset(item?.item_id)} style={{ flexDirection: 'row' }}>
-            <Ionicons name="ios-trash-outline" color='#B31817' size={16}></Ionicons><Text style={{ marginLeft: 0, color: '#B31817', fontSize: 13 }}>Cancella</Text>
-          </TouchableOpacity>
-
+            } style={{ flexDirection: 'row' }}>
+              <Ionicons name="eye-outline" color='#04487b' size={16}></Ionicons><Text style={{ marginLeft: 4, color: '#04487b', fontSize: 13 }}>Visualizzazione</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() =>
+              navigation.navigate('AssetsEditing', {
+                item:item
+              })
+            } style={{ flexDirection: 'row', marginLeft: 13, marginRight: 13 }}>
+              <Ionicons name="ios-create-outline" color='#ff8c00' size={16}></Ionicons><Text style={{ marginLeft: 0, color: '#ff8c00', fontSize: 13 }}>Modifica</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => deleteAsset(item?.item_id)} style={{ flexDirection: 'row' }}>
+              <Ionicons name="ios-trash-outline" color='#B31817' size={16}></Ionicons><Text style={{ marginLeft: 0, color: '#B31817', fontSize: 13 }}>Cancella</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-      </TouchableOpacity>
-    );
+        </TouchableOpacity>
+      );
+    }
   };
 
   const ItemSeparatorView = () => {
@@ -268,21 +274,10 @@ const AssetsListing = ({ navigation }) => {
     );
   };
 
-  const callMoreItem = () => {
-    if(totalItems > 0 ){
-      let totalpage = Math.ceil(totalItems / 10);
-      let currentpage;
-      if( pageNumber <= totalpage ){
-        currentpage = pageNumber + 1;
-        fetchAssetsList(currentpage,1);
-        //console.log(currentpage);
-        setPageNumber(currentpage);
-      }else{
-        fetchAssetsList(1,2);
-        setPageNumber(1);
-      }
-    }
-  }
+  const getItem = (data, index) => {
+    return data[index];
+  };
+  
   const AddAssets = () => {
     navigation.navigate('AssetAddition');
   }
@@ -290,46 +285,52 @@ const AssetsListing = ({ navigation }) => {
     navigation.navigate('QRCodeScreen');
   }
 
+  var memoizedData;
+
+  { isSearch == true ? memoizedData = useMemo(() => renderItem, [filterItemData]) : memoizedData = useMemo(() => renderItem, [masterItemData]); }
+  
   return (
+    
     <View style={styles.container}>
       <StatusBar backgroundColor='#04487b' hidden={false} />
         <View style={{ flex: 1, marginTop: 20 }}>
-          { totalItems === 0 ? <NoDataFound title={"No Data Found"}/> : 
-            <>
               <TextInput
                 placeholder="Cerca qui..."
                 style={[styles.textInputStyle, styles.fontRegular]}
                 underlineColorAndroid="transparent"
                 value={search}
                 onChangeText={(text) => searchFilterFunction(text)}
-              >
-              </TextInput>
-              { isSearch != true ? <>
-                <FlatList
-                data={masterItemData}
-                keyExtractor={(item, index) => index.toString()}
-                ItemSeparatorComponent={ItemSeparatorView}
-                renderItem={ItemView}
-                initialNumToRender={5}
-                removeClippedSubviews={true}
-                onEndReached={callMoreItem}
-                onEndReachedThreshold={0.5}
-                style={{ marginTop: 20 }}
-                refreshing={isLoading}
-                onRefresh={callMoreItem}
-                //ListFooterComponent={<NoMoreDataFound title={'End of List'}/>}
               />
+          { totalItems === 0 ? <NoDataFound title={"No Data Found"}/> : 
+            <>
+              { isLoading ? <View style={styles.loading}><ActivityIndicator size={50}/></View> : 
+              <>
+                { isSearch != true ? <>
+                <VirtualizedList
+                  data={masterItemData}
+                  initialNumToRender={10}
+                  renderItem={renderItem}
+                  keyExtractor={(item, index) => index.toString()}
+                  ItemSeparatorComponent={ItemSeparatorView}
+                  getItemCount={(data) => totalItems}
+                  getItem={getItem}
+                  style={{ marginTop: 20 }}
+                  refreshing={isLoading}
+                />
               </>: <>
                 <FlatList
                   data={filterItemData}
+                  initialNumToRender={5}
+                  renderItem={renderItem}
                   keyExtractor={(item, index) => index.toString()}
                   ItemSeparatorComponent={ItemSeparatorView}
-                  renderItem={ItemView}
-                  initialNumToRender={5}
-                  removeClippedSubviews={true}
+                  //getItemCount={(data) => totalItems}
+                  //getItem={getItem}
                   style={{ marginTop: 20 }}
                 />
               </>}
+              </> }
+              
             </> 
           }
     
@@ -388,7 +389,16 @@ const styles = StyleSheet.create({
   mainConatiner:{
     marginTop:50,
     alignSelf:'center'
+  },
+  loading: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F5FCFF88'
   }
-
 });
 export default AssetsListing;
