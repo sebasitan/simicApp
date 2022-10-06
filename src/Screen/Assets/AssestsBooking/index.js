@@ -77,7 +77,9 @@ const AssetsBooking=({navigation,route})=>{
     const [open, setDateOpen] = useState(false)
     const [secondDateOpen,setSecondDateOpen]=React.useState(false);
     const [reportingdate,setReportingDate]=React.useState(new Date());
-    const [secondReportingDate,setSecondReportingDate]=React.useState(new Date());
+    const [secondReportingDate,setSecondReportingDate]=React.useState(new Date(new Date().getTime() + 24 * 60 * 60 * 1000));
+    const [fromdatetext, setFromDateText] = React.useState(false);
+    const [todatetext, setToDateText] = React.useState(false);
     const isFocused = useIsFocused();
     React.useEffect(()=>{
         getUserdetails()
@@ -126,52 +128,52 @@ const AssetsBooking=({navigation,route})=>{
           let formData = {
             user_id:userId,
             asset_id:item?.item_id,
-            date_from:moment(toDate)
-            .format('DD/MM/YYYY') + moment(toDate)
+            date_from:moment(reportingdate)
+            .format('DD/MM/YYYY') + moment(reportingdate)
             .format(' hh:mm') ,
-            date_to:moment(fromDate)
-            .format('DD/MM/YYYY') + moment(fromDate)
+            date_to:moment(secondReportingDate)
+            .format('DD/MM/YYYY') + moment(secondReportingDate)
             .format(' hh:mm'),
             use:category,
             description:descrption
           }
-          //console.log("aessets Booking . form",formData)
           axios({
-              url: `${API_BASE_URL}asset_booking`,
-              method: 'POST',
-              data: formData,
-              headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'multipart/form-data',
-              },
+            url: `${API_BASE_URL}asset_booking`,
+            method: 'POST',
+            data: formData,
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'multipart/form-data',
+            },
           }).then(res => {
             //console.log("vikas asset_booking page..",res)
             setLoader(false)
             //console.log("vikas asset_booking page..",res)
             if(res.data.status == 1){
-                alert("Assets Booking Successfully")
-                //navigation.goBack()
-                navigation.navigate('DrawerNavigation')
+              alert("Assets Booking Successfully")
+              //navigation.goBack()
+              navigation.navigate('DrawerNavigation')
             }else{
               Alert.alert(
-                  "Warning",
-                  "Somthing went wrong, Try Again",
-                  [
-                    { text: "OK" }
-                  ]
+                "Warning",
+                "Somthing went wrong, Try Again",
+                [
+                { text: "OK" }
+                ]
               );
             }
-    
+          
           }).catch(e => {
             setLoader(false)
-              Alert.alert(
-                  "Warning",
-                  "Somthing went wrong, Try Again",
-                  [
-                    { text: "OK" }
-                  ]
-              );
+            Alert.alert(
+              "Warning",
+              "Somthing went wrong, Try Again",
+                [
+                { text: "OK" }
+              ]
+            );
           });
+          
       }
       const openLocalDatePkr = () => {
         setDateOpen(true)
@@ -209,6 +211,7 @@ const AssetsBooking=({navigation,route})=>{
           
         );
       };
+
     return(
         <View style={{ flex: 1, flexGrow: 1}}>
             
@@ -238,36 +241,39 @@ const AssetsBooking=({navigation,route})=>{
 <>
    
             <View style={styles.inputConatiner}>
-            <TextInput
-                            style={{ width: '90%', alignSelf: 'center' }}
-                            pointerEvents="none"
-                            mode="outlined"
-                            // style={{height:47}}
-                            label="Data da"
-                            value={moment(toDate).format('DD-MM-YYYY HH:mm')}
-                            placeholder="Data da"
-                            theme={{ colors: { primary: '#99e8e4', underlineColor: 'yellow', accent: '#99e8e4' } }}
-                            maxLength={10}
-                            keyboardType='default'
-                            onTouchStart={() => openLocalDatePkr()}
-                            right={<TextInput.Icon name="calendar" />}
-                        />
+              <TextInput
+                  style={{ width: '90%', alignSelf: 'center' }}
+                  pointerEvents="none"
+                  mode="outlined"
+                  // style={{height:47}}
+                  label="Data da"
+                  value={moment(toDate).format('DD-MM-YYYY HH:mm')}
+                  placeholder="Data da"
+                  theme={{ colors: { primary: '#04487b', underlineColor: 'yellow', accent: '#04487b' } }}
+                  maxLength={10}
+                  keyboardType='default'
+                  onTouchStart={() => openLocalDatePkr()}
+                  right={<TextInput.Icon name="calendar" />}
+              />
+              { fromdatetext == true ? <Text style={{ marginLeft: 15, fontFamily: 'Montserrat-Regular', marginTop: 10, color: '#000000' }}> { moment(reportingdate, 'ddd DD-MMM-YYYY, hh:mm A').format('DD-MM-YYYY hh:mm A') } </Text> : null }
             </View>
             <View style={styles.inputConatiner}>
-            <TextInput
-                            style={{ width: '90%', alignSelf: 'center' }}
-                            pointerEvents="none"
-                            mode="outlined"
-                            // style={{height:47}}
-                            label="Data a"
-                            value={moment(fromDate).format('DD-MM-YYYY HH:mm')}
-                            placeholder="Data a"
-                            theme={{ colors: { primary: '#99e8e4', underlineColor: 'yellow', accent: '#99e8e4' } }}
-                            maxLength={10}
-                            keyboardType='default'
-                            onTouchStart={() => econdDatePkr()}
-                            right={<TextInput.Icon name="calendar" />}
-                        />
+              <TextInput
+                  style={{ width: '90%', alignSelf: 'center' }}
+                  pointerEvents="none"
+                  mode="outlined"
+                  // style={{height:47}}
+                  label="Data a"
+                  value={moment(fromDate).add(1, 'day').endOf('day').format('DD-MM-YYYY HH:mm')}
+                  placeholder="Data a"
+                  theme={{ colors: { primary: '#99e8e4', underlineColor: 'yellow', accent: '#99e8e4' } }}
+                  maxLength={10}
+                  keyboardType='default'
+                  onTouchStart={() => econdDatePkr()}
+                  right={<TextInput.Icon name="calendar" />}
+              />
+
+              { todatetext == true ? <Text style={{ marginLeft: 15, fontFamily: 'Montserrat-Regular', marginTop: 10, color: '#000000' }}> { moment(secondReportingDate, 'ddd DD-MMM-YYYY, hh:mm A').format('DD-MM-YYYY hh:mm A') } </Text> : null }
             </View>
             <View style={styles.inputConatiner}>
             <TextInput
@@ -312,16 +318,15 @@ const AssetsBooking=({navigation,route})=>{
             </TouchableOpacity>
             <DatePicker
                         modal
-                        minDate={new Date()}
-                        minimumDate={new Date(new Date().getTime() + 24 * 60 * 60 * 1000)}
+                        //minDate={new Date()}
+                        minimumDate={new Date()}
                         open={open}
                         date={reportingdate}
                         onConfirm={(date) => {
-                            setDateOpen(false)
-                            //console.log("Return date choose may...", date)
+                            setDateOpen(false);
                             setToDate(date);
-                            
-                            setReportingDate(date)
+                            setReportingDate(date);
+                            setFromDateText(true);
                         }}
                         onCancel={() => {
                             setDateOpen(false)
@@ -329,16 +334,16 @@ const AssetsBooking=({navigation,route})=>{
                     />
                       <DatePicker
                         modal
-                        minDate={new Date()}
+                        //minDate={new Date()}
                         minimumDate={new Date(new Date().getTime() + 24 * 60 * 60 * 1000)}
                         open={secondDateOpen}
                         date={secondReportingDate}
                         onConfirm={(date) => {
+                          //console.log(date);
                             setSecondDateOpen(false)
-                            //console.log("Return date choose may...", date)
-                            setFromDate(date);
-                            
-                            setSecondReportingDate(date)
+                            //setFromDate(date);
+                            setSecondReportingDate(date);
+                            setToDateText(true);
                         }}
                         onCancel={() => {
                             setSecondDateOpen(false)

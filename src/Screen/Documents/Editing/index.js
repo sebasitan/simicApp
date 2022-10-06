@@ -312,6 +312,7 @@ const getFileExtention = fileUrl => {
       <ScrollView>
         <View style={styles.dropDownConatiner}>
         {loader ? <View style={styles.loading}><ActivityIndicator size={50}></ActivityIndicator></View> : null }
+          <Text>Tipo documemto</Text>
           <Dropdown
             style={{ marginLeft: 10 }}
             placeholderStyle={{ color: 'black' }}
@@ -332,7 +333,8 @@ const getFileExtention = fileUrl => {
           />
         </View>
         <View style={styles.inputConatiners}>
-          <TextInput 
+          <TextInput
+            label='Numero commessa' 
             placeholder='Numero commessa' 
             style={{ width: '90%', alignSelf: 'center' }}
             placeholderTextColor="black"
@@ -343,7 +345,8 @@ const getFileExtention = fileUrl => {
             value={jobnumber}></TextInput>
         </View>
         <View style={styles.inputConatiners}>
-          <TextInput 
+          <TextInput
+            label='Numero DDT'
             placeholder='Numero DDT'
             style={{ width: '90%', alignSelf: 'center' }}
             placeholderTextColor="black"
@@ -356,6 +359,7 @@ const getFileExtention = fileUrl => {
         {documentType === 2 && (
           <View style={styles.inputConatiners}>
             <TextInput
+              label='CER Number'
               placeholder="CER Number"
               style={{ width: '90%', alignSelf: 'center' }}
               placeholderTextColor="black"
@@ -369,6 +373,7 @@ const getFileExtention = fileUrl => {
         }
         <View style={styles.inputConatiners}>
           <TextInput
+            label='Numero ordine'
             placeholder='Numero ordine'
             style={{ width: '90%', alignSelf: 'center' }}
             placeholderTextColor="black"
@@ -380,6 +385,7 @@ const getFileExtention = fileUrl => {
         </View>
         <View style={styles.inputConatiners}>
           <TextInput
+            label='Numero protocollo'
             placeholder='Numero protocollo'
             style={{ width: '90%', alignSelf: 'center' }}
             placeholderTextColor="black"
@@ -406,6 +412,7 @@ const getFileExtention = fileUrl => {
         </View>
         <View style={styles.inputConatiners}>
           <TextInput
+            label='Descrizione'
             placeholder='Descrizione'
             style={{ width: '90%', alignSelf: 'center' }}
             placeholderTextColor="black"
@@ -417,6 +424,7 @@ const getFileExtention = fileUrl => {
         </View>
         <View style={styles.inputConatiners}>
           <TextInput
+            label='Tornitore name'
             placeholder='Tornitore name' 
             style={{ width: '90%', alignSelf: 'center' }}
             placeholderTextColor="black"

@@ -44,7 +44,7 @@ const AssetViewScreen = ({route, navigation}) => {
     setLoader(true);
 
     let formData = {
-      user_id : 1,
+      user_id : userId,
       item_id : itemId,
     }
     axios({
@@ -201,9 +201,16 @@ const AssetViewScreen = ({route, navigation}) => {
                 <Text style={[ styles.regularFont, { fontSize: 14 }]}>{ itemDetails?.location_name }</Text>
               </View>
               <View style={{  flexDirection: 'row', justifyContent: 'space-between', alignItems:'center', marginTop: 10 }}>
-                <TouchableOpacity>
-                  { itemDetails.item_image_url !='' ? <Image source={{uri:itemDetails?.item_image_url}} style={{width: 150, height: 150, borderRadius: 10, marginRight: 20 }}/> : <Image source={ require('../../../assets/images/empty.png') } style={{width: 150, height: 150, borderRadius: 10, marginRight: 20 }}/> }
-                </TouchableOpacity>
+              { itemDetails.item_image_url !='' ? <>
+              <TouchableOpacity onPress={ () => navigation.navigate('ImageZoom', {
+                uri: itemDetails.item_image_url
+              }) }>
+                <Image source={{uri:itemDetails?.item_image_url}} style={{width: 150, height: 150, borderRadius: 10, marginRight: 20 }}/>
+              </TouchableOpacity>
+              </> : <>
+                <Image source={ require('../../../assets/images/empty.png') } style={{width: 150, height: 150, borderRadius: 10, marginRight: 20 }}/>
+              </> }
+
                 { itemDetails.item_instructions_url !='' ? <>
                   <TouchableOpacity onPress={()=>downloadDocument(itemDetails.item_instructions_url)}>
                     <Image source={ require(fileImg) } style={{ alignSelf: 'center'}}></Image>

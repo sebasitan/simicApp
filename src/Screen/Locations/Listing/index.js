@@ -199,6 +199,13 @@ const LocationListing = ({ navigation }) => {
     <View style={styles.container}>
       <StatusBar backgroundColor='#04487b' hidden={false} />
       <View style={{ flex: 1, marginTop: 20 }}>
+        <View style={{ alignSelf: 'flex-end'}}>
+            <TouchableOpacity style={{ flexDirection: 'row', backgroundColor: '#B31817', paddingBottom: 5, paddingTop: 5, paddingLeft: 5, paddingRight: 5, marginBottom: 10 }} onPress={() => 
+                navigation.navigate('LocationTrash')
+              }>
+              <Ionicons name="ios-trash-outline" color='#FFF' size={16}></Ionicons><Text style={{ marginLeft: 0, color: '#FFF', fontSize: 13 }}>Trash</Text>
+            </TouchableOpacity>
+          </View>
         { totalItems === 0 ? 
             <NoDataFound title={"No Data Found"} /> : 
             <>

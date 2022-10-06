@@ -10,18 +10,23 @@ import AssetsBooking from "../Screen/Assets/AssestsBooking";
 import AssetsMaintance from "../Screen/Assets/AssetMaintance";
 import AssetsHistory from '../Screen/Assets/AssetsHistory';
 import AssetViewScreen from '../Screen/Assets/View';
+import AssetTrash from "../Screen/Assets/Trash";
 
 import DocumentAddition from '../Screen/Documents/Addition';
 import DocumentEditing from '../Screen/Documents/Editing';
 import DocumentView from '../Screen/Documents/View';
+import DocumentTrash from "../Screen/Documents/Trash";
 
 import LocationAddition from '../Screen/Locations/Addition';
 import LocationEditing from '../Screen/Locations/Editing';
 import LocationViewing from '../Screen/Locations/View';
+import LocationTrash from "../Screen/Locations/Trash";
 
 import ProfileEditScreen from '../Screen/ProfileScreen/Editing';
 
 import QRCodeScreen from "../Screen/QRCodeScanner";
+
+import ImageZoom from "../Screen/ImageZoom";
 
 import DrawerNavigation from "./DrawerNavigation";
 
@@ -37,6 +42,7 @@ const StackAuthNavigator = () => {
             <Stack.Screen name="ForgotPassword" component={ForgotPassword} options={{ headerShown: false, title: 'Password dimenticata' }} />
             <Stack.Screen name="DrawerNavigation" component={DrawerNavigation} options={{ headerShown: false }} />
             <Stack.Screen name="AssetAddition" component={AssetAddition} options={{title:'Aggiungi nuovo oggetto' }} />
+            <Stack.Screen name="AssetTrash" component={AssetTrash} options={{title:'Elenco degli elementi del cestino' }} />
             <Stack.Screen name="AssetsEditing"  component={AssetsEditing} options={{ title:'Modifica oggetto' }} />
             <Stack.Screen name="AssetViewScreen" component={AssetViewScreen} options={{title:"Dettagli dell'articolo" ,headerTintColor:'white', headerStyle:{backgroundColor:'#04487b'}}} />
             <Stack.Screen name="AssetsBooking" component={AssetsBooking} options={{title:'Prenotazione'}}/>
@@ -45,11 +51,14 @@ const StackAuthNavigator = () => {
             <Stack.Screen name="DocumentAddition" component={DocumentAddition} options={{title:'Aggiungi nuova documento'}}  />
             <Stack.Screen name="DocumentEditing" component={DocumentEditing} options={{ title:'Modifica documento',headerTintColor:'white', headerStyle:{backgroundColor:'#04487b'}}} />
             <Stack.Screen name="DocumentView" component={DocumentView} options={{title:"visualizzare i documenti", headerTintColor:'white', headerStyle:{backgroundColor:'#04487b'}}}  />
+            <Stack.Screen name="DocumentTrash" component={DocumentTrash} options={{title:"Cestino dei documenti"}}  />
             <Stack.Screen name="LocationAddition" component={LocationAddition} options={{title:'Aggiungi luogo',headerTintColor:'white', headerStyle:{backgroundColor:'#04487b'}}} />
             <Stack.Screen name="LocationEditing" component={LocationEditing} options={{ title:'Modifica posizioni'}} />
             <Stack.Screen name="LocationViewing" component={LocationViewing} options={{ title:'dettagli sulla posizione', headerTintColor:'white', headerStyle:{backgroundColor:'#04487b'}}} />
+            <Stack.Screen name="LocationTrash" component={LocationTrash} options={{title:'Cestino posizioni' }} />
            <Stack.Screen name="ProfileEditing" component={ProfileEditScreen} options={{title:'Modifica Profilo', headerTintColor:'white', headerStyle:{backgroundColor:'#04487b'}}}/>
            <Stack.Screen name="QRCodeScreen" component={QRCodeScreen} options={{title:'Scanner di codici qr', headerTintColor:'white', headerStyle:{backgroundColor:'#04487b'}}}/>
+           <Stack.Screen name="ImageZoom" component={ImageZoom} options={{headerShown:false}} />
         </Stack.Navigator>
     )
 }

@@ -30,7 +30,6 @@ const AssetsListing = ({ navigation }) => {
   const [isLoading, setisLoading] = React.useState(false);
   const [masterItemData, setmasterItemData] = React.useState([]);
   const [filterItemData, setfilterItemData] = React.useState([]);
-  const [pageNumber, setPageNumber] = React.useState(1);
   const [search, setSearch] = useState('');
   const [isSearch, setIsSearch] = React.useState(false);
   const [totalItems, setTotalItems] = useState();
@@ -38,7 +37,7 @@ const AssetsListing = ({ navigation }) => {
 
   useFocusEffect(
     React.useCallback(() => {
-      if(search.length > 3){
+      if(search.length > 0){
         searchFilterFunction(search);
       }else{
         fetchAssetsList();
@@ -104,7 +103,7 @@ const AssetsListing = ({ navigation }) => {
   }
 
   const deleteAsset = (id) => {
-
+  
     let formData = {
       user_id: userToken,
       item_id: id
@@ -121,6 +120,7 @@ const AssetsListing = ({ navigation }) => {
         { 
           text: "DELETE", 
           onPress: () => {
+            setisLoading(true);
             axios({
               url: `${API_BASE_URL}item_delete`,
               method: 'POST',
@@ -130,6 +130,7 @@ const AssetsListing = ({ navigation }) => {
                 'Content-Type': 'multipart/form-data',
               },
             }).then(res => {
+              //console.log(res?.data);
               if (res?.data?.status == 1) {
                 alert("Item deleted Succesffuly");
                 fetchAssetsList();
@@ -151,6 +152,7 @@ const AssetsListing = ({ navigation }) => {
                 ]
               );
             });
+            setisLoading(false);
           }
         }
       ]
@@ -161,7 +163,7 @@ const AssetsListing = ({ navigation }) => {
     setmasterItemData([]);
     setfilterItemData([]);
     //setPageNumber(1);
-    if(text.length > 3 ){
+    if(text.length > 0 ){
       setIsSearch(true);
       setSearch(text);
       if (userToken != null) {
@@ -294,6 +296,13 @@ const AssetsListing = ({ navigation }) => {
     <View style={styles.container}>
       <StatusBar backgroundColor='#04487b' hidden={false} />
         <View style={{ flex: 1, marginTop: 20 }}>
+          <View style={{ alignSelf: 'flex-end'}}>
+            <TouchableOpacity style={{ flexDirection: 'row', backgroundColor: '#B31817', paddingBottom: 5, paddingTop: 5, paddingLeft: 5, paddingRight: 5, marginBottom: 10 }} onPress={() => 
+                navigation.navigate('AssetTrash')
+              }>
+              <Ionicons name="ios-trash-outline" color='#FFF' size={16}></Ionicons><Text style={{ marginLeft: 0, color: '#FFF', fontSize: 13 }}>Trash</Text>
+            </TouchableOpacity>
+          </View>
               <TextInput
                 placeholder="Cerca qui..."
                 style={[styles.textInputStyle, styles.fontRegular]}
@@ -324,8 +333,6 @@ const AssetsListing = ({ navigation }) => {
                   renderItem={renderItem}
                   keyExtractor={(item, index) => index.toString()}
                   ItemSeparatorComponent={ItemSeparatorView}
-                  //getItemCount={(data) => totalItems}
-                  //getItem={getItem}
                   style={{ marginTop: 20 }}
                 />
               </>}
