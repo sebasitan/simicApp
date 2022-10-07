@@ -13,8 +13,10 @@ import {
     Title,
     Paragraph,
 } from 'react-native-paper';
+import Pinchable from 'react-native-pinchable';
 import axios from "axios";
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { API_BASE_URL } from '../../../Services/url';
 import RNFetchBlob from 'rn-fetch-blob';
 
@@ -202,11 +204,12 @@ const AssetViewScreen = ({route, navigation}) => {
               </View>
               <View style={{  flexDirection: 'row', justifyContent: 'space-between', alignItems:'center', marginTop: 10 }}>
               { itemDetails.item_image_url !='' ? <>
-              <TouchableOpacity onPress={ () => navigation.navigate('ImageZoom', {
-                uri: itemDetails.item_image_url
-              }) }>
-                <Image source={{uri:itemDetails?.item_image_url}} style={{width: 150, height: 150, borderRadius: 10, marginRight: 20 }}/>
-              </TouchableOpacity>
+                <View>
+                  <MaterialCommunityIcons name="gesture-spread" size={30} color='#888' style={{ position: 'absolute', top: 5, right: 25, zIndex: 1, backgroundColor: '#F1F1F1'}}/>
+                  <Pinchable>
+                    <Image source={{uri:itemDetails?.item_image_url}} style={{width: 150, height: 150, borderRadius: 10, marginRight: 20 }}/>
+                  </Pinchable>
+                </View>
               </> : <>
                 <Image source={ require('../../../assets/images/empty.png') } style={{width: 150, height: 150, borderRadius: 10, marginRight: 20 }}/>
               </> }

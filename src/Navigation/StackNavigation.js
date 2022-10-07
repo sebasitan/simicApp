@@ -26,8 +26,6 @@ import ProfileEditScreen from '../Screen/ProfileScreen/Editing';
 
 import QRCodeScreen from "../Screen/QRCodeScanner";
 
-import ImageZoom from "../Screen/ImageZoom";
-
 import DrawerNavigation from "./DrawerNavigation";
 
 import Splash from "../Screen/Auth/Splash";
@@ -58,7 +56,6 @@ const StackAuthNavigator = () => {
             <Stack.Screen name="LocationTrash" component={LocationTrash} options={{title:'Cestino posizioni' }} />
            <Stack.Screen name="ProfileEditing" component={ProfileEditScreen} options={{title:'Modifica Profilo', headerTintColor:'white', headerStyle:{backgroundColor:'#04487b'}}}/>
            <Stack.Screen name="QRCodeScreen" component={QRCodeScreen} options={{title:'Scanner di codici qr', headerTintColor:'white', headerStyle:{backgroundColor:'#04487b'}}}/>
-           <Stack.Screen name="ImageZoom" component={ImageZoom} options={{headerShown:false}} />
         </Stack.Navigator>
     )
 }

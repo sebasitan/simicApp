@@ -160,9 +160,7 @@ const AssetsListing = ({ navigation }) => {
   };
 
   const searchFilterFunction = (text) => {
-    setmasterItemData([]);
     setfilterItemData([]);
-    //setPageNumber(1);
     if(text.length > 0 ){
       setIsSearch(true);
       setSearch(text);
@@ -213,7 +211,6 @@ const AssetsListing = ({ navigation }) => {
       setIsSearch(false);
       setSearch(text);
       fetchAssetsList();
-      navigation.navigate('DrawerNavigation');
     }
   };
 

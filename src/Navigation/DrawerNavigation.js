@@ -50,7 +50,7 @@ const DrawerNavigation = () => {
             },
             headerTitleAlign: 'center',
         }}
-         initialRouteName="AssetsListing"
+         initialRouteName="Tutti gli oggetti"
          drawerStyle ={{
             backgroundColor: '#04487b'
          }}>

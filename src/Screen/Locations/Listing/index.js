@@ -8,7 +8,9 @@ import {
   ActivityIndicator,
   Image,
   TouchableOpacity,
-  VirtualizedList
+  VirtualizedList,
+  TextInput,
+  FlatList
 } from 'react-native';
 import {
   Title,
@@ -24,14 +26,20 @@ import NoDataFound from '../../../Component/NoDataFound';
 const LocationListing = ({ navigation }) => {
   const [userToken, setUserToken] = useState(null);
   const [masterItemData, setmasterItemData] = useState([]);
+  const [filterItemData, setfilterItemData] = React.useState([]);
+  const [search, setSearch] = useState('');
+  const [isSearch, setIsSearch] = React.useState(false);
   const [totalItems, setTotalItems] = useState();
   const [loader,setLoader]=React.useState(false);
-  const [page,setPage]=React.useState(1);
   const isFocused = useIsFocused();
 
   useFocusEffect(
     React.useCallback(() => {
-      fetchLocationList();
+      if(search.length > 0){
+        searchFilterFunction(search);
+      }else{
+        fetchLocationList();
+      }
     }, [isFocused]),
   );
 
@@ -41,9 +49,13 @@ const LocationListing = ({ navigation }) => {
     let userToken =await Utility.getFromLocalStorge('userToken');
     setUserToken(userToken);
     if(userToken != null){
+      let formData = {
+        search_key: '',
+      };
       axios({
         url: `${API_BASE_URL}/locationFullList/${userToken}`,
-        method: 'GET',
+        method: 'POST',
+        data: formData,
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'multipart/form-data',
@@ -78,8 +90,61 @@ const LocationListing = ({ navigation }) => {
         setLoader(false);
       });
     }
-    
   }
+
+  const searchFilterFunction = (text) => {
+    setfilterItemData([]);
+    if(text.length > 0 ){
+      setIsSearch(true);
+      setSearch(text);
+      if (userToken != null) {
+        let formData = {
+          search_key: text,
+        }
+        axios({
+          url: `${API_BASE_URL}/locationFullList/${userToken}`,
+          method: 'POST',
+          data: formData,
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'multipart/form-data',
+          },
+        }).then(res => {
+          if (res.data.status == 1) {
+            let location_list = JSON.stringify(res.data.location_list);
+            let itemjson = JSON.parse(location_list);
+            if(itemjson !=''){
+              setfilterItemData(itemjson);
+              setTotalItems(res?.data?.location_count);
+            }else{
+              setTotalItems(0);
+            }
+
+          } else {
+            Alert.alert(
+              "Warning",
+              "Somthing went wrong, Try Again",
+              [
+                { text: "OK" }
+              ]
+            );
+          }
+        }).catch(e => {
+          Alert.alert(
+            "Warning",
+            "Somthing went wrong, Try Again",
+            [
+              { text: "OK" }
+            ]
+          );
+        });
+      }
+    }else{
+      setIsSearch(false);
+      setSearch(text);
+      fetchLocationList();
+    }
+  };
  
   const renderItem = ({ item }) => {
     if(item != undefined){
@@ -205,24 +270,46 @@ const LocationListing = ({ navigation }) => {
               }>
               <Ionicons name="ios-trash-outline" color='#FFF' size={16}></Ionicons><Text style={{ marginLeft: 0, color: '#FFF', fontSize: 13 }}>Trash</Text>
             </TouchableOpacity>
-          </View>
+        </View>
+        <TextInput
+          placeholder="Cerca qui..."
+          style={[styles.textInputStyle, styles.fontRegular]}
+          underlineColorAndroid="transparent"
+          value={search}
+          onChangeText={(text) => searchFilterFunction(text)}
+        />
         { totalItems === 0 ? 
             <NoDataFound title={"No Data Found"} /> : 
             <>
                 { loader ? 
                     <View style={styles.loading}><ActivityIndicator size={50}/></View> : 
                   <>
-                      <VirtualizedList
-                          data={masterItemData}
-                          initialNumToRender={10}
-                          renderItem={renderItem}
-                          keyExtractor={(item, index) => index.toString()}
-                          ItemSeparatorComponent={ItemSeparatorView}
-                          getItemCount={(data) => totalItems}
-                          getItem={getItem}
-                          style={{ marginTop: 20 }}
-                          refreshing={loader}
-                      />
+                    { isSearch != true ? 
+                      <>
+                          <VirtualizedList
+                              data={masterItemData}
+                              initialNumToRender={10}
+                              renderItem={renderItem}
+                              keyExtractor={(item, index) => index.toString()}
+                              ItemSeparatorComponent={ItemSeparatorView}
+                              getItemCount={(data) => totalItems}
+                              getItem={getItem}
+                              style={{ marginTop: 20 }}
+                              refreshing={loader}
+                          />
+                      </> : 
+                      <>
+                          <FlatList
+                            data={filterItemData}
+                            initialNumToRender={5}
+                            renderItem={renderItem}
+                            keyExtractor={(item, index) => index.toString()}
+                            ItemSeparatorComponent={ItemSeparatorView}
+                            style={{ marginTop: 20 }}
+                          />
+                      </> 
+                    }
+                      
                   </> }
             
             </> 

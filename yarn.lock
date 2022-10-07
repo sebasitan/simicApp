@@ -1957,6 +1957,11 @@
   "resolved" "https://registry.npmjs.org/acorn/-/acorn-8.8.0.tgz"
   "version" "8.8.0"
 
+"add@^2.0.6":
+  "integrity" "sha512-j5QzrmsokwWWp6kUcJQySpbG+xfOBqqKnup3OIk1pz+kB/80SLorZ9V8zHFLO92Lcd+hbvq8bT+zOGoPkmBV0Q=="
+  "resolved" "https://registry.npmjs.org/add/-/add-2.0.6.tgz"
+  "version" "2.0.6"
+
 "ajv@^6.10.0", "ajv@^6.12.4":
   "integrity" "sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g=="
   "resolved" "https://registry.npmjs.org/ajv/-/ajv-6.12.6.tgz"
@@ -6102,6 +6107,11 @@
   "integrity" "sha512-fzPpPQXeD34inUccqtoResSwYubfrwUguP4qrVUUv8+KSMjYSaHGoS5HaIJLZHlN9gO+TvLJZ2L5ZljTsb6qnQ=="
   "resolved" "https://registry.npmjs.org/react-native-permissions/-/react-native-permissions-3.6.1.tgz"
   "version" "3.6.1"
+
+"react-native-pinchable@^0.2.1":
+  "integrity" "sha512-LRSLCrizUX/XtYwwBxyuYL4xDLUhyPbBvD/tUpzns0PX2Zs0pR0fd/LsFm/n6tEigCLL/0KlDrOVhOdW3wtz+Q=="
+  "resolved" "https://registry.npmjs.org/react-native-pinchable/-/react-native-pinchable-0.2.1.tgz"
+  "version" "0.2.1"
 
 "react-native-qrcode-scanner@^1.5.5":
   "integrity" "sha512-il79uStkFqUvofqXJQfOL30qgQyU17MUKxj7IGHv6oT2OxIY/vutTwuPPDbsivtv0yTMHP4dGx/79oys4eAuNw=="

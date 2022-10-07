@@ -73,9 +73,8 @@ const AssetAddition = ({ navigation }) => {
     }
     const getAllLocation = async (userId) => {
         let formData = {
-            user_id: userId || 1,
+            search_key: '',
         }
-        //console.log("Location user id>>>",userId)
         axios({
             url: `${API_BASE_URL}locationFullList/${userId}`,
             method: 'POST',
@@ -85,10 +84,9 @@ const AssetAddition = ({ navigation }) => {
                 'Content-Type': 'multipart/form-data',
             },
         }).then(res => {
-            //console.log(" assets location on Edit page.", res?.data?.location_list)
-            var prevCatList = res?.data?.location_list.map(car => ({ value: car?.location_id, label: car?.location_name }));
-            setLocationList(prevCatList)
-            if (res.data.status == 1) {
+            if (res?.data?.status == 1) {
+                var prevCatList = res?.data?.location_list.map(car => ({ value: car?.location_id, label: car?.location_name }));
+                setLocationList(prevCatList)
             } else {
                 Alert.alert(
                     "Warning",

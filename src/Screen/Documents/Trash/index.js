@@ -8,7 +8,10 @@ import {
     ActivityIndicator,
     Image,
     VirtualizedList,
-    Title
+    Title,
+    TouchableOpacity,
+    TextInput,
+    FlatList
 } from 'react-native';
 
 import {
@@ -26,12 +29,19 @@ const DocumentTrash = ({ navigation }) => {
    const [userToken, setUserToken] = React.useState(null);
    const [loader, setLoader] = React.useState(false);
    const [masterItemData, setmasterItemData] = React.useState([]);
+   const [filterItemData, setfilterItemData] = React.useState([]);
+   const [search, setSearch] = useState('');
+   const [isSearch, setIsSearch] = React.useState(false);
    const [totalItems, setTotalItems] = React.useState();
    const isFocused = useIsFocused();
 
    useFocusEffect(
         React.useCallback(() => {
-            getTrashList();
+            if(search.length > 0){
+                searchFilterFunction(search);
+            }else{
+                getTrashList();
+            }
         }, [isFocused]),
     );
 
@@ -44,9 +54,13 @@ const DocumentTrash = ({ navigation }) => {
         setUserToken(userToken);
         
         if(userToken != null){
+            let formData = {
+                search_key: '',
+            }
             axios({
                 url: `${API_BASE_URL}/trashDocument/${userToken}`,
                 method: 'POST',
+                data: formData,
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'multipart/form-data',
@@ -86,13 +100,119 @@ const DocumentTrash = ({ navigation }) => {
     const getFileExtention = fileUrl => {
         // To get the file extension
         return /[.]/.exec(fileUrl) ? /[^.]+$/.exec(fileUrl) : undefined;
-      };
-    
-    const getFileURL = () => {
-        let imgsrc = '../../../assets/images/file.png';
-        return imgsrc;
     };
+    
+    const searchFilterFunction = (text) => {
+        setfilterItemData([]);
+        if(text.length > 0 ){
+          setIsSearch(true);
+          setSearch(text);
+          if (userToken != null) {
+            let formData = {
+              search_key: text,
+            }
+            axios({
+              url: `${API_BASE_URL}/trashDocument/${userToken}`,
+              method: 'POST',
+              data: formData,
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'multipart/form-data',
+              },
+            }).then(res => {
+              if (res.data.status == 1) {
+                let item_list = JSON.stringify(res.data.document_list);
+                let itemjson = JSON.parse(item_list);
+                if(itemjson !=''){
+                  setfilterItemData(itemjson);
+                  setTotalItems(res?.data?.document_count);
+                }else{
+                  setTotalItems(0);
+                }
+              } else {
+                Alert.alert(
+                  "Warning",
+                  "Somthing went wrong, Try Again",
+                  [
+                    { text: "OK" }
+                  ]
+                );
+              }
+            }).catch(e => {
+              Alert.alert(
+                "Warning",
+                "Somthing went wrong, Try Again",
+                [
+                  { text: "OK" }
+                ]
+              );
+            });
+          }
+        }else{
+          setIsSearch(false);
+          setSearch(text);
+          getTrashList();
+        }
+    };
+    
+    const restoreDocument = (id) => {
+        let formData = {
+            user_id: userToken,
+            document_id: id
+        };
       
+        Alert.alert(
+            "Warning",
+            "Are you sure to restore document?",
+            [
+                {
+                    text: "Cancel",
+                    style: "cancel"
+                },
+                { 
+                    text: "Restore it", 
+                    onPress: () => {
+                        setLoader(true);
+                        axios({
+                            url: `${API_BASE_URL}restoreDocument`,
+                            method: 'POST',
+                            data: formData,
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'multipart/form-data',
+                            },
+                        }).then(res => {
+                            //console.log(res?.data);
+                            if (res?.data?.status == 1) {
+                                alert("Document Restored Succesffuly");
+                                setSearch('');
+                                setIsSearch(false);
+                                navigation.navigate('Documenti');
+                            }else{
+                                Alert.alert(
+                                    "Warning",
+                                    "Somthing went wrong, Try Again",
+                                    [
+                                    { text: "OK" }
+                                    ]
+                                );
+                            }
+                        }).catch(e => {
+                            Alert.alert(
+                            "Warning",
+                            "Somthing went wrong, Try Again",
+                            [
+                                { text: "OK" }
+                            ]
+                            );
+                        });
+                        setLoader(false);
+                    }
+                }
+            ]
+        );
+    };
+
     var imgsrc;
 
     const renderItem = ({ item }) => {
@@ -126,6 +246,11 @@ const DocumentTrash = ({ navigation }) => {
                             </View>
                         </View>
                     </View>
+                    <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', marginTop: 8, borderTopColor: '#EEE', borderTopWidth: 1, paddingTop: 8 }}>
+                        <TouchableOpacity style={{ flexDirection: 'row'}} onPress={() => restoreDocument(item?.id)}>
+                            <Ionicons name="refresh" color='#B31817' size={16}></Ionicons><Text style={{ marginLeft: 4, color: '#B31817', fontSize: 13 }}>Restore</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             );
         }
@@ -151,20 +276,42 @@ const DocumentTrash = ({ navigation }) => {
         <View style={styles.container}>
             <StatusBar backgroundColor='#04487b' hidden={false} />
             <View style={{ flex: 1, marginTop: 10 }}>
+                <TextInput
+                    placeholder="Cerca qui..."
+                    style={[styles.textInputStyle, styles.fontRegular]}
+                    underlineColorAndroid="transparent"
+                    value={search}
+                    onChangeText={(text) => searchFilterFunction(text)}
+                />
             { totalItems === 0 ? <NoDataFound title={"No Data Found"} /> : 
                 <>
                     { loader ? <View style={styles.loading}><ActivityIndicator size={50} /></View> : 
                         <>
-                            <VirtualizedList
-                                data={masterItemData}
-                                initialNumToRender={10}
-                                renderItem={renderItem}
-                                keyExtractor={(item, index) => index.toString()}
-                                ItemSeparatorComponent={ItemSeparatorView}
-                                getItemCount={(data) => totalItems}
-                                getItem={getItem}
-                                style={{ marginTop: 20 }}
-                            />
+                            { isSearch != true ? 
+                                <>
+                                    <VirtualizedList
+                                        data={masterItemData}
+                                        initialNumToRender={10}
+                                        renderItem={renderItem}
+                                        keyExtractor={(item, index) => index.toString()}
+                                        ItemSeparatorComponent={ItemSeparatorView}
+                                        getItemCount={(data) => totalItems}
+                                        getItem={getItem}
+                                        style={{ marginTop: 20 }}
+                                    />
+                                </> : 
+                                <>
+                                    <FlatList
+                                        data={filterItemData}
+                                        initialNumToRender={5}
+                                        renderItem={renderItem}
+                                        keyExtractor={(item, index) => index.toString()}
+                                        ItemSeparatorComponent={ItemSeparatorView}
+                                        style={{ marginTop: 20 }}
+                                    />
+                                </> 
+                            }
+                            
                         </> 
                     }
                 </> 

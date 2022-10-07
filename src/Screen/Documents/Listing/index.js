@@ -9,7 +9,9 @@ import {
   ActivityIndicator,
   Image,
   TouchableOpacity,
-  VirtualizedList
+  VirtualizedList,
+  TextInput,
+  FlatList
 } from 'react-native';
 import {
   Paragraph,
@@ -25,13 +27,19 @@ const DocumentListing = ({ navigation }) => {
   const [userToken, setUserToken] = useState(null);
   const [masterItemData, setmasterItemData] = useState([]);
   const [loader, setLoader] = React.useState(false);
-  const [page,setPage]=React.useState(1);
+  const [filterItemData, setfilterItemData] = React.useState([]);
+  const [search, setSearch] = useState('');
+  const [isSearch, setIsSearch] = React.useState(false);
   const [totalItems, setTotalItems] = useState();
   const isFocused = useIsFocused();
 
   useFocusEffect(
     React.useCallback(() => {
-      getDocumentListingData();
+      if(search.length > 0){
+        searchFilterFunction(search);
+      }else{
+        getDocumentListingData();
+      }
     }, [isFocused]),
   );
 
@@ -41,9 +49,13 @@ const DocumentListing = ({ navigation }) => {
     let userToken = await Utility.getFromLocalStorge('userToken');
     setUserToken(userToken);
     if(userToken != null){
+      let formData = {
+        search_key : '',
+      };
       axios({
         url: `${API_BASE_URL}/viewDocument/${userToken}`,
-        method: 'GET',
+        method: 'POST',
+        data: formData,
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'multipart/form-data',
@@ -145,12 +157,61 @@ const DocumentListing = ({ navigation }) => {
     return /[.]/.exec(fileUrl) ? /[^.]+$/.exec(fileUrl) : undefined;
   };
 
-  const getFileURL = () => {
-    let imgsrc = '../../../assets/images/file.png';
-    return imgsrc;
-  };
-  
   var imgsrc;
+
+  const searchFilterFunction = (text) => {
+    setfilterItemData([]);
+    if(text.length > 0 ){
+      setIsSearch(true);
+      setSearch(text);
+      if (userToken != null) {
+        let formData = {
+          search_key: text,
+        }
+        axios({
+          url: `${API_BASE_URL}/viewDocument/${userToken}`,
+          method: 'POST',
+          data: formData,
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'multipart/form-data',
+          },
+        }).then(res => {
+          if (res.data.status == 1) {
+            let item_list = JSON.stringify(res.data.document_list);
+            let itemjson = JSON.parse(item_list);
+            if(itemjson !=''){
+              setfilterItemData(itemjson);
+              setTotalItems(res?.data?.document_count);
+            }else{
+              setTotalItems(0);
+            }
+
+          } else {
+            Alert.alert(
+              "Warning",
+              "Somthing went wrong, Try Again",
+              [
+                { text: "OK" }
+              ]
+            );
+          }
+        }).catch(e => {
+          Alert.alert(
+            "Warning",
+            "Somthing went wrong, Try Again",
+            [
+              { text: "OK" }
+            ]
+          );
+        });
+      }
+    }else{
+      setIsSearch(false);
+      setSearch(text);
+      getDocumentListingData();
+    }
+  };
   
   const renderItem = ({ item }) => {
     if( item != undefined){
@@ -222,13 +283,21 @@ const DocumentListing = ({ navigation }) => {
       <View style={styles.container}>
         <StatusBar backgroundColor='#04487b' hidden={false} />
         <View style={{ flex: 1, marginTop: 20 }}>
+          
           <View style={{ alignSelf: 'flex-end'}}>
-              <TouchableOpacity style={{ flexDirection: 'row', backgroundColor: '#B31817', paddingBottom: 5, paddingTop: 5, paddingLeft: 5, paddingRight: 5, marginBottom: 0 }} onPress={() => 
+              <TouchableOpacity style={{ flexDirection: 'row', backgroundColor: '#B31817', paddingBottom: 5, paddingTop: 5, paddingLeft: 5, paddingRight: 5, marginBottom: 10 }} onPress={() => 
                   navigation.navigate('DocumentTrash')
                 }>
                 <Ionicons name="ios-trash-outline" color='#FFF' size={16}></Ionicons><Text style={{ marginLeft: 0, color: '#FFF', fontSize: 13 }}>Trash</Text>
               </TouchableOpacity>
-            </View>
+          </View>
+          <TextInput
+            placeholder="Cerca qui..."
+            style={[styles.textInputStyle, styles.fontRegular]}
+            underlineColorAndroid="transparent"
+            value={search}
+            onChangeText={(text) => searchFilterFunction(text)}
+          />
         { totalItems === 0 ? 
             <NoDataFound title={"No Data Found"}/> : 
             <>
@@ -236,18 +305,34 @@ const DocumentListing = ({ navigation }) => {
               { loader ? 
                   <View style={styles.loading}><ActivityIndicator size={50}/></View> : 
                   <> 
-                      <VirtualizedList
-                        data={masterItemData}
-                        renderItem={renderItem}
-                        initialNumToRender={10}
-                        keyExtractor={(item, index) => index.toString()}
-                        ItemSeparatorComponent={ItemSeparatorView}
-                        getItemCount={(data) => totalItems}
-                        getItem={getItem}
-                        //removeClippedSubviews={true}
-                        style={{ marginTop: 20 }}
-                        refreshing={loader}
-                      />
+                      { isSearch != true ? 
+                          <>
+                            <VirtualizedList
+                                data={masterItemData}
+                                renderItem={renderItem}
+                                initialNumToRender={10}
+                                keyExtractor={(item, index) => index.toString()}
+                                ItemSeparatorComponent={ItemSeparatorView}
+                                getItemCount={(data) => totalItems}
+                                getItem={getItem}
+                                //removeClippedSubviews={true}
+                                style={{ marginTop: 20 }}
+                                refreshing={loader}
+                              />
+                          </> : 
+
+                          <>
+                            <FlatList
+                                data={filterItemData}
+                                initialNumToRender={5}
+                                renderItem={renderItem}
+                                keyExtractor={(item, index) => index.toString()}
+                                ItemSeparatorComponent={ItemSeparatorView}
+                                style={{ marginTop: 20 }}
+                              />
+                          </> 
+                      }
+                      
                   </> 
               }
               

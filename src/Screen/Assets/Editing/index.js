@@ -99,9 +99,13 @@ const AssetsEditing = ({ navigation ,route}) => {
     });
   }
   const callLocationApi=async(userId)=>{
+    let formData = {
+        search_key: ''
+    };
     axios({
         url: `${API_BASE_URL}locationFullList/${userId}`,
         method: 'POST',
+        data: formData,
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'multipart/form-data',
