@@ -1,27 +1,12 @@
-import React, { Component, useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import {
-    AppRegistry,
-    Linking,
     StyleSheet,
-    Text,
-    View,
     Alert,
-    Image,
-    TouchableOpacity,
     Platform,
     PermissionsAndroid
 } from 'react-native';
 
-import {
-    Title,
-    Paragraph,
-} from 'react-native-paper';
-
 import axios from "axios";
-
-import Ionicons from 'react-native-vector-icons/Ionicons';
-
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import * as Utility from '../../Utility/inbdex';
 
@@ -65,15 +50,15 @@ const QRCodeScreen = ({navigation, route}) => {
             }).then(res => {
                 if( res?.data?.status == 1){
                     let itemId = res?.data?.item_id;
-                    //console.log(itemId);
+                    //alert(itemId);
                     navigation.navigate('AssetViewScreen', {
                         itemid: itemId,
                         userid: userId
-                    })
+                    });
                 }else{
                     Alert.alert(
                         "Warning",
-                        "Somthing went wrong, Try Again",
+                        res?.data?.message,
                         [
                           { text: "OK" }
                         ]
