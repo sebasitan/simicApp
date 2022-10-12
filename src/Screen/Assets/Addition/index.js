@@ -84,6 +84,7 @@ const AssetAddition = ({ navigation }) => {
                 'Content-Type': 'multipart/form-data',
             },
         }).then(res => {
+            //console.log(res?.data?.location_id);
             if (res?.data?.status == 1) {
                 var prevCatList = res?.data?.location_list.map(car => ({ value: car?.location_id, label: car?.location_name }));
                 setLocationList(prevCatList)
@@ -189,9 +190,11 @@ const AssetAddition = ({ navigation }) => {
 
     const getUserInfor = async () => {
         let userId = await Utility.getFromLocalStorge('userToken');
-        setUserId(userId);
-        getAllLocation(userId)
-
+        if( userId !=''){
+            setUserId(userId);
+            getAllLocation(userId);
+        }
+    
     }
 
     const assestImage = () => {
@@ -250,13 +253,13 @@ const AssetAddition = ({ navigation }) => {
               // DocumentPicker.types.pdf
             });
             
-            setLoader(true);
-
             if(res.length > 0 ){
-
+                
                 let formData = new FormData();
                 let filedata = JSON.parse(JSON.stringify(res))[0];
                 formData.append('item_image', { type: filedata.type, uri: filedata.uri, name: filedata.name.split("/").pop() });
+
+                setLoader(true);
 
                 axios({
                     url: `${API_BASE_URL}item_image`,
@@ -267,13 +270,14 @@ const AssetAddition = ({ navigation }) => {
                         'Content-Type': 'multipart/form-data',
                     },
                 }).then(response => {
-                    //console.log(" assets location on Edit page.", res?.data)
+                    //console.log(" assets document data.", response?.data)
                     if(response?.data?.status==1){
                         setInstructionImageName(response?.data?.picture)
                         alert("File Uploaded");
                     }else{
                         alert("File Not Uploaded")
                     }
+                    setLoader(false);
                 }).catch(e => {
                     Alert.alert(
                         "Warning",
@@ -284,7 +288,7 @@ const AssetAddition = ({ navigation }) => {
                     );
                 });
             }
-            setLoader(false);
+            
         } catch (err) {
             setLoader(true);
             setInstructionImageName('');

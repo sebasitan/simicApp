@@ -27,6 +27,7 @@ import NoDataFound from '../../../Component/NoDataFound';
 
 const AssetsListing = ({ navigation }) => {
   const [userToken, setUserToken] = React.useState(null);
+  const [userData, setUserData] = React.useState(null);
   const [isLoading, setisLoading] = React.useState(false);
   const [masterItemData, setmasterItemData] = React.useState([]);
   const [filterItemData, setfilterItemData] = React.useState([]);
@@ -52,8 +53,12 @@ const AssetsListing = ({ navigation }) => {
     setmasterItemData([]);
 
     let userToken = await Utility.getFromLocalStorge('userToken');
+    let userData = await Utility.getFromLocalStorge('userData');
 
     setUserToken(userToken);
+    setUserData(userData);
+
+    //console.log(userData.user_role);
 
     if (userToken != null) {
       let formData = {
@@ -250,9 +255,12 @@ const AssetsListing = ({ navigation }) => {
             } style={{ flexDirection: 'row', marginLeft: 13, marginRight: 13 }}>
               <Ionicons name="ios-create-outline" color='#ff8c00' size={16}></Ionicons><Text style={{ marginLeft: 0, color: '#ff8c00', fontSize: 13 }}>Modifica</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => deleteAsset(item?.item_id)} style={{ flexDirection: 'row' }}>
-              <Ionicons name="ios-trash-outline" color='#B31817' size={16}></Ionicons><Text style={{ marginLeft: 0, color: '#B31817', fontSize: 13 }}>Cancella</Text>
-            </TouchableOpacity>
+            { userData != null && userData.user_role != 3 ? 
+              <>
+                <TouchableOpacity onPress={() => deleteAsset(item?.item_id)} style={{ flexDirection: 'row' }}>
+                  <Ionicons name="ios-trash-outline" color='#B31817' size={16}></Ionicons><Text style={{ marginLeft: 0, color: '#B31817', fontSize: 13 }}>Cancella</Text>
+                </TouchableOpacity>
+              </> : null }
           </View>
         </View>
         </TouchableOpacity>
@@ -284,22 +292,26 @@ const AssetsListing = ({ navigation }) => {
     navigation.navigate('QRCodeScreen');
   }
 
-  var memoizedData;
+  //var memoizedData;
 
-  { isSearch == true ? memoizedData = useMemo(() => renderItem, [filterItemData]) : memoizedData = useMemo(() => renderItem, [masterItemData]); }
+  //{ isSearch == true ? memoizedData = useMemo(() => renderItem, [filterItemData]) : memoizedData = useMemo(() => renderItem, [masterItemData]); }
   
   return (
     
     <View style={styles.container}>
       <StatusBar backgroundColor='#04487b' hidden={false} />
         <View style={{ flex: 1, marginTop: 20 }}>
-          <View style={{ alignSelf: 'flex-end'}}>
-            <TouchableOpacity style={{ flexDirection: 'row', backgroundColor: '#B31817', paddingBottom: 5, paddingTop: 5, paddingLeft: 5, paddingRight: 5, marginBottom: 10 }} onPress={() => 
-                navigation.navigate('AssetTrash')
-              }>
-              <Ionicons name="ios-trash-outline" color='#FFF' size={16}></Ionicons><Text style={{ marginLeft: 0, color: '#FFF', fontSize: 13 }}>Trash</Text>
-            </TouchableOpacity>
-          </View>
+            { userData != null && userData.user_role != 3 ? 
+            <>
+                <View style={{ alignSelf: 'flex-end'}}>
+                  <TouchableOpacity style={{ flexDirection: 'row', backgroundColor: '#B31817', paddingBottom: 5, paddingTop: 5, paddingLeft: 5, paddingRight: 5, marginBottom: 10 }} onPress={() => 
+                      navigation.navigate('AssetTrash')
+                    }>
+                    <Ionicons name="ios-trash-outline" color='#FFF' size={16}></Ionicons><Text style={{ marginLeft: 0, color: '#FFF', fontSize: 13 }}>Trash</Text>
+                  </TouchableOpacity>
+                </View>
+            
+            </> : null }
               <TextInput
                 placeholder="Cerca qui..."
                 style={[styles.textInputStyle, styles.fontRegular]}
@@ -343,10 +355,14 @@ const AssetsListing = ({ navigation }) => {
                 <TouchableOpacity onPress={() => ScanAssets()}><Ionicons name="ios-qr-code-outline" color='#B31817' size={30}></Ionicons>
                 </TouchableOpacity>
               </View>
-              <View style={{ position: 'absolute', bottom: 20, alignSelf: 'flex-end' }}>
-                <TouchableOpacity onPress={() => AddAssets()}><Ionicons name="add-circle-sharp" color='#B31817' size={45}></Ionicons>
-                </TouchableOpacity>
-              </View>
+              { userData != null && userData.user_role != 3 ? 
+                <>
+                  <View style={{ position: 'absolute', bottom: 20, alignSelf: 'flex-end' }}>
+                    <TouchableOpacity onPress={() => AddAssets()}><Ionicons name="add-circle-sharp" color='#B31817' size={45}></Ionicons>
+                    </TouchableOpacity>
+                  </View>
+                </> : null }
+              
           </View>
       </View>
     </View>

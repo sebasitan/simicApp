@@ -27,7 +27,7 @@ import { useNavigation, useIsFocused } from '@react-navigation/native';
 const ProfileScreen = ({navigation}) => {
   
     const [userid,setUserId]=React.useState();
-    const [userData,setUserData]=React.useState();
+    const [userData,setUserData]=React.useState(null);
     const [loader,setLoader]=React.useState(false);
     const isFocused = useIsFocused();
 
@@ -106,9 +106,11 @@ const ProfileScreen = ({navigation}) => {
                         <Title style={[styles.fontFamily, { fontSize: 12 } ]} >{ userData?.email_id }</Title>
                     </View>
                 </View>
-                <TouchableOpacity style={{ flexDirection: 'column', marginTop: 10, alignItems: 'center' }}>
-                    <Button color='#04487b' style={[styles.fontFamily]} title="Modifica" onPress={() => modifyprofile(userData)} />
-                </TouchableOpacity>
+                { userData != null && userData?.user_role != 3 ? <>
+                    <TouchableOpacity style={{ flexDirection: 'column', marginTop: 10, alignItems: 'center' }}>
+                        <Button color='#04487b' style={[styles.fontFamily]} title="Modifica" onPress={() => modifyprofile(userData)} />
+                    </TouchableOpacity>
+                </> : null }
             </View>
         </View>
     );

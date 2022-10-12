@@ -453,8 +453,8 @@ const getFileExtention = fileUrl => {
         <DatePicker
           modal
           mode='date'
-          minDate={new Date()}
-          minimumDate={new Date(new Date().getTime() + 24 * 60 * 60 * 1000)}
+          //minDate={new Date()}
+          //minimumDate={new Date(new Date().getTime() + 24 * 60 * 60 * 1000)}
           open={open}
           date={reportingdate}
           onConfirm={(date) => {

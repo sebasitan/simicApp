@@ -265,7 +265,6 @@ const AssetsEditing = ({ navigation ,route}) => {
             });
     
             if(res.length > 0 ){
-
                 let formData = new FormData();
                 let filedata = JSON.parse(JSON.stringify(res))[0];
                 formData.append('item_image', { type: filedata.type, uri: filedata.uri, name: filedata.name.split("/").pop() });
