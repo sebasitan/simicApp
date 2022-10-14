@@ -235,7 +235,7 @@ const DocumentListing = ({ navigation }) => {
               </View>
               <View style={{ alignSelf: 'flex-start' }}>
                 <View style={{ flexDirection: 'column' }}>
-                  <Paragraph style={[styles.fontFamily, { fontSize: 12 }]}>Tipo documento: {item.document_type === 1 ? 'Transport Document' : 'Formulary'}</Paragraph>
+                  <Paragraph style={[styles.fontFamily, { fontSize: 12 }]}>Tipo documento: {item.document_type == 1 ? 'Transport Document' : 'Formulary'}</Paragraph>
                   <Paragraph style={[styles.fontFamily, { fontSize: 12 }]}>Numero del documento: {item.shop_assistant}</Paragraph>
                   <Paragraph style={[styles.fontFamily, { fontSize: 12 }]}>Numero DDT / Formulario: {item.ddt_number}</Paragraph>
                   <Paragraph style={[styles.fontFamily, { fontSize: 12 }]}>Numero commessa: {item.order_no}</Paragraph>

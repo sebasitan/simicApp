@@ -304,8 +304,8 @@ const getFileExtention = fileUrl => {
     return /[.]/.exec(fileUrl) ? /[^.]+$/.exec(fileUrl) : undefined;
 };
 
-  let documentid = itemId?.document_type === 1 ? 1 : 2;
-
+  let documentid = itemId?.document_type == 1 ? 1 : 2;
+  //console.log(documentid);
   return (
     
     <View style={{ flex: 1, marginTop: 20 }}>
@@ -424,8 +424,8 @@ const getFileExtention = fileUrl => {
         </View>
         <View style={styles.inputConatiners}>
           <TextInput
-            label='Tornitore name'
-            placeholder='Tornitore name' 
+            label='Fornitore'
+            placeholder='Fornitore' 
             style={{ width: '90%', alignSelf: 'center' }}
             placeholderTextColor="black"
             pointerEvents="none"

@@ -15,6 +15,8 @@ import {
 } from 'react-native-paper';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
+import moment from 'moment';
+
 import RNFetchBlob from 'rn-fetch-blob';
 
 const DocumentView = ({navigation, route}) => {
@@ -85,18 +87,17 @@ const DocumentView = ({navigation, route}) => {
     return /[.]/.exec(fileUrl) ?
              /[^.]+$/.exec(fileUrl) : undefined;
   };
-  //console.log(item);
+  
   return(
     <View style={[ styles.container ]}>
-    {loader?
-    <ActivityIndicator size={50}/>:null}
+    {loader?<ActivityIndicator size={50}/>:null}
     <View style={{ marginTop: 20 }}>
       
       <View style={{ backgroundColor: '#f8f8ff', paddingTop: 10, paddingLeft: 15, paddingRight: 15, paddingBottom: 10 }}>
       
       <View style={{  flexDirection: 'row', justifyContent: 'space-between', alignItems:'center' }}>
         <Title style={[ styles.regularFont, { fontSize: 14 }]}>Tipo documento: </Title>
-        <Text style={[ styles.regularFont, { fontSize: 14 }]}>{item?.document_type === 1 ? 'Transport Document': 'Formulary'}</Text>
+        <Text style={[ styles.regularFont, { fontSize: 14 }]}>{item?.document_type == 1 ? 'Transport Document': 'Formulary'}</Text>
       </View>
       <View style={{  flexDirection: 'row', justifyContent: 'space-between', alignItems:'center' }}>
         <Title style={[ styles.regularFont, { fontSize: 14 }]}>Numero del documento: </Title>
@@ -106,12 +107,33 @@ const DocumentView = ({navigation, route}) => {
         <Title style={[ styles.regularFont, { fontSize: 14 }]}>Numero DDT / Formulario: </Title>
         <Text style={[ styles.regularFont, { fontSize: 14 }]}>{item?.ddt_number}</Text>
       </View>
+      {item?.document_type == 2 ? <> 
+        <View style={{  flexDirection: 'row', justifyContent: 'space-between', alignItems:'center' }}>
+          <Title style={[ styles.regularFont, { fontSize: 14 }]}>CER Number: </Title>
+          <Text style={[ styles.regularFont, { fontSize: 14 }]}>{item?.cercode}</Text>
+        </View>
+      </> : null }
       <View style={{  flexDirection: 'row', justifyContent: 'space-between', alignItems:'center' }}>
         <Title style={[ styles.regularFont, { fontSize: 14 }]}>Numero commessa: </Title>
         <Text style={[ styles.regularFont, { fontSize: 14 }]}>{item?.order_no}</Text>
       </View>
+      <View style={{  flexDirection: 'row', justifyContent: 'space-between', alignItems:'center' }}>
+        <Title style={[ styles.regularFont, { fontSize: 14 }]}>Descrizione: </Title>
+        <Text style={[ styles.regularFont, { fontSize: 14 }]}>{item?.description}</Text>
+      </View>
+      <View style={{  flexDirection: 'row', justifyContent: 'space-between', alignItems:'center' }}>
+        <Title style={[ styles.regularFont, { fontSize: 14 }]}>Fornitore: </Title>
+        <Text style={[ styles.regularFont, { fontSize: 14 }]}>{item?.supplier_name}</Text>
+      </View>
+      <View style={{  flexDirection: 'row', justifyContent: 'space-between', alignItems:'center' }}>
+        <Title style={[ styles.regularFont, { fontSize: 14 }]}>Numero protocollo: </Title>
+        <Text style={[ styles.regularFont, { fontSize: 14 }]}>{item?.protocol}</Text>
+      </View>
+      <View style={{  flexDirection: 'row', justifyContent: 'space-between', alignItems:'center' }}>
+        <Title style={[ styles.regularFont, { fontSize: 14 }]}>Data documento: </Title>
+        <Text style={[ styles.regularFont, { fontSize: 14 }]}>{item.document_date? moment(item.document_date).format('DD-MM-YYYY') : null }</Text>
+      </View>
       { item?.documents !='' ? <>
-      
       <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 8, borderTopColor: '#EEE', borderTopWidth: 1, paddingTop: 8 }}>
         <TouchableOpacity style={{ flexDirection: 'row' }} onPress={downloadDocument}>
               <Ionicons name="md-document-text" color='#04487b' size={16}></Ionicons><Text style={{ marginLeft: 4, color: '#04487b', fontSize: 13 }}>Scarica documento</Text>

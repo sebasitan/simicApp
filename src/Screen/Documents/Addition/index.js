@@ -365,7 +365,7 @@ const DocumentAddition = ({ navigation }) => {
         </View>
         
         <View style={styles.inputConatiners}>
-          <TextInput placeholder='Fornitore Name' 
+          <TextInput placeholder='Fornitore' 
           style={{ width: '90%', alignSelf: 'center' }}
           placeholderTextColor="black"
           pointerEvents="none"
