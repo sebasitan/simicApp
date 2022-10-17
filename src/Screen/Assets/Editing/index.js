@@ -212,6 +212,7 @@ const AssetsEditing = ({ navigation ,route}) => {
       });
   }
     const assestImage=()=>{
+
         ImagePicker.openPicker({
             width: 300,
             height: 400,
@@ -240,8 +241,8 @@ const AssetsEditing = ({ navigation ,route}) => {
                 setLoader(false);
             }).catch(e => {
                 Alert.alert(
-                    "Warning",
-                    "Somthing went wrong, Try Again",
+                    "File not uploaded",
+                    "Server might be busy, please upload the file again!",
                     [
                         { text: "OK" }
                     ]
@@ -265,10 +266,10 @@ const AssetsEditing = ({ navigation ,route}) => {
             });
     
             if(res.length > 0 ){
+                setLoader(true);
                 let formData = new FormData();
                 let filedata = JSON.parse(JSON.stringify(res))[0];
                 formData.append('item_image', { type: filedata.type, uri: filedata.uri, name: filedata.name.split("/").pop() });
-                setLoader(true);
                 axios({
                     url: `${API_BASE_URL}item_image`,
                     method: 'POST',
@@ -287,27 +288,24 @@ const AssetsEditing = ({ navigation ,route}) => {
                     }
                     setLoader(false);
                 }).catch(e => {
-                    setLoader(true);
+                    setLoader(false);
                     Alert.alert(
-                        "Warning",
-                        "Somthing went wrong, Try Again",
+                        "File not uploaded",
+                        "Server might be busy, please upload the file again!",
                         [
                             { text: "OK" }
                         ]
                     );
-                    setLoader(false);
                 });
             }
 
         } catch (err) {
-            setLoader(true);
             if (DocumentPicker.isCancel(err)) {
               alert('Canceled');
             } else {
               alert('Unknown Error: ' + JSON.stringify(err));
               throw err;
             }
-            setLoader(false);
         }
     };
 

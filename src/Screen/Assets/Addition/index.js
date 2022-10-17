@@ -198,13 +198,13 @@ const AssetAddition = ({ navigation }) => {
     }
 
     const assestImage = () => {
-        setLoader(true);
+
         ImagePicker.openPicker({
             width: 300,
             height: 400,
             cropping: true
         }).then(image => {
-            //console.log("Addition image is..>>",image?.path);
+            setLoader(true);
             setImage(image?.path)
             const formData = new FormData();
             formData.append('item_image', { type: image.mime, uri: image.path, name: image.path.split("/").pop() });
@@ -224,11 +224,12 @@ const AssetAddition = ({ navigation }) => {
                 }else{
                     alert("Your asset image not uploaded")
                 }
-    
+                setLoader(false);
             }).catch(e => {
+                setLoader(false);
                 Alert.alert(
-                    "Warning",
-                    "Somthing went wrong, Try Again",
+                    "File not uploaded",
+                    "Server might be busy, please upload the file again!",
                     [
                         { text: "OK" }
                     ]
@@ -236,11 +237,10 @@ const AssetAddition = ({ navigation }) => {
             });
 
         });
-        setLoader(false);
     }
 
     const instructionAssets = async () => {
-        
+    
         try {
             const res = await DocumentPicker.pick({
               // Provide which type of file you want user to pick
@@ -255,11 +255,11 @@ const AssetAddition = ({ navigation }) => {
             
             if(res.length > 0 ){
                 
+                setLoader(true);
+
                 let formData = new FormData();
                 let filedata = JSON.parse(JSON.stringify(res))[0];
                 formData.append('item_image', { type: filedata.type, uri: filedata.uri, name: filedata.name.split("/").pop() });
-
-                setLoader(true);
 
                 axios({
                     url: `${API_BASE_URL}item_image`,
@@ -277,11 +277,14 @@ const AssetAddition = ({ navigation }) => {
                     }else{
                         alert("File Not Uploaded")
                     }
+
                     setLoader(false);
+                    
                 }).catch(e => {
+                    setLoader(false);
                     Alert.alert(
-                        "Warning",
-                        "Somthing went wrong, Try Again",
+                        "File not uploaded",
+                        "Server might be busy, please upload the file again!",
                         [
                             { text: "OK" }
                         ]
@@ -290,7 +293,7 @@ const AssetAddition = ({ navigation }) => {
             }
             
         } catch (err) {
-            setLoader(true);
+           
             setInstructionImageName('');
 
             if (DocumentPicker.isCancel(err)) {
@@ -299,7 +302,6 @@ const AssetAddition = ({ navigation }) => {
               alert('Unknown Error: ' + JSON.stringify(err));
               throw err;
             }
-            setLoader(false);
         }
         
     };
