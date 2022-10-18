@@ -74,7 +74,8 @@ const styles = StyleSheet.create({
     bottom: 0,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F5FCFF88'
+    backgroundColor: '#F5FCFF88',
+    zIndex: 1
 }
   
 });
@@ -155,7 +156,7 @@ const DocumentAddition = ({ navigation }) => {
             });
             setLoader(true);
             if(res.length > 0 ){
-
+              setLoader(true);
                 let formData = new FormData();
                 let filedata = JSON.parse(JSON.stringify(res))[0];
                 formData.append('item_image', { type: filedata.type, uri: filedata.uri, name: filedata.name.split("/").pop() });
@@ -173,10 +174,17 @@ const DocumentAddition = ({ navigation }) => {
                     if(response?.data?.status==1){
                         setDocument(response?.data?.picture)
                         alert("File Uploaded");
+                    }else if(response?.data?.status==2){
+                      let msg = response?.data?.message;
+                      let regex = /(<([^>]+)>)/ig;
+                      let fls_msg = msg.replace(regex, '');
+                      alert(fls_msg);
                     }else{
                         alert("File Not Uploaded")
                     }
+                    setLoader(false);
                 }).catch(e => {
+                    setLoader(false);
                     Alert.alert(
                         "Warning",
                         "Somthing went wrong, Try Again",
@@ -186,7 +194,6 @@ const DocumentAddition = ({ navigation }) => {
                     );
                 });
             }
-            setLoader(false);
         } catch (err) {
 
             setLoader(true);
@@ -260,6 +267,7 @@ const DocumentAddition = ({ navigation }) => {
   const openLocalDatePkr = () => {
     setDateOpen(true)
   };
+
   return (
     <View style={{ flex: 1, marginTop: 20 }}>
       {loader ? <View style={styles.loading}><ActivityIndicator size={50}></ActivityIndicator></View> : null }
@@ -377,6 +385,7 @@ const DocumentAddition = ({ navigation }) => {
           <TouchableOpacity style={{ marginLeft: 30, marginRight: 30, marginTop: 10, marginBottom: 20, alignItems: 'center', borderWidth: 1, borderRadius: 5, paddingTop: 20, paddingBottom: 20, paddingLeft: 20, paddingRight: 20, borderColor: '#DDD' }} onPress={() => AddDocumentFile()}>
             <Text>Allegato</Text>
             <Ionicons name="document-text" color='#04487b' size={28}></Ionicons>
+            <Text style={{ fontSize: 12, color:'red'}}>JPG, PNG, PDF, DOCX, XLS: 5MB</Text>
           </TouchableOpacity>
         </View>
         {userType == 99 ?<>

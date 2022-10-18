@@ -235,6 +235,11 @@ const AssetsEditing = ({ navigation ,route}) => {
                 if(res?.data?.status==1){
                     setAssetImageName(res?.data?.picture)
                     alert("Image Uploaded")
+                }else if(res?.data?.status==2){
+                    let msg = res?.data?.message;
+                    let regex = /(<([^>]+)>)/ig;
+                    let fls_msg = msg.replace(regex, '');
+                    alert(fls_msg);
                 }else{
                     alert("Image not uploaded")
                 }
@@ -283,6 +288,11 @@ const AssetsEditing = ({ navigation ,route}) => {
                     if(response?.data?.status==1){
                         setAssetFileName(response?.data?.picture)
                         alert("File Uploaded");
+                    }else if(response?.data?.status==2){
+                        let msg = response?.data?.message;
+                        let regex = /(<([^>]+)>)/ig;
+                        let fls_msg = msg.replace(regex, '');
+                        alert(fls_msg);
                     }else{
                         alert("File Not Uploaded")
                     }
@@ -768,10 +778,12 @@ const AssetsEditing = ({ navigation ,route}) => {
                         <TouchableOpacity style={{ marginLeft: 20, marginTop: 10, marginBottom: 20, alignItems: 'center', borderWidth: 1, borderRadius: 5, paddingTop: 20, paddingBottom: 20, paddingLeft: 10, paddingRight: 10, borderColor: '#DDD' }} onPress={()=>assestImage()}>
                             <Text>Immagine</Text>
                             <Ionicons name="camera" color='#04487b' size={28}></Ionicons>
+                            <Text style={{ fontSize: 12, color:'red'}}>JPG, PNG: 5MB</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={{ marginLeft: 20, marginTop: 10, marginBottom: 20, alignItems: 'center', borderWidth: 1, borderRadius: 5, paddingTop: 20, paddingBottom: 20, paddingLeft: 10, paddingRight: 10, borderColor: '#DDD' }} onPress={()=>instructionAssets()}>
                             <Text>Istruzioni</Text>
                             <Ionicons name="document-text" color='#04487b' size={28}></Ionicons>
+                            <Text style={{ fontSize: 12, color:'red'}}>PDF, DOCX, XLS: 5MB</Text>
                         </TouchableOpacity>
                     </View>
                     <View style={{flexDirection:'row', justifyContent:'space-evenly', marginBottom: 20 }}>
@@ -832,7 +844,8 @@ const styles = StyleSheet.create({
         bottom: 0,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#F5FCFF88'
+        backgroundColor: '#F5FCFF88',
+        zIndex: 1
     }
 });
 export default AssetsEditing;
