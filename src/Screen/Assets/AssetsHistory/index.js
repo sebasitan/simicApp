@@ -29,6 +29,7 @@ const ItemSeparatorView = () => {
                       <Text style={{ fontSize: 12 }}><Title style={{ fontSize: 12, color: 'black', lineHeight: 20 }}>Nome posizione: </Title>{item.location_name}</Text>
                       <Text style={{ fontSize: 12 }}><Title style={{ fontSize: 12, color: 'black', lineHeight: 20}}>Stato: </Title>{item.status_description}</Text>
                       <Text style={{ fontSize: 12 }}><Title style={{ fontSize: 12, color: 'black', lineHeight: 20}}>Creata il: </Title>{item.date}</Text>
+                      <Text style={{ fontSize: 12 }}><Title style={{ fontSize: 12, color: 'black', lineHeight: 20 }}>Username: </Title>{item.user_name}</Text>
                   </View>
               </View>
           </View>

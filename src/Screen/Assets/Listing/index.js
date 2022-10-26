@@ -245,19 +245,22 @@ const AssetsListing = ({ navigation }) => {
               itemid: item.item_id,
               userid: userToken
             })
-            } style={{ flexDirection: 'row' }}>
+            } style={{ flexDirection: 'row', marginRight: 5, marginLeft: 5 }}>
               <Ionicons name="eye-outline" color='#04487b' size={16}></Ionicons><Text style={{ marginLeft: 4, color: '#04487b', fontSize: 13 }}>Visualizzazione</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() =>
-              navigation.navigate('AssetsEditing', {
-                item:item
-              })
-            } style={{ flexDirection: 'row', marginLeft: 13, marginRight: 13 }}>
-              <Ionicons name="ios-create-outline" color='#ff8c00' size={16}></Ionicons><Text style={{ marginLeft: 0, color: '#ff8c00', fontSize: 13 }}>Modifica</Text>
-            </TouchableOpacity>
+            { item.status != 0 ? <>
+              <TouchableOpacity onPress={() =>
+                  navigation.navigate('AssetsEditing', {
+                    item:item
+                  })
+                } style={{ flexDirection: 'row', marginLeft: 5, marginRight: 5 }}>
+                  <Ionicons name="ios-create-outline" color='#ff8c00' size={16}></Ionicons><Text style={{ marginLeft: 0, color: '#ff8c00', fontSize: 13 }}>Modifica</Text>
+                </TouchableOpacity>
+            </> : null }
+            
             { userData != null && userData.user_role != 3 ? 
               <>
-                <TouchableOpacity onPress={() => deleteAsset(item?.item_id)} style={{ flexDirection: 'row' }}>
+                <TouchableOpacity onPress={() => deleteAsset(item?.item_id)} style={{ flexDirection: 'row', marginRight: 5, marginLeft: 5 }}>
                   <Ionicons name="ios-trash-outline" color='#B31817' size={16}></Ionicons><Text style={{ marginLeft: 0, color: '#B31817', fontSize: 13 }}>Cancella</Text>
                 </TouchableOpacity>
               </> : null }
@@ -301,24 +304,34 @@ const AssetsListing = ({ navigation }) => {
     <View style={styles.container}>
       <StatusBar backgroundColor='#04487b' hidden={false} />
         <View style={{ flex: 1, marginTop: 20 }}>
-            { userData != null && userData.user_role != 3 ? 
-            <>
-                <View style={{ alignSelf: 'flex-end'}}>
-                  <TouchableOpacity style={{ flexDirection: 'row', backgroundColor: '#B31817', paddingBottom: 5, paddingTop: 5, paddingLeft: 5, paddingRight: 5, marginBottom: 10 }} onPress={() => 
-                      navigation.navigate('AssetTrash')
-                    }>
-                    <Ionicons name="ios-trash-outline" color='#FFF' size={16}></Ionicons><Text style={{ marginLeft: 0, color: '#FFF', fontSize: 13 }}>Trash</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
+              { userData != null && userData.user_role != 3 ? 
+                <>
+                  <TouchableOpacity onPress={() => AddAssets()} style={{ marginTop: -10}}><Ionicons name="add-circle-sharp" color='#B31817' size={45}></Ionicons>
                   </TouchableOpacity>
-                </View>
+                </> : null }
+                <TouchableOpacity onPress={() => ScanAssets()} style={{ alignItems: 'center', flex: 1 }}><Ionicons name="ios-qr-code-outline" color='#B31817' size={30}></Ionicons>
+                </TouchableOpacity>
+              { userData != null && userData.user_role != 3 ? 
+                <>
+                    <View style={{ alignSelf: 'flex-end'}}>
+                      <TouchableOpacity style={{ flexDirection: 'row', backgroundColor: '#B31817', paddingBottom: 5, paddingTop: 5, paddingLeft: 5, paddingRight: 5, marginBottom: 10 }} onPress={() => 
+                          navigation.navigate('AssetTrash')
+                        }>
+                        <Ionicons name="ios-trash-outline" color='#FFF' size={16}></Ionicons><Text style={{ marginLeft: 0, color: '#FFF', fontSize: 13 }}>Trash</Text>
+                      </TouchableOpacity>
+                    </View>
+                
+                </> : null }
+          </View>
             
-            </> : null }
-              <TextInput
-                placeholder="Cerca qui..."
-                style={[styles.textInputStyle, styles.fontRegular]}
-                underlineColorAndroid="transparent"
-                value={search}
-                onChangeText={(text) => searchFilterFunction(text)}
-              />
+          <TextInput
+            placeholder="Cerca qui..."
+            style={[styles.textInputStyle, styles.fontRegular]}
+            underlineColorAndroid="transparent"
+            value={search}
+            onChangeText={(text) => searchFilterFunction(text)}
+          />
           { totalItems === 0 ? <NoDataFound title={"No Data Found"}/> : 
             <>
               { isLoading ? <View style={styles.loading}><ActivityIndicator size={50}/></View> : 
@@ -349,21 +362,6 @@ const AssetsListing = ({ navigation }) => {
               
             </> 
           }
-    
-          <View style={{ flex: 1 }}>
-              <View style={{ position: 'absolute', bottom: 80, right: 10, alignSelf: 'flex-end' }}>
-                <TouchableOpacity onPress={() => ScanAssets()}><Ionicons name="ios-qr-code-outline" color='#B31817' size={30}></Ionicons>
-                </TouchableOpacity>
-              </View>
-              { userData != null && userData.user_role != 3 ? 
-                <>
-                  <View style={{ position: 'absolute', bottom: 20, alignSelf: 'flex-end' }}>
-                    <TouchableOpacity onPress={() => AddAssets()}><Ionicons name="add-circle-sharp" color='#B31817' size={45}></Ionicons>
-                    </TouchableOpacity>
-                  </View>
-                </> : null }
-              
-          </View>
       </View>
     </View>
   );

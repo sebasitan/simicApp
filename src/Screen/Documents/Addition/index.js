@@ -280,7 +280,7 @@ const DocumentAddition = ({ navigation }) => {
             inputSearchStyle={styles.inputSearchStyle}
             iconStyle={styles.iconStyle}
             data={documentList}
-            maxHeight={200}
+            maxHeight={400}
             search
             labelField="label"
             valueField="value"
@@ -397,7 +397,7 @@ const DocumentAddition = ({ navigation }) => {
             inputSearchStyle={styles.inputSearchStyle}
             iconStyle={styles.iconStyle}
             data={companyList}
-            maxHeight={200}
+            maxHeight={400}
             search
             labelField="label"
             valueField="value"

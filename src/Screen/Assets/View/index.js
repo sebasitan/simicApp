@@ -7,7 +7,8 @@ import {
   Image,
   TouchableOpacity,
   ActivityIndicator,
-  PermissionsAndroid
+  PermissionsAndroid,
+  ScrollView
 } from 'react-native';
 import {
     Title,
@@ -19,6 +20,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { API_BASE_URL } from '../../../Services/url';
 import RNFetchBlob from 'rn-fetch-blob';
+import * as Utility from '../../../Utility/inbdex';
 
 const AssetViewScreen = ({route, navigation}) => {
   const [itemId, setItemId] = useState(route?.params?.itemid);
@@ -29,6 +31,7 @@ const AssetViewScreen = ({route, navigation}) => {
   const [assetsHistorys,setAssetsHistory]=React.useState([])
   const [assetsMaintainces,setAssetsMaintainces]=React.useState([])
   const [bookingHistory,setBookingHistory]=React.useState([]);
+  const [userRole, setUserRole] = React.useState(null);
 
   var fileImg = '../../../assets/images/file.png';
 
@@ -36,11 +39,17 @@ const AssetViewScreen = ({route, navigation}) => {
       (
         async() => {
           if(userId !='' && itemId !=''){
+            getUserInfomation();
             getItemDetials();
           }
         }
       ) ();
   },[]);
+
+  const getUserInfomation = async () =>{
+      let userdata = await Utility.getFromLocalStorge('userData');
+      setUserRole(userdata?.user_role);
+  };
 
   const getItemDetials=()=>{
     setLoader(true);
@@ -170,8 +179,10 @@ const AssetViewScreen = ({route, navigation}) => {
       // To get the file extension
       return /[.]/.exec(fileUrl) ? /[^.]+$/.exec(fileUrl) : undefined;
   };
-    return(
-          <View style={[ styles.container ]}>
+
+  return(
+      <ScrollView>
+        <View style={[ styles.container ]}>
             {loader?
             <ActivityIndicator size={50}/>:null}
             <View style={{ marginTop: 20 }}>
@@ -221,6 +232,14 @@ const AssetViewScreen = ({route, navigation}) => {
                   </TouchableOpacity>
                 </> : null }
               </View>
+              <TouchableOpacity onPress={() =>
+                navigation.navigate('AssetsEditing', {
+                  item:itemDetails
+                })
+              } style={{  backgroundColor: '#B31817', justifyContent: 'center', alignItems: 'center', paddingTop: 10, paddingBottom: 10, marginTop: 10, flex: 1, flexDirection: 'row' }}>
+                <Ionicons name="ios-create-outline" color='#FFFFFF' size={20}></Ionicons>
+                <Text style={{ marginLeft: 0, color: '#FFFFFF', fontSize: 13 }}>PRELEVA - DEPOSITA</Text>
+            </TouchableOpacity>
               <TouchableOpacity style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#DDD', paddingBottom: 15, paddingTop: 15, alignContent:'space-between', backgroundColor: '#FFF', marginLeft: -15, marginRight: -15, marginTop: 15, paddingLeft: 15, paddingRight: 15 }} onPress={() =>assetsHistory(assetsHistorys) }>
                   <View style={{ flex: 1, flexDirection: 'row', alignSelf: 'flex-start'}}>
                     <Ionicons name="library-outline" size={25} color='#333'style={{alignSelf: 'flex-start'}}/>
@@ -235,16 +254,19 @@ const AssetViewScreen = ({route, navigation}) => {
                   </View>
                   <Ionicons name="ios-chevron-forward-sharp" size={25} color='#777'/>
               </TouchableOpacity>
-              <TouchableOpacity style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#DDD', paddingBottom: 15, paddingTop: 15, alignContent:'space-between', backgroundColor: '#FFF', marginLeft: -15, marginRight: -15, marginTop: 0, paddingLeft: 15, paddingRight: 15, marginBottom: -15 }} onPress={() =>assetsMantiance(assetsMaintainces,itemId)} >
-                  <View style={{ flex: 1, flexDirection: 'row', alignSelf: 'flex-start'}}>
-                    <Ionicons name="construct-outline" size={25} color='#333'style={{alignSelf: 'flex-start'}}/>
-                    <Paragraph style={[styles.fontFamily, { marginLeft: 10 } ]}>Manutenzione</Paragraph>
-                  </View>
-                  <Ionicons name="ios-chevron-forward-sharp" size={25} color='#777'/>
-              </TouchableOpacity>
+              { userRole != null && userRole != 3 ? <> 
+                  <TouchableOpacity style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#DDD', paddingBottom: 15, paddingTop: 15, alignContent:'space-between', backgroundColor: '#FFF', marginLeft: -15, marginRight: -15, marginTop: 0, paddingLeft: 15, paddingRight: 15, marginBottom: -15 }} onPress={() =>assetsMantiance(assetsMaintainces,itemId)} >
+                    <View style={{ flex: 1, flexDirection: 'row', alignSelf: 'flex-start'}}>
+                      <Ionicons name="construct-outline" size={25} color='#333'style={{alignSelf: 'flex-start'}}/>
+                      <Paragraph style={[styles.fontFamily, { marginLeft: 10 } ]}>Manutenzione</Paragraph>
+                    </View>
+                    <Ionicons name="ios-chevron-forward-sharp" size={25} color='#777'/>
+                </TouchableOpacity>
+              </> : null }
             </View>
           </View>
         </View>
+      </ScrollView>
     );
     
 };

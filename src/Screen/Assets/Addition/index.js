@@ -423,7 +423,7 @@ const AssetAddition = ({ navigation }) => {
                         inputSearchStyle={styles.inputSearchStyle}
                         iconStyle={styles.iconStyle}
                         data={categoryList}
-                        maxHeight={200}
+                        maxHeight={400}
                         search
                         labelField="label"
                         valueField="value"
@@ -446,7 +446,7 @@ const AssetAddition = ({ navigation }) => {
                         inputSearchStyle={styles.inputSearchStyle}
                         iconStyle={styles.iconStyle}
                         data={subCategoriesList}
-                        maxHeight={200}
+                        maxHeight={400}
                         search
                         labelField="label"
                         valueField="value"
@@ -467,7 +467,7 @@ const AssetAddition = ({ navigation }) => {
                         inputSearchStyle={styles.inputSearchStyle}
                         iconStyle={styles.iconStyle}
                         data={childsubCategoriesList}
-                        maxHeight={200}
+                        maxHeight={400}
                         search
                         labelField="label"
                         valueField="value"
@@ -487,7 +487,7 @@ const AssetAddition = ({ navigation }) => {
                         inputSearchStyle={styles.inputSearchStyle}
                         iconStyle={styles.iconStyle}
                         data={assestsStatusList}
-                        maxHeight={200}
+                        maxHeight={400}
                         search
                         labelField="label"
                         valueField="value"
@@ -507,7 +507,7 @@ const AssetAddition = ({ navigation }) => {
                         inputSearchStyle={styles.inputSearchStyle}
                         iconStyle={styles.iconStyle}
                         data={locationList}
-                        maxHeight={200}
+                        maxHeight={400}
                         search
                         labelField="label"
                         valueField="value"

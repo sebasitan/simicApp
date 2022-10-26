@@ -328,7 +328,7 @@ const getFileExtention = fileUrl => {
             inputSearchStyle={styles.inputSearchStyle}
             iconStyle={styles.iconStyle}
             data={documentList}
-            maxHeight={200}
+            maxHeight={400}
             search
             value={documentid}
             labelField="label"

@@ -542,19 +542,10 @@ const AssetsEditing = ({ navigation ,route}) => {
     return (
         <View style={{ flex: 1 }}>
             <ScrollView>
-            {loader ? <View style={styles.loading}><ActivityIndicator size={50}></ActivityIndicator></View> : null }
-                <View style={styles.inputConatiner}>
-                    {userRole == 3 ? <>
-                        <TextInput
-                            style={{ height: 40, marginLeft: 10 }}
-                            placeholder="Nome articolo"
-                            value={name}
-                            placeholderTextColor="black"
-                            onChangeText={newText => setName(newText)}
-                            editable={false}
-                            selectTextOnFocus={false}
-                        />
-                    </> : <>
+                {loader ? <View style={styles.loading}><ActivityIndicator size={50}></ActivityIndicator></View> : null }
+                
+                { userRole == 3 ? null : <>
+                    <View style={styles.inputConatiner}>
                         <TextInput
                             style={{ height: 40, marginLeft: 10 }}
                             placeholder="Nome articolo"
@@ -562,53 +553,24 @@ const AssetsEditing = ({ navigation ,route}) => {
                             placeholderTextColor="black"
                             onChangeText={newText => setName(newText)}
                         />
-                    </>}
-                </View>
-                <View style={styles.inputConatiner}>
-                    {userRole == 3 ? <>
+                    </View>
+                    
+                </> }
+                
+                {userRole == 3 ? null : <>
+                    <View style={styles.inputConatiner}>
                         <TextInput
                             style={{ height: 40, marginLeft: 10 }}
                             placeholder="Descrizione"
                             value={description}
                             placeholderTextColor="black"
                             onChangeText={newText => setDrescription(newText)}
-                            editable={false}
-                            selectTextOnFocus={false}
                         />
-                    </> : <>
-                    <TextInput
-                            style={{ height: 40, marginLeft: 10 }}
-                            placeholder="Descrizione"
-                            value={description}
-                            placeholderTextColor="black"
-                            onChangeText={newText => setDrescription(newText)}
-                        />
-                    </> }
-                </View>
-                <View style={styles.inputConatiner}>
-                    {userRole == 3 ? <>
-                        <Dropdown
-                            style={{ marginLeft: 10 }}
-                            //placeholderStyle={{ color: 'black' }}
-                            //selectedTextStyle={{ color: 'black' }}
-                            inputSearchStyle={styles.inputSearchStyle}
-                            iconStyle={styles.iconStyle}
-                            data={categoryList}
-                            maxHeight={200}
-                            value={categoryName}
-                            search
-                            labelField="label"
-                            valueField="value"
-                            placeholder="Categorie"
-                            searchPlaceholder="Search..."
-                            onChange={item => {
-                                callSubCategoryApi(item?.value);
-                                setCategoryName(item?.value);
-                                setStato(item)
-                            }}
-                            disable={true}
-                        />
-                    </> : <>
+                    </View>
+                </> }
+                
+                { userRole == 3 ? null : <>
+                    <View style={styles.inputConatiner}>
                         <Dropdown
                             style={{ marginLeft: 10 }}
                             placeholderStyle={{ color: 'black' }}
@@ -616,7 +578,7 @@ const AssetsEditing = ({ navigation ,route}) => {
                             inputSearchStyle={styles.inputSearchStyle}
                             iconStyle={styles.iconStyle}
                             data={categoryList}
-                            maxHeight={200}
+                            maxHeight={400}
                             value={categoryName}
                             search
                             labelField="label"
@@ -629,32 +591,11 @@ const AssetsEditing = ({ navigation ,route}) => {
                                 setStato(item)
                             }}
                         />
-                    </>}
-                </View>
-                <View style={styles.inputConatiner}>
-                    {userRole == 3 ? <>
-                        <Dropdown
-                            style={{ marginLeft: 10 }}
-                            //placeholderStyle={{ color: 'black' }}
-                            //selectedTextStyle={{ color: 'black' }}
-                            inputSearchStyle={styles.inputSearchStyle}
-                            iconStyle={styles.iconStyle}
-                            data={subCategoriesList}
-                            maxHeight={200}
-                            value={subCategoryName}
-                            search
-                            labelField="label"
-                            valueField="value"
-                            placeholder="Categorie"
-                            searchPlaceholder="Search..."
-                            onChange={item => {
-                                callChildCategoryApi(item?.value);
-                                setSubCategoryName(item?.value);
-                                setStato(item)
-                            }}
-                            disable={true}
-                        />
-                    </> : <>
+                    </View>
+                </> }
+                
+                { userRole == 3 ? null : <>
+                    <View style={styles.inputConatiner}>
                         <Dropdown
                             style={{ marginLeft: 10 }}
                             placeholderStyle={{ color: 'black' }}
@@ -662,7 +603,7 @@ const AssetsEditing = ({ navigation ,route}) => {
                             inputSearchStyle={styles.inputSearchStyle}
                             iconStyle={styles.iconStyle}
                             data={subCategoriesList}
-                            maxHeight={200}
+                            maxHeight={400}
                             value={subCategoryName}
                             search
                             labelField="label"
@@ -675,31 +616,11 @@ const AssetsEditing = ({ navigation ,route}) => {
                                 setStato(item)
                             }}
                         />
-                    </> }
-                </View>
-                <View style={styles.inputConatiner}>
-                    {userRole == 3 ? <>
-                        <Dropdown
-                            style={{ marginLeft: 10 }}
-                            //placeholderStyle={{ color: 'black' }}
-                            //selectedTextStyle={{ color: 'white' }}
-                            inputSearchStyle={styles.inputSearchStyle}
-                            iconStyle={styles.iconStyle}
-                            data={childCategoriesList}
-                            value={childCategoryName}
-                            maxHeight={200}
-                            search
-                            labelField="label"
-                            valueField="value"
-                            placeholder="Terza categoria"
-                            searchPlaceholder="Search..."
-                            onChange={item => {
-                                setChildCategoryName(item?.value);
-                                setStato(item)
-                            }}
-                            disable={true}
-                        />
-                    </> : <>
+                    </View>
+                </> }
+
+                { userRole == 3 ? null : <>
+                    <View style={styles.inputConatiner}>
                         <Dropdown
                             style={{ marginLeft: 10 }}
                             placeholderStyle={{ color: 'black' }}
@@ -708,7 +629,7 @@ const AssetsEditing = ({ navigation ,route}) => {
                             iconStyle={styles.iconStyle}
                             data={childCategoriesList}
                             value={childCategoryName}
-                            maxHeight={200}
+                            maxHeight={400}
                             search
                             labelField="label"
                             valueField="value"
@@ -719,8 +640,10 @@ const AssetsEditing = ({ navigation ,route}) => {
                                 setStato(item)
                             }}
                         />
-                    </> }
-                </View>
+                    </View>
+                    
+                </> }
+
                 <View style={styles.inputConatiner}>
                     <Dropdown
                         style={{ marginLeft: 10 }}
@@ -729,7 +652,7 @@ const AssetsEditing = ({ navigation ,route}) => {
                         inputSearchStyle={styles.inputSearchStyle}
                         iconStyle={styles.iconStyle}
                         data={assestsStatusList}
-                        maxHeight={200}
+                        maxHeight={400}
                         search
                         labelField="label"
                         valueField="value"
@@ -742,6 +665,7 @@ const AssetsEditing = ({ navigation ,route}) => {
                         }}
                     />
                 </View>
+
                 <View style={styles.inputConatiner}>
                     <Dropdown
                         style={{ marginLeft: 10 }}
@@ -750,7 +674,7 @@ const AssetsEditing = ({ navigation ,route}) => {
                         inputSearchStyle={styles.inputSearchStyle}
                         iconStyle={styles.iconStyle}
                         data={locationList}
-                        maxHeight={200}
+                        maxHeight={400}
                         search
                         value={locationName}
                         labelField="label"
@@ -763,16 +687,17 @@ const AssetsEditing = ({ navigation ,route}) => {
                         }}
                     />
                 </View>
+
                 <View style={styles.inputConatiner}>
                     <TextInput
                         style={{ height: 80, marginLeft: 10 }}
-                        // numberOfLines="5"
                         placeholder="Notes"
                         value={notes}
                         placeholderTextColor="black"
                         onChangeText={newText => setNotes(newText)}
                     />
                 </View>
+
                 {userRole == 3 ? null : <>
                     <View style={{flexDirection:'row',justifyContent:'space-evenly'}}>
                         <TouchableOpacity style={{ marginLeft: 20, marginTop: 10, marginBottom: 20, alignItems: 'center', borderWidth: 1, borderRadius: 5, paddingTop: 20, paddingBottom: 20, paddingLeft: 10, paddingRight: 10, borderColor: '#DDD' }} onPress={()=>assestImage()}>
@@ -800,8 +725,9 @@ const AssetsEditing = ({ navigation ,route}) => {
                         
                     </View>
                 </> }
-                <View style={{ alignSelf: 'center', width: '60%',marginTop:10,marginBottom:20 }}>
-                    <Button title='Save' onPress={assetsEdit} color="#04487b" />
+                
+                <View style={{ alignSelf:'center', width:'60%', marginTop: 10,marginBottom:20 }}>
+                    <Button title='Save' onPress={assetsEdit} color="#04487b"/>
                 </View>
             </ScrollView>
         </View>
@@ -814,7 +740,7 @@ const styles = StyleSheet.create({
         paddingLeft: 15,
         paddingRight: 15,
     },
-    inputConatiner: { borderWidth: 1, alignSelf: 'center', width: '90%', margin: 10, borderRadius: 5,padding:5 },
+    inputConatiner: { borderWidth: 1, alignSelf: 'center', width: '90%', margin: 10, borderRadius: 5,padding: 5 },
     itemStyle: {
         padding: 10,
     },
