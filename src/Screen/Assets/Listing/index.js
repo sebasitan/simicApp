@@ -256,14 +256,15 @@ const AssetsListing = ({ navigation }) => {
                 } style={{ flexDirection: 'row', marginLeft: 5, marginRight: 5 }}>
                   <Ionicons name="ios-create-outline" color='#ff8c00' size={16}></Ionicons><Text style={{ marginLeft: 0, color: '#ff8c00', fontSize: 13 }}>Modifica</Text>
                 </TouchableOpacity>
+                { userData != null && userData.user_role != 3 ? 
+                <>
+                  <TouchableOpacity onPress={() => deleteAsset(item?.item_id)} style={{ flexDirection: 'row', marginRight: 5, marginLeft: 5 }}>
+                    <Ionicons name="ios-trash-outline" color='#B31817' size={16}></Ionicons><Text style={{ marginLeft: 0, color: '#B31817', fontSize: 13 }}>Cancella</Text>
+                  </TouchableOpacity>
+                </> : null }
             </> : null }
             
-            { userData != null && userData.user_role != 3 ? 
-              <>
-                <TouchableOpacity onPress={() => deleteAsset(item?.item_id)} style={{ flexDirection: 'row', marginRight: 5, marginLeft: 5 }}>
-                  <Ionicons name="ios-trash-outline" color='#B31817' size={16}></Ionicons><Text style={{ marginLeft: 0, color: '#B31817', fontSize: 13 }}>Cancella</Text>
-                </TouchableOpacity>
-              </> : null }
+            
           </View>
         </View>
         </TouchableOpacity>

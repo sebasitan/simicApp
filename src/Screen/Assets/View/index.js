@@ -179,7 +179,7 @@ const AssetViewScreen = ({route, navigation}) => {
       // To get the file extension
       return /[.]/.exec(fileUrl) ? /[^.]+$/.exec(fileUrl) : undefined;
   };
-
+  
   return(
       <ScrollView>
         <View style={[ styles.container ]}>
@@ -232,14 +232,17 @@ const AssetViewScreen = ({route, navigation}) => {
                   </TouchableOpacity>
                 </> : null }
               </View>
-              <TouchableOpacity onPress={() =>
-                navigation.navigate('AssetsEditing', {
-                  item:itemDetails
-                })
-              } style={{  backgroundColor: '#B31817', justifyContent: 'center', alignItems: 'center', paddingTop: 10, paddingBottom: 10, marginTop: 10, flex: 1, flexDirection: 'row' }}>
-                <Ionicons name="ios-create-outline" color='#FFFFFF' size={20}></Ionicons>
-                <Text style={{ marginLeft: 0, color: '#FFFFFF', fontSize: 13 }}>PRELEVA - DEPOSITA</Text>
-            </TouchableOpacity>
+              { itemDetails.status != 0 ? <>
+                <TouchableOpacity onPress={() =>
+                    navigation.navigate('AssetsEditing', {
+                      item:itemDetails
+                    })
+                  } style={{  backgroundColor: '#B31817', justifyContent: 'center', alignItems: 'center', paddingTop: 10, paddingBottom: 10, marginTop: 10, flex: 1, flexDirection: 'row' }}>
+                    <Ionicons name="ios-create-outline" color='#FFFFFF' size={20}></Ionicons>
+                    <Text style={{ marginLeft: 0, color: '#FFFFFF', fontSize: 13 }}>PRELEVA - DEPOSITA</Text>
+                </TouchableOpacity>
+              </> : null }
+              
               <TouchableOpacity style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#DDD', paddingBottom: 15, paddingTop: 15, alignContent:'space-between', backgroundColor: '#FFF', marginLeft: -15, marginRight: -15, marginTop: 15, paddingLeft: 15, paddingRight: 15 }} onPress={() =>assetsHistory(assetsHistorys) }>
                   <View style={{ flex: 1, flexDirection: 'row', alignSelf: 'flex-start'}}>
                     <Ionicons name="library-outline" size={25} color='#333'style={{alignSelf: 'flex-start'}}/>
