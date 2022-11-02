@@ -13,6 +13,7 @@ import * as Utility from '../../Utility/inbdex';
 import { API_BASE_URL } from '../../Services/url';
 
 import QRCodeScanner from 'react-native-qrcode-scanner';
+
 import { RNCamera } from 'react-native-camera';
 
 const QRCodeScreen = ({navigation, route}) => {
@@ -55,10 +56,15 @@ const QRCodeScreen = ({navigation, route}) => {
                         itemid: itemId,
                         userid: userId
                     });
+                }else if(res?.data?.status == 0){
+                    let qr_code = res?.data?.qr_code;
+                    navigation.navigate('QRCodeNotFound', {
+                      qr_code: qr_code,
+                    });
                 }else{
                     Alert.alert(
                         "Warning",
-                        res?.data?.message,
+                        "Somthing went wrong, Try Again",
                         [
                           { text: "OK" }
                         ]
