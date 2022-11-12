@@ -24,6 +24,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { API_BASE_URL } from '../../../Services/url';
 import * as Utility from '../../../Utility/inbdex';
 import NoDataFound from '../../../Component/NoDataFound';
+import { red500 } from 'react-native-paper/lib/typescript/styles/colors';
 
 const AssetsListing = ({ navigation }) => {
   const [userToken, setUserToken] = React.useState(null);
@@ -183,8 +184,9 @@ const AssetsListing = ({ navigation }) => {
             'Content-Type': 'multipart/form-data',
           },
         }).then(res => {
-          if (res.data.status == 1) {
-            let item_list = JSON.stringify(res.data.item_list);
+          //console.log(res?.data?.item_list);
+          if (res?.data?.status == 1) {
+            let item_list = JSON.stringify(res?.data?.item_list);
             let itemjson = JSON.parse(item_list);
             if(itemjson !=''){
               setfilterItemData(itemjson);
@@ -235,7 +237,17 @@ const AssetsListing = ({ navigation }) => {
               <View style={{ flex: 1, flexDirection: 'column' }}>
                 <Title style={[styles.fontMedium, { fontSize: 15, marginBottom: 0, lineHeight: 20, color: 'black' }]}>{item.item_name}</Title>
                 <Paragraph style={[styles.fontRegular, { fontSize: 12, lineHeight: 20, marginBottom: 0 }]}>{item.location_name}</Paragraph>
-                <Text style={[ styles.fontRegular, { fontSize: 12, backgroundColor: item.status_colour, paddingLeft: 10, paddingRight: 10, color: 'white', width: 100, flexDirection: 'row', paddingTop: 5, paddingBottom: 5, marginTop: 5 }]}>{item?.status_id}</Text>
+                <View style={{ flexDirection: 'row' }}>
+                  <Text style={[ styles.fontRegular, { fontSize: 10, backgroundColor: item.status_colour, paddingLeft: 10, paddingRight: 10, color: 'white', paddingTop: 5, paddingBottom: 5, marginTop: 5, marginRight: 3 }]}>{item?.status_id}</Text>
+                  { item.asset_status_item == 0 ? <> 
+                    <Text style={[ styles.fontRegular, { fontSize: 10, backgroundColor: '#009688', paddingLeft: 10, paddingRight: 10, color: 'white', paddingTop: 5, paddingBottom: 5, marginTop: 5, marginLeft:3, marginRight: 3 }]}>Non attivo</Text>
+                  </> : null }
+                  { item?.book_upcoming !='' ? <> 
+                      <TouchableOpacity onPress={() => navigation.navigate('AssetUpcomingDates', { item:item?.book_upcoming} ) } style={{  fontSize: 10, backgroundColor: '#c568d5', paddingLeft: 10, paddingRight: 10, color: 'white', paddingTop: 5, paddingBottom: 5, marginTop: 5, marginLeft:3, marginRight: 3 }}>
+                          <Text style={{ color: '#FFFFFF', fontSize: 10 }}>Prenotazioni Attive</Text>
+                      </TouchableOpacity>
+                  </> : null }
+                </View>
               </View>
             </View>
           </View>
@@ -248,14 +260,16 @@ const AssetsListing = ({ navigation }) => {
             } style={{ flexDirection: 'row', marginRight: 5, marginLeft: 5 }}>
               <Ionicons name="eye-outline" color='#04487b' size={16}></Ionicons><Text style={{ marginLeft: 4, color: '#04487b', fontSize: 13 }}>Visualizzazione</Text>
             </TouchableOpacity>
-            { item.status != 0 ? <>
-              <TouchableOpacity onPress={() =>
-                  navigation.navigate('AssetsEditing', {
-                    item:item
-                  })
-                } style={{ flexDirection: 'row', marginLeft: 5, marginRight: 5 }}>
-                  <Ionicons name="ios-create-outline" color='#ff8c00' size={16}></Ionicons><Text style={{ marginLeft: 0, color: '#ff8c00', fontSize: 13 }}>Modifica</Text>
-                </TouchableOpacity>
+            { item.asset_status_item != 0 ? <>
+                  { item.asset_status_item == 0 && userData.user_role == 3 ? null : <>
+                    <TouchableOpacity onPress={() =>
+                        navigation.navigate('AssetsEditing', {
+                          item:item
+                        })
+                      } style={{ flexDirection: 'row', marginLeft: 5, marginRight: 5 }}>
+                        <Ionicons name="ios-create-outline" color='#ff8c00' size={16}></Ionicons><Text style={{ marginLeft: 0, color: '#ff8c00', fontSize: 13 }}>Modifica</Text>
+                      </TouchableOpacity>
+                  </> }
                 { userData != null && userData.user_role != 3 ? 
                 <>
                   <TouchableOpacity onPress={() => deleteAsset(item?.item_id)} style={{ flexDirection: 'row', marginRight: 5, marginLeft: 5 }}>
@@ -263,8 +277,6 @@ const AssetsListing = ({ navigation }) => {
                   </TouchableOpacity>
                 </> : null }
             </> : null }
-            
-            
           </View>
         </View>
         </TouchableOpacity>

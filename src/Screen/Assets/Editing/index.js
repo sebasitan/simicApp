@@ -29,7 +29,7 @@ import * as Utility from '../../../Utility/inbdex';
 
 var fileImg = '../../../assets/images/file.png';
 
-const AssetsEditing = ({ navigation ,route}) => {
+const AssetsEditing = ({ navigation, route}) => {
 
     const {item}= route?.params;
     const [name, setName] = useState('');
@@ -55,6 +55,8 @@ const AssetsEditing = ({ navigation ,route}) => {
     const [userRole, setUserRole]=React.useState('');
     const [userData, setUserData]=React.useState([]);
     const [qrcode,setQrcode]=React.useState('');
+    const [bookingdata, setBookingData]=React.useState([]);
+    const [ reservationstatus, setReservationStatus] = React.useState(false);
 
     useEffect( () => {
       (
@@ -162,6 +164,10 @@ const AssetsEditing = ({ navigation ,route}) => {
             let itemsubcatlistjson = JSON.parse(itemsubcatdata);
             let itemchildcatdata = JSON.stringify(res?.data?.subsubcat);
             let itemchildcatlistjson = JSON.parse(itemchildcatdata);
+
+            let itembookingdata = JSON.stringify(res?.data?.book_upcoming);
+            let itembookingjson = JSON.parse(itembookingdata);
+            setBookingData(itembookingjson);
             //console.log(itemchildcatlistjson);
             setName(itemdetailjson?.item_name)
             setDrescription(itemdetailjson?.description)
@@ -179,6 +185,9 @@ const AssetsEditing = ({ navigation ,route}) => {
             setAssetFileURL(itemdetailjson?.item_instructions_url);
         
             setQrcode(itemdetailjson?.qr_code);
+            if(res?.data?.item_details?.bookingtoday > 0 ){
+                setReservationStatus(true);
+            }
 
             if(itemsubcatlistjson.length > 0 ){
                 let subcateories = itemsubcatlistjson.map(key => ({ value: key.id, label: key.category_name }));
@@ -189,6 +198,7 @@ const AssetsEditing = ({ navigation ,route}) => {
                 let childcateories = itemchildcatlistjson.map(key => ({ value: key.id, label: key.category_name }));
                 setChildCategoriesList(childcateories);
             }
+
           
         }else{
           Alert.alert(
@@ -646,7 +656,7 @@ const AssetsEditing = ({ navigation ,route}) => {
 
                 <View style={styles.inputConatiner}>
                     <Dropdown
-                        style={{ marginLeft: 10 }}
+                        style={{ backgroundColor: ( reservationstatus === true ) ? '#DDD' : '#F5FCFF88'}}
                         placeholderStyle={{ color: 'black' }}
                         selectedTextStyle={{ color: 'black' }}
                         inputSearchStyle={styles.inputSearchStyle}
@@ -659,13 +669,19 @@ const AssetsEditing = ({ navigation ,route}) => {
                         placeholder="Asset Status"
                         searchPlaceholder="Search..."
                         value={assetsName}
+                        disable={reservationstatus}
                         onChange={item => {
                             setStato(item);
                             setAssetsName(item?.value);
                         }}
                     />
                 </View>
-
+                { bookingdata.length > 0 ? <>
+                    <TouchableOpacity onPress={() => navigation.navigate('AssetUpcomingDates', { item:bookingdata} ) } style={{  backgroundColor: '#c568d5', justifyContent: 'center', alignItems: 'center', paddingTop: 10, paddingBottom: 10, marginTop: 10, flex: 1, flexDirection: 'row', marginLeft: 20, marginRight: 20, marginBottom: 10 }}>
+                        <Ionicons name="calendar-sharp" color='#222222' size={20}></Ionicons>
+                        <Text style={{ marginLeft: 5, color: '#222222', fontSize: 13 }}>CHECK RESERVATIONS</Text>
+                    </TouchableOpacity>
+                </> : null }
                 <View style={styles.inputConatiner}>
                     <Dropdown
                         style={{ marginLeft: 10 }}

@@ -85,6 +85,7 @@ const AssetsBooking=({navigation,route})=>{
     const [ disabledDates, setDisabledDates ] = React.useState(null);
     const [ timeDataHours, setTimeDataHours ] = React.useState([]);
     const [ disableStatus, setDisableStatus ] = React.useState(true);
+    const [ disabledTimes, setDisabledTimes ] = React.useState(null);
 
     const isFocused = useIsFocused();
 
@@ -92,56 +93,7 @@ const AssetsBooking=({navigation,route})=>{
         getUserdetails();
     },[isFocused]);
 
-    const timesData = [
-      { label: '12:00 AM', value: '0:00' },
-      { label: '12:30 AM', value: '0:30' },
-      { label: '01:00 AM', value: '1:00' },
-      { label: '01:30 AM', value: '1:30' },
-      { label: '02:00 AM', value: '2:00' },
-      { label: '02:30 AM', value: '2:30' },
-      { label: '03:00 AM', value: '3:00' },
-      { label: '03:30 AM', value: '3:30' },
-      { label: '04:00 AM', value: '4:00' },
-      { label: '04:30 AM', value: '4:30' },
-      { label: '05:00 AM', value: '5:00' },
-      { label: '05:30 AM', value: '5:30' },
-      { label: '06:00 AM', value: '6:00' },
-      { label: '06:30 AM', value: '6:30' },
-      { label: '07:00 AM', value: '7:00' },
-      { label: '07:30 AM', value: '7:30' },
-      { label: '08:00 AM', value: '8:00' },
-      { label: '08:30 AM', value: '8:30' },
-      { label: '09:00 AM', value: '9:00' },
-      { label: '09:30 AM', value: '9:30' },
-      { label: '10:00 AM', value: '10:00' },
-      { label: '10:30 AM', value: '10:30' },
-      { label: '11:00 AM', value: '11:00' },
-      { label: '11:30 AM', value: '11:30' },
-      { label: '12:00 PM', value: '12:00' },
-      { label: '12:30 PM', value: '12:30' },
-      { label: '01:00 PM', value: '13:00' },
-      { label: '01:30 PM', value: '13:30' },
-      { label: '02:00 PM', value: '14:00' },
-      { label: '02:30 PM', value: '14:30' },
-      { label: '03:00 PM', value: '15:00' },
-      { label: '03:30 PM', value: '15:30' },
-      { label: '04:00 PM', value: '16:00' },
-      { label: '04:30 PM', value: '16:30' },
-      { label: '05:00 PM', value: '17:00' },
-      { label: '05:30 PM', value: '17:30' },
-      { label: '06:00 PM', value: '18:00' },
-      { label: '06:30 PM', value: '18:30' },
-      { label: '07:00 PM', value: '19:00' },
-      { label: '07:30 PM', value: '19:30' },
-      { label: '08:00 PM', value: '20:00' },
-      { label: '08:30 PM', value: '20:30' },
-      { label: '09:00 PM', value: '21:00' },
-      { label: '09:30 PM', value: '21:30' },
-      { label: '10:00 PM', value: '22:00' },
-      { label: '10:30 PM', value: '22:30' },
-      { label: '11:00 PM', value: '23:00' },
-      { label: '11:30 PM', value: '23:30' },
-    ];
+    const timesData = ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00'];
 
     const getUserdetails = async() => {
         let id=await Utility.getFromLocalStorge('userToken');
@@ -236,23 +188,20 @@ const AssetsBooking=({navigation,route})=>{
                   'Content-Type': 'multipart/form-data',
                 },
               }).then(res => {
-                //console.log("vikas asset_booking page..",res)
-                setLoader(false)
-                //console.log("vikas asset_booking page..",res)
+                setLoader(false);
+                //console.log(res?.data);
                 if(res.data.status == 1){
                   alert("Assets Booking Successfully")
-                  //navigation.goBack()
                   navigation.navigate('DrawerNavigation')
                 }else{
                   Alert.alert(
                     "Warning",
-                    "Somthing went wrong, Try Again",
+                    res.data.message,
                     [
                     { text: "OK" }
                     ]
                   );
                 }
-              
               }).catch(e => {
                 setLoader(false)
                 Alert.alert(
@@ -308,8 +257,81 @@ const AssetsBooking=({navigation,route})=>{
     }
 
     const checkStartDateisAvail = (date) => {
+      let timeslot = [];
+      let formData = {
+        item_id : item?.item_id,
+        date: date
+      };
+      axios({
+        url: `${API_BASE_URL}bookchecktime`,
+        method: 'POST',
+        data: formData,
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'multipart/form-data',
+        },
+      }).then(res => {
+        if( res?.data?.status == 1 ){
+          //console.log(res?.data?.asset_time);
+          let disableDays = res?.data?.asset_time;
+          let array3 = timesData.filter(entry1 => !disableDays.some(entry2 => entry1 === entry2));
+          if(array3.length > 0 ){
+            for( i = 0; i < array3.length; i++ ){
+              let n = array3[i].split(':');
+              let pre_time = n[0];
+              pre_time = pre_time.replace(/^0+/, '');
+              if( pre_time >= 12 ){
+                let session = 'PM';
+                if( pre_time == 12 ){
+                  timeslot.push( { 'label': pre_time +':00 '+ session, 'value' : pre_time + ':00'} );
+                }else{
+                  let cur_time = pre_time - 12;
+                  timeslot.push( { 'label': cur_time +':00 '+ session, 'value' : pre_time + ':00'} );
+                }
+              }else{
+                let session = 'AM';
+                if(pre_time != ''){
+                  timeslot.push( { 'label': pre_time +':00 '+ session, 'value' : pre_time + ':00'} );
+                }else{
+                  timeslot.push( { 'label': '12:00 '+ session, 'value' : '00:00'} );
+                }
+              }
+            }
+          }
+        }else{
+          for( i = 0; i < 24; i++ ){
+            if( i >= 12){
+              let session = 'PM';
+              if( i == 12 ){
+                timeslot.push( { 'label': i +':00 '+ session, 'value' : i + ':00'} );
+              }else{
+                let cur_time = i - 12;
+                timeslot.push( { 'label': cur_time +':00 '+ session, 'value' : i + ':00'} );
+              }
+              
+            }else{
+              let session = 'AM';
+              if(i != 0){
+                timeslot.push( { 'label': i +':00 '+ session, 'value' : i + ':00'} );
+              }else{
+                timeslot.push( { 'label': '12:00 '+ session, 'value' : '00:00'} );
+              }
+            }
+          }
+        }
+        //console.log(timeslot);
+      }).catch(e => {
+        Alert.alert(
+          "Warning",
+          "Somthing went wrong, Try Again",
+            [
+            { text: "OK" }
+          ]
+        );
+      });
+
       setStartDate(date);
-      setTimeDataHours(timesData);
+      setTimeDataHours(timeslot);
       setDisableStatus(false);
     };
 
@@ -363,38 +385,93 @@ const AssetsBooking=({navigation,route})=>{
     }
 
     const checkEndDateisAvail = (date) => {
-      if( date == startDate ){
-        setTimeDataHours([]);
+        let timeslot = [];
+
         let split_time = startTime.split(':');
         let hours = split_time[0];
-        let min = split_time[1];
-        let x = 30; //minutes interval
-        let times = []; // time array
-        let tt = 0; // start time
-        let ap = ['AM', 'PM']; // AM-PM
-        let cur_time;
-        let cur_val;
-        for (var i = 0; tt < 24*60; i++) {
-          var hh = Math.floor(tt/60); // getting hours of day in 0-24 format
-          var mm = (tt%60); // getting minutes of the hour in 0-55 format
-          //times[i] = ("0" + (hh % 12)).slice(-2) + ':' + ("0" + mm).slice(-2) + ap[Math.floor(hh/12)]; // pushing data in array in [00:00 - 12:00 AM/PM format]
-          if( hh == 12 || hh == 0 ){
-            cur_time = 12 + ':' + ("0" + mm).slice(-2) +' '+ ap[Math.floor(hh/12)];
-            cur_val = (hh % 12) + ':' + ("0" + mm).slice(-2);
-          }else{
-            cur_time = (hh % 12) + ':' + ("0" + mm).slice(-2) +' '+ ap[Math.floor(hh/12)];
-            cur_val = (hh % 12) + ':' + ("0" + mm).slice(-2);
-          }
-          
-          if( hh > hours){
-            times.push({ 'label': cur_time, 'value': cur_val });
-          }
-          tt = tt + x;
-        }
-        setTimeDataHours(times);
-      }else{
-        setTimeDataHours(timesData);
-      }
+        console.log(hours);
+
+        let formData = {
+            item_id : item?.item_id,
+            date: date
+        };
+          axios({
+            url: `${API_BASE_URL}bookchecktime`,
+            method: 'POST',
+            data: formData,
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'multipart/form-data',
+            },
+          }).then(res => {
+            if( res?.data?.status == 1 ){
+                let disableDays = res?.data?.asset_time;
+                if( startDate == date ){
+                    disableDays.push({startTime});
+                }
+                
+                let array3 = timesData.filter(entry1 => !disableDays.some(entry2 => entry1 === entry2));
+                //console.log(array3);
+                if(array3.length > 0 ){
+                  for( i = 0; i < array3.length; i++ ){
+                    let n = array3[i].split(':');
+                    let pre_time = n[0];
+                    pre_time = pre_time.replace(/^0+/, '');
+                    if( i > hours ){
+                      if( pre_time >= 12 ){
+                        let session = 'PM';
+                        if( pre_time == 12 ){
+                          timeslot.push( { 'label': pre_time +':00 '+ session, 'value' : pre_time + ':00'} );
+                        }else{
+                          let cur_time = pre_time - 12;
+                          timeslot.push( { 'label': cur_time +':00 '+ session, 'value' : pre_time + ':00'} );
+                        }
+                        
+                      }else{
+                        let session = 'AM';
+                        if(pre_time != ''){
+                          timeslot.push( { 'label': pre_time +':00 '+ session, 'value' : pre_time + ':00'} );
+                        }else{
+                          timeslot.push( { 'label': '12:00 '+ session, 'value' : '00:00'} );
+                        }
+                      }
+                    }
+                  }
+                }
+              }else{
+                for( i = 0; i < 24; i++ ){
+                  if( i > hours ){
+                    if( i >= 12){
+                      let session = 'PM';
+                      if( i == 12 ){
+                        timeslot.push( { 'label': i +':00 '+ session, 'value' : i + ':00'} );
+                      }else{
+                        let cur_time = i - 12;
+                        timeslot.push( { 'label': cur_time +':00 '+ session, 'value' : i + ':00'} );
+                      }
+                      
+                    }else{
+                      let session = 'AM';
+                      if(i != 0){
+                        timeslot.push( { 'label': i +':00 '+ session, 'value' : i + ':00'} );
+                      }else{
+                        timeslot.push( { 'label': '12:00 '+ session, 'value' : '00:00'} );
+                      }
+                    }
+                  }
+                }
+              }
+              //console.log(timeslot);
+            }).catch(e => {
+              Alert.alert(
+                "Warning",
+                "Somthing went wrong, Try Again",
+                  [
+                  { text: "OK" }
+                ]
+          );
+      });
+      setTimeDataHours(timeslot);
       setEndDate(date);
       setDisableStatus(false);
     }
@@ -422,6 +499,7 @@ const AssetsBooking=({navigation,route})=>{
                         <Text style={{ fontSize: 12 }}><Title style={{ fontSize: 12, color: 'black', lineHeight: 20 }}>Nome articolo: </Title>{item?.asset_name}</Text>
                         <Text style={{ fontSize: 12 }}><Title style={{ fontSize: 12, color: 'black', lineHeight: 20 }}>Nome posizione: </Title>{item?.location_use}</Text>
                         <Text style={{ fontSize: 12 }}><Title style={{ fontSize: 12, color: 'black', lineHeight: 20}}>Data da: </Title>{item?.date_from}</Text>
+                        <Text style={{ fontSize: 12 }}><Title style={{ fontSize: 12, color: 'black', lineHeight: 20}}>Data d: </Title>{item?.date_to}</Text>
                         <Text style={{ fontSize: 12 }}><Title style={{ fontSize: 12, color: 'black', lineHeight: 20}}>Descrizione: </Title>{item?.description}</Text>
                     </View>
                 </View>
@@ -491,6 +569,9 @@ const AssetsBooking=({navigation,route})=>{
                 if( startDate != null ){
                   setStartDateTime(moment(startDate).format('DD-MM-YYYY') +' '+ item?.label);
                   setStartTime(item?.value);
+                  setEndDate(null);
+                  setEndTime(null);
+                  setEndDateTime(null);
                 }else{
                   Alert.alert(
                     "Warning",

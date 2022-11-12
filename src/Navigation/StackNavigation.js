@@ -11,6 +11,7 @@ import AssetsMaintance from "../Screen/Assets/AssetMaintance";
 import AssetsHistory from '../Screen/Assets/AssetsHistory';
 import AssetViewScreen from '../Screen/Assets/View';
 import AssetTrash from "../Screen/Assets/Trash";
+import AssetUpcomingDates from "../Screen/Assets/AssestsBooking/reservations";
 import QRCodeItemAdd from "../Screen/Assets/Addition/qritemadd";
 
 import DocumentAddition from '../Screen/Documents/Addition';
@@ -60,6 +61,7 @@ const StackAuthNavigator = () => {
            <Stack.Screen name="QRCodeScreen" component={QRCodeScreen} options={{title:'Scanner di codici qr', headerTintColor:'white', headerStyle:{backgroundColor:'#04487b'}}}/>
            <Stack.Screen name="QRCodeNotFound" component={QRCodeNotFound} options={{title:'Non trovato', headerTintColor:'white', headerStyle:{backgroundColor:'#04487b'}}}/>
            <Stack.Screen name="QRCodeItemAdd" component={QRCodeItemAdd} options={{title:'Aggiungi nuovo oggetto', headerTintColor:'white', headerStyle:{backgroundColor:'#04487b'}}}/>
+           <Stack.Screen name="AssetUpcomingDates" component={AssetUpcomingDates} options={{title:'Prenotazioni Attive', headerTintColor:'white', headerStyle:{backgroundColor:'#04487b'}}}/>
         </Stack.Navigator>
     )
 }

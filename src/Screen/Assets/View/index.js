@@ -31,6 +31,7 @@ const AssetViewScreen = ({route, navigation}) => {
   const [assetsHistorys,setAssetsHistory]=React.useState([])
   const [assetsMaintainces,setAssetsMaintainces]=React.useState([])
   const [bookingHistory,setBookingHistory]=React.useState([]);
+  const [upcomingDates, setUpcomingDates] = useState([]);
   const [userRole, setUserRole] = React.useState(null);
 
   var fileImg = '../../../assets/images/file.png';
@@ -68,10 +69,12 @@ const AssetViewScreen = ({route, navigation}) => {
           },
       }).then(res => {
         setLoader(false);
+        //console.log(res?.data);
         if(res.data.status == 1){
           let itemdetail = JSON.stringify(res?.data?.item_details);
           let itemdetailjson = JSON.parse(itemdetail);
           setItemDetails(itemdetailjson);
+          //console.log(itemDetails);
           let itemdetail1 = JSON.stringify(res?.data?.item_history);
           let itemdetailjson1 = JSON.parse(itemdetail1);
           setAssetsHistory(itemdetailjson1);
@@ -82,9 +85,14 @@ const AssetViewScreen = ({route, navigation}) => {
           let itemdetailjson3 = JSON.parse(itemdetail3);
           setBookingHistory(itemdetailjson3);
 
-          let itemlocation = JSON.stringify(res.data.item_details.location_details.location);
+          let itemlocation = JSON.stringify(res?.data?.item_details?.location_details.location);
           let itemlocationjson = JSON.parse(itemlocation);
           setItemLocation(itemlocationjson);
+
+          let itemupcomingdates = JSON.stringify(res?.data?.book_upcoming);
+          let itemupcomingdatesjson = JSON.parse(itemupcomingdates);
+          setUpcomingDates(itemupcomingdatesjson);
+
         }else{
           Alert.alert(
               "Warning",
@@ -232,7 +240,14 @@ const AssetViewScreen = ({route, navigation}) => {
                   </TouchableOpacity>
                 </> : null }
               </View>
-              { itemDetails.status != 0 ? <>
+              { upcomingDates.length > 0 ? <> 
+                <TouchableOpacity onPress={() => navigation.navigate('AssetUpcomingDates', { item:upcomingDates} ) } style={{  backgroundColor: '#c568d5', justifyContent: 'center', alignItems: 'center', paddingTop: 10, paddingBottom: 10, marginTop: 10, flex: 1, flexDirection: 'row' }}>
+                    <Ionicons name="calendar-sharp" color='#FFFFFF' size={20}></Ionicons>
+                    <Text style={{ marginLeft: 5, color: '#FFFFFF', fontSize: 13 }}>Prenotazioni Attive</Text>
+                </TouchableOpacity>
+              </> : null }
+                
+              { itemDetails.asset_status_item != 0 ? <>
                 <TouchableOpacity onPress={() =>
                     navigation.navigate('AssetsEditing', {
                       item:itemDetails
