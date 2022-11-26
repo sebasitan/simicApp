@@ -19,8 +19,11 @@ const AssetUpcomingDates = ({navigation, route }) => {
                 <View style={{ flexDirection: 'row'}}>
                     <Ionicons name="calendar-sharp" color='#04487b' size={60}></Ionicons>
                     <View style={{ flexDirection: 'column', justifyContent: 'center'}}>
-                        <Text style={{ marginLeft: 10, color: '#333' }}>From Date: <Text style={{ color: '#000', fontWeight: '500' }}>{ moment(item.date_from).format('DD/MM/YYYY hh:mm:ss') }</Text></Text>
-                        <Text style={{ marginLeft: 10, color: '#333', marginTop: 8 }}>End Date: <Text style={{ color: '#000', fontWeight: '500' }}>{ moment(item.date_to).format('DD/MM/YYYY hh:mm:ss') }</Text></Text>
+                    { item.user_name != '' ? <> 
+                        <Text style={{ marginLeft: 10, color: '#333', marginBottom: 5 }}>Username: <Text style={{ color: '#000', fontWeight: '500' }}>{ item.user_name }</Text></Text>
+                    </> : null }
+                        <Text style={{ marginLeft: 10, color: '#333' }}>From Date: <Text style={{ color: '#000', fontWeight: '500' }}>{ item?.date_from }</Text></Text>
+                        <Text style={{ marginLeft: 10, color: '#333', marginTop: 8 }}>End Date: <Text style={{ color: '#000', fontWeight: '500' }}>{ item?.date_to }</Text></Text>
                     </View>
                 </View>
                 { item.description != '' ? <> 

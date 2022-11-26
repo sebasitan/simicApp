@@ -9,14 +9,16 @@ import {
     ActivityIndicator,
     Image,
     TouchableOpacity,
-    TextInput,
     ScrollView,
     PermissionsAndroid
 } from 'react-native';
 
+import { TextInput, Title } from "react-native-paper";
+
 import ImagePicker from 'react-native-image-crop-picker';
 
 import DocumentPicker from "react-native-document-picker";
+
 import RNFetchBlob from 'rn-fetch-blob';
 
 import axios from "axios";
@@ -557,11 +559,15 @@ const AssetsEditing = ({ navigation, route}) => {
                 { userRole == 3 ? null : <>
                     <View style={styles.inputConatiner}>
                         <TextInput
-                            style={{ height: 40, marginLeft: 10 }}
-                            placeholder="Nome articolo"
-                            value={name}
-                            placeholderTextColor="black"
+                             label='Nome articolo' 
+                             placeholder='Nome articolo' 
+                             style={{ width: '88%', alignSelf: 'center' }}
+                             placeholderTextColor="black"
+                             pointerEvents="none"
+                             mode="outlined"
+                             theme={{ colors: { primary: '#04487b', underlineColor: 'yellow', accent: '#99e8e4' } }}
                             onChangeText={newText => setName(newText)}
+                            value={name}
                         />
                     </View>
                     
@@ -570,17 +576,22 @@ const AssetsEditing = ({ navigation, route}) => {
                 {userRole == 3 ? null : <>
                     <View style={styles.inputConatiner}>
                         <TextInput
-                            style={{ height: 40, marginLeft: 10 }}
-                            placeholder="Descrizione"
-                            value={description}
+                            label='Descrizione' 
+                            placeholder='Descrizione' 
+                            style={{ width: '88%', alignSelf: 'center' }}
                             placeholderTextColor="black"
+                            pointerEvents="none"
+                            mode="outlined"
+                            theme={{ colors: { primary: '#04487b', underlineColor: 'yellow', accent: '#99e8e4' } }}
                             onChangeText={newText => setDrescription(newText)}
+                            value={description}
                         />
                     </View>
                 </> }
                 
                 { userRole == 3 ? null : <>
-                    <View style={styles.inputConatiner}>
+                    <View style={styles.dropDownConatiner}>
+                        <Text>Categorie</Text>
                         <Dropdown
                             style={{ marginLeft: 10 }}
                             placeholderStyle={{ color: 'black' }}
@@ -605,7 +616,8 @@ const AssetsEditing = ({ navigation, route}) => {
                 </> }
                 
                 { userRole == 3 ? null : <>
-                    <View style={styles.inputConatiner}>
+                    <View style={styles.dropDownConatiner}>
+                        <Text>Sotto categoria</Text>
                         <Dropdown
                             style={{ marginLeft: 10 }}
                             placeholderStyle={{ color: 'black' }}
@@ -618,7 +630,7 @@ const AssetsEditing = ({ navigation, route}) => {
                             search
                             labelField="label"
                             valueField="value"
-                            placeholder="Categorie"
+                            placeholder="Sottocategoria"
                             searchPlaceholder="Search..."
                             onChange={item => {
                                 callChildCategoryApi(item?.value);
@@ -630,7 +642,8 @@ const AssetsEditing = ({ navigation, route}) => {
                 </> }
 
                 { userRole == 3 ? null : <>
-                    <View style={styles.inputConatiner}>
+                    <View style={styles.dropDownConatiner}>
+                        <Text>Terza categoria</Text>
                         <Dropdown
                             style={{ marginLeft: 10 }}
                             placeholderStyle={{ color: 'black' }}
@@ -654,7 +667,8 @@ const AssetsEditing = ({ navigation, route}) => {
                     
                 </> }
 
-                <View style={styles.inputConatiner}>
+                <View style={styles.dropDownConatiner}>
+                    <Text>Asset Status</Text>
                     <Dropdown
                         style={{ backgroundColor: ( reservationstatus === true ) ? '#DDD' : '#F5FCFF88'}}
                         placeholderStyle={{ color: 'black' }}
@@ -677,12 +691,13 @@ const AssetsEditing = ({ navigation, route}) => {
                     />
                 </View>
                 { bookingdata.length > 0 ? <>
-                    <TouchableOpacity onPress={() => navigation.navigate('AssetUpcomingDates', { item:bookingdata} ) } style={{  backgroundColor: '#c568d5', justifyContent: 'center', alignItems: 'center', paddingTop: 10, paddingBottom: 10, marginTop: 10, flex: 1, flexDirection: 'row', marginLeft: 20, marginRight: 20, marginBottom: 10 }}>
-                        <Ionicons name="calendar-sharp" color='#222222' size={20}></Ionicons>
-                        <Text style={{ marginLeft: 5, color: '#222222', fontSize: 13 }}>CHECK RESERVATIONS</Text>
+                    <TouchableOpacity onPress={() => navigation.navigate('AssetUpcomingDates', { item:bookingdata} ) } style={{  backgroundColor: '#c568d5', justifyContent: 'center', alignItems: 'center', paddingTop: 10, paddingBottom: 10, marginTop: 10, flex: 1, flexDirection: 'row', marginLeft: 25, marginRight: 25, marginBottom: 0 }}>
+                        <Ionicons name="calendar-sharp" color='#FFFFFF' size={20}></Ionicons>
+                        <Text style={{ marginLeft: 5, color: '#FFFFFF', fontSize: 13 }}>Controlla Prenotazioni</Text>
                     </TouchableOpacity>
                 </> : null }
-                <View style={styles.inputConatiner}>
+                <View style={styles.dropDownConatiner}>
+                    <Text>Posizione</Text>
                     <Dropdown
                         style={{ marginLeft: 10 }}
                         placeholderStyle={{ color: 'black' }}
@@ -706,10 +721,14 @@ const AssetsEditing = ({ navigation, route}) => {
 
                 <View style={styles.inputConatiner}>
                     <TextInput
-                        style={{ height: 80, marginLeft: 10 }}
-                        placeholder="Notes"
-                        value={notes}
+                        label='Notes' 
+                        placeholder='Notes' 
+                        style={{ width: '88%', alignSelf: 'center', height: 80 }}
                         placeholderTextColor="black"
+                        pointerEvents="none"
+                        mode="outlined"
+                        theme={{ colors: { primary: '#04487b', underlineColor: 'yellow', accent: '#99e8e4' } }}
+                        value={notes}
                         onChangeText={newText => setNotes(newText)}
                     />
                 </View>
@@ -756,7 +775,17 @@ const styles = StyleSheet.create({
         paddingLeft: 15,
         paddingRight: 15,
     },
-    inputConatiner: { borderWidth: 1, alignSelf: 'center', width: '90%', margin: 10, borderRadius: 5,padding: 5 },
+    inputConatiner: { 
+        marginTop:10,
+        marginBottom: 5,
+    },
+    dropDownConatiner:{
+        borderWidth:1,
+        marginHorizontal:25,
+        marginTop:20,
+        borderRadius:5,
+        padding:5,
+    },
     itemStyle: {
         padding: 10,
     },
